@@ -11,6 +11,11 @@ from .room_rent import estimate_room_rent
 
 DUBAI_CENTER = (25.2048, 55.2708)
 
+# AED is pegged to USD (~3.6725), but EUR/USD floats — so unlike the AED figures
+# throughout this project (which come straight from listings), this rate drifts and
+# should be refreshed periodically. Confirmed live Sept 2026: 1 EUR = 4.2622 AED.
+EUR_PER_AED = 1 / 4.2622
+
 # Burj Khalifa silhouette (stepped taper + spire) on a sunset gradient — reads clearly
 # even at 16x16, verified by rendering it at 16/32/64/128px before wiring it in.
 FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -71,6 +76,7 @@ PAGE_TEMPLATE = """<!doctype html>
   .source {{ font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }}
   .sublet {{ font-size: 0.78rem; color: var(--muted); background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; padding: 6px 8px; margin-top: 2px; }}
   .sublet b {{ color: var(--text); }}
+  .sublet .fx {{ opacity: 0.7; font-size: 0.9em; }}
   a.card {{ text-decoration: none; color: inherit; }}
   a.card:hover {{ border-color: var(--accent); }}
   .empty {{ color: var(--muted); padding: 40px 0; text-align: center; }}
@@ -85,7 +91,7 @@ PAGE_TEMPLATE = """<!doctype html>
   <h1>Dubai Flat Scanner</h1>
   <div class="meta">Last updated {generated_at} &middot; {count} matching listings</div>
   <div class="criteria">Budget &le; {max_price} AED/month &middot; {bedrooms} bed / {bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days</div>
-  <div class="criteria">Each card also shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out &mdash; ballpark figures from market research, not live data; see the README for methodology.</div>
+  <div class="criteria">Each card also shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out, in EUR (AED alongside) &mdash; ballpark figures from market research, not live data; see the README for methodology.</div>
 </header>
 <main>
   <div class="view-toggle" role="tablist">
@@ -176,7 +182,7 @@ CARD_TEMPLATE = """
     <div class="price">{price} AED/mo</div>
     <div class="title">{title}</div>
     <div class="area">{area}</div>
-    <div class="sublet">Sublet a room (winter): ~{room_typical}&ndash;{room_max} AED/mo &rarr; <b>you'd pay ~{net_best}&ndash;{net_typical}/mo net</b></div>
+    <div class="sublet">Sublet a room (winter): ~&euro;{room_typical_eur}&ndash;{room_max_eur}/mo <span class="fx">(AED {room_typical}&ndash;{room_max})</span> &rarr; <b>you'd pay ~&euro;{net_best_eur}&ndash;{net_typical_eur}/mo net</b> <span class="fx">(AED {net_best}&ndash;{net_typical})</span></div>
     <div class="row">
       <div class="badges">
         {preferred_badge}
@@ -189,6 +195,16 @@ CARD_TEMPLATE = """
 
 
 def _fmt_price(v: float | None) -> str:
+    if v is None:
+        return "?"
+    return f"{v:,.0f}"
+
+
+def _to_eur(aed: float | None) -> float | None:
+    return aed * EUR_PER_AED if aed is not None else None
+
+
+def _fmt_eur(v: float | None) -> str:
     if v is None:
         return "?"
     return f"{v:,.0f}"
@@ -211,11 +227,20 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
         else:
             net_typical = net_best = None
 
+        room_typical_eur = _to_eur(room_typical)
+        room_max_eur = _to_eur(room_max)
+        net_typical_eur = _to_eur(net_typical)
+        net_best_eur = _to_eur(net_best)
+
         d = l.to_dict()
         d["est_room_rent_typical_aed"] = room_typical
         d["est_room_rent_max_aed"] = room_max
         d["net_cost_typical_aed"] = net_typical
         d["net_cost_best_case_aed"] = net_best
+        d["est_room_rent_typical_eur"] = room_typical_eur
+        d["est_room_rent_max_eur"] = room_max_eur
+        d["net_cost_typical_eur"] = net_typical_eur
+        d["net_cost_best_case_eur"] = net_best_eur
         data.append(d)
 
         cards_html.append(
@@ -225,6 +250,10 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
                 price=_fmt_price(l.price_monthly_aed),
                 title=l.title,
                 area=l.area,
+                room_typical_eur=_fmt_eur(room_typical_eur),
+                room_max_eur=_fmt_eur(room_max_eur),
+                net_best_eur=_fmt_eur(net_best_eur),
+                net_typical_eur=_fmt_eur(net_typical_eur),
                 room_typical=_fmt_price(room_typical),
                 room_max=_fmt_price(room_max),
                 net_best=_fmt_price(net_best),
