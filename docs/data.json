@@ -1,38 +1,6 @@
 [
   {
     "source": "propertyfinder",
-    "source_id": "137433714",
-    "title": "2 BED-BALCONY-GAS AND CHILLER FREE-AMC INC-12 CHQS",
-    "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137433714.html",
-    "price_monthly_aed": 5950.0,
-    "bedrooms": 2,
-    "bathrooms": 2,
-    "area": "Hanover Square, District 10, Jumeirah Village Circle, Dubai",
-    "image_url": "https://static.shared.propertyfinder.ae/media/images/listing/NJ1Y87030SQ4KBXZPVY347WZ8C/8619b25d-116e-4b6a-a287-693068d00731/668x452.jpg?v=e01aa88d4fa7ed48bacc801df14a935c",
-    "listed_at": "2026-08-29T09:18:27Z",
-    "latitude": 25.068262100219727,
-    "longitude": 55.20476531982422,
-    "scraped_at": "2026-09-05T11:26:51.864798+00:00",
-    "id": "6e61bdae8a578687"
-  },
-  {
-    "source": "propertyfinder",
-    "source_id": "137431154",
-    "title": "GAS AND CHILLER FREE-12 CHQS-AMC INC-VACANT NOW",
-    "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137431154.html",
-    "price_monthly_aed": 5950.0,
-    "bedrooms": 2,
-    "bathrooms": 2,
-    "area": "Hanover Square, District 10, Jumeirah Village Circle, Dubai",
-    "image_url": "https://static.shared.propertyfinder.ae/media/images/listing/TGTX3F5VDQP71PCD2M103T73ZR/0b70c9a1-bf30-4d0f-a62d-2b3d76c94d20/668x452.jpg?v=4e5abec722a4724d20d997d1434e2379",
-    "listed_at": "2026-08-29T08:24:07Z",
-    "latitude": 25.068262100219727,
-    "longitude": 55.20476531982422,
-    "scraped_at": "2026-09-05T11:26:51.864806+00:00",
-    "id": "d7e5caec661c3143"
-  },
-  {
-    "source": "propertyfinder",
     "source_id": "132941531",
     "title": "2 Bedroom Hall | Free Parking | Near Madian Mall",
     "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-s-s-lootah-building-muhaisnah-4-132941531.html",
@@ -44,8 +12,12 @@
     "listed_at": "2026-08-20T03:59:48Z",
     "latitude": 25.28350257873535,
     "longitude": 55.399356842041016,
-    "scraped_at": "2026-09-05T11:26:39.703362+00:00",
-    "id": "13ebe5538546c4f8"
+    "scraped_at": "2026-09-05T11:37:52.407163+00:00",
+    "id": "13ebe5538546c4f8",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2133.333333333333,
+    "net_cost_best_case_aed": 833.333333333333
   },
   {
     "source": "propertyfinder",
@@ -60,8 +32,12 @@
     "listed_at": "2026-08-15T08:30:39Z",
     "latitude": 25.28142547607422,
     "longitude": 55.40922164916992,
-    "scraped_at": "2026-09-05T11:26:39.703387+00:00",
-    "id": "619be6df0805694b"
+    "scraped_at": "2026-09-05T11:37:52.407188+00:00",
+    "id": "619be6df0805694b",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -76,8 +52,12 @@
     "listed_at": "2026-08-26T10:07:37Z",
     "latitude": 25.282108306884766,
     "longitude": 55.4080810546875,
-    "scraped_at": "2026-09-05T11:26:39.703395+00:00",
-    "id": "721fbb9ddd69e539"
+    "scraped_at": "2026-09-05T11:37:52.407196+00:00",
+    "id": "721fbb9ddd69e539",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -92,8 +72,12 @@
     "listed_at": "2026-09-03T11:55:36Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:39.703427+00:00",
-    "id": "d72bfcdccde1ab8f"
+    "scraped_at": "2026-09-05T11:37:52.407229+00:00",
+    "id": "d72bfcdccde1ab8f",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2300.0,
+    "net_cost_best_case_aed": 1000.0
   },
   {
     "source": "propertyfinder",
@@ -108,8 +92,12 @@
     "listed_at": "2026-08-31T18:04:48Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:39.703447+00:00",
-    "id": "33696e7472a458c4"
+    "scraped_at": "2026-09-05T11:37:52.407253+00:00",
+    "id": "33696e7472a458c4",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -124,8 +112,12 @@
     "listed_at": "2026-08-14T08:06:24Z",
     "latitude": 25.27574920654297,
     "longitude": 55.32229995727539,
-    "scraped_at": "2026-09-05T11:26:39.703452+00:00",
-    "id": "da7de1eec2d57e52"
+    "scraped_at": "2026-09-05T11:37:52.407257+00:00",
+    "id": "da7de1eec2d57e52",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -140,8 +132,12 @@
     "listed_at": "2026-08-20T04:02:27Z",
     "latitude": 25.28350257873535,
     "longitude": 55.399356842041016,
-    "scraped_at": "2026-09-05T11:26:39.703456+00:00",
-    "id": "b41bc1fdbe57283e"
+    "scraped_at": "2026-09-05T11:37:52.407261+00:00",
+    "id": "b41bc1fdbe57283e",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -156,8 +152,12 @@
     "listed_at": "2026-08-31T19:08:21Z",
     "latitude": 25.297285079956055,
     "longitude": 55.36249923706055,
-    "scraped_at": "2026-09-05T11:26:39.703460+00:00",
-    "id": "d10ba0f39f7b446c"
+    "scraped_at": "2026-09-05T11:37:52.407266+00:00",
+    "id": "d10ba0f39f7b446c",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -172,8 +172,12 @@
     "listed_at": "2026-08-20T10:59:09Z",
     "latitude": 25.2952938079834,
     "longitude": 55.370697021484375,
-    "scraped_at": "2026-09-05T11:26:39.703465+00:00",
-    "id": "c0cbf1c6adc6806a"
+    "scraped_at": "2026-09-05T11:37:52.407270+00:00",
+    "id": "c0cbf1c6adc6806a",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -188,8 +192,12 @@
     "listed_at": "2026-08-11T07:56:18Z",
     "latitude": 25.29561424255371,
     "longitude": 55.3796272277832,
-    "scraped_at": "2026-09-05T11:26:40.541714+00:00",
-    "id": "cbc8820d59c5bc74"
+    "scraped_at": "2026-09-05T11:37:53.061114+00:00",
+    "id": "cbc8820d59c5bc74",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -204,8 +212,12 @@
     "listed_at": "2026-08-06T15:07:32Z",
     "latitude": 25.222803115844727,
     "longitude": 55.270713806152344,
-    "scraped_at": "2026-09-05T11:26:40.541739+00:00",
-    "id": "4b51271d731453af"
+    "scraped_at": "2026-09-05T11:37:53.061139+00:00",
+    "id": "4b51271d731453af",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1383.333333333333,
+    "net_cost_best_case_aed": 83.33333333333303
   },
   {
     "source": "propertyfinder",
@@ -220,8 +232,12 @@
     "listed_at": "2026-08-20T11:59:21Z",
     "latitude": 25.05889892578125,
     "longitude": 55.22414016723633,
-    "scraped_at": "2026-09-05T11:26:40.541745+00:00",
-    "id": "a2f9a7af33968f57"
+    "scraped_at": "2026-09-05T11:37:53.061144+00:00",
+    "id": "a2f9a7af33968f57",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -236,8 +252,12 @@
     "listed_at": "2026-09-05T07:40:35Z",
     "latitude": 25.276981353759766,
     "longitude": 55.37242889404297,
-    "scraped_at": "2026-09-05T11:26:40.541762+00:00",
-    "id": "00587e75a8a82bc9"
+    "scraped_at": "2026-09-05T11:37:53.061163+00:00",
+    "id": "00587e75a8a82bc9",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -252,8 +272,12 @@
     "listed_at": "2026-08-09T09:10:59Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:40.541767+00:00",
-    "id": "b01a5db870f99098"
+    "scraped_at": "2026-09-05T11:37:53.061167+00:00",
+    "id": "b01a5db870f99098",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2466.666666666667,
+    "net_cost_best_case_aed": 1166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -268,8 +292,12 @@
     "listed_at": "2026-08-14T11:05:59Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:40.541777+00:00",
-    "id": "1c44a4e411355b26"
+    "scraped_at": "2026-09-05T11:37:53.061177+00:00",
+    "id": "1c44a4e411355b26",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2550.0,
+    "net_cost_best_case_aed": 1250.0
   },
   {
     "source": "propertyfinder",
@@ -284,8 +312,12 @@
     "listed_at": "2026-08-10T10:39:39Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:40.541781+00:00",
-    "id": "e770fdee30719cf6"
+    "scraped_at": "2026-09-05T11:37:53.061181+00:00",
+    "id": "e770fdee30719cf6",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1550.0,
+    "net_cost_best_case_aed": 250.0
   },
   {
     "source": "propertyfinder",
@@ -300,8 +332,12 @@
     "listed_at": "2026-08-27T08:13:35Z",
     "latitude": 25.29547882080078,
     "longitude": 55.3818244934082,
-    "scraped_at": "2026-09-05T11:26:40.541786+00:00",
-    "id": "f05b4c9e31cc3f69"
+    "scraped_at": "2026-09-05T11:37:53.061185+00:00",
+    "id": "f05b4c9e31cc3f69",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2550.0,
+    "net_cost_best_case_aed": 1250.0
   },
   {
     "source": "propertyfinder",
@@ -316,8 +352,12 @@
     "listed_at": "2026-08-30T11:09:47Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:40.541790+00:00",
-    "id": "51857193bc84a948"
+    "scraped_at": "2026-09-05T11:37:53.061189+00:00",
+    "id": "51857193bc84a948",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1633.25,
+    "net_cost_best_case_aed": 333.25
   },
   {
     "source": "propertyfinder",
@@ -332,8 +372,12 @@
     "listed_at": "2026-09-02T11:58:36Z",
     "latitude": 25.165958404541016,
     "longitude": 55.39775085449219,
-    "scraped_at": "2026-09-05T11:26:40.541794+00:00",
-    "id": "1b28d0bcfa357f27"
+    "scraped_at": "2026-09-05T11:37:53.061194+00:00",
+    "id": "1b28d0bcfa357f27",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2633.25,
+    "net_cost_best_case_aed": 1333.25
   },
   {
     "source": "propertyfinder",
@@ -348,8 +392,12 @@
     "listed_at": "2026-08-08T09:42:04Z",
     "latitude": 25.286096572875977,
     "longitude": 55.399776458740234,
-    "scraped_at": "2026-09-05T11:26:40.541808+00:00",
-    "id": "19cb23e9b6c797dc"
+    "scraped_at": "2026-09-05T11:37:53.061207+00:00",
+    "id": "19cb23e9b6c797dc",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -364,8 +412,12 @@
     "listed_at": "2026-09-01T16:11:21Z",
     "latitude": 25.185928344726562,
     "longitude": 55.406734466552734,
-    "scraped_at": "2026-09-05T11:26:40.541820+00:00",
-    "id": "db463b378a35561e"
+    "scraped_at": "2026-09-05T11:37:53.061220+00:00",
+    "id": "db463b378a35561e",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -380,8 +432,12 @@
     "listed_at": "2026-08-08T20:04:06Z",
     "latitude": 25.294504165649414,
     "longitude": 55.37981414794922,
-    "scraped_at": "2026-09-05T11:26:40.541841+00:00",
-    "id": "20d10a0147e3d532"
+    "scraped_at": "2026-09-05T11:37:53.061233+00:00",
+    "id": "20d10a0147e3d532",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -396,8 +452,12 @@
     "listed_at": "2026-08-30T11:10:40Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:41.399828+00:00",
-    "id": "bcffb6f4dbe84fe0"
+    "scraped_at": "2026-09-05T11:37:53.611696+00:00",
+    "id": "bcffb6f4dbe84fe0",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1799.916666666667,
+    "net_cost_best_case_aed": 499.91666666666697
   },
   {
     "source": "propertyfinder",
@@ -412,8 +472,12 @@
     "listed_at": "2026-08-07T20:09:53Z",
     "latitude": 25.035940170288086,
     "longitude": 55.211360931396484,
-    "scraped_at": "2026-09-05T11:26:41.399839+00:00",
-    "id": "f14c17d9ef5e58e9"
+    "scraped_at": "2026-09-05T11:37:53.611706+00:00",
+    "id": "f14c17d9ef5e58e9",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1800.0,
+    "net_cost_best_case_aed": 500.0
   },
   {
     "source": "propertyfinder",
@@ -428,8 +492,12 @@
     "listed_at": "2026-08-08T07:13:58Z",
     "latitude": 25.29859733581543,
     "longitude": 55.39041519165039,
-    "scraped_at": "2026-09-05T11:26:41.399849+00:00",
-    "id": "fdb6d6734435c491"
+    "scraped_at": "2026-09-05T11:37:53.611715+00:00",
+    "id": "fdb6d6734435c491",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -444,8 +512,12 @@
     "listed_at": "2026-09-04T10:16:47Z",
     "latitude": 25.282520294189453,
     "longitude": 55.40166091918945,
-    "scraped_at": "2026-09-05T11:26:41.399862+00:00",
-    "id": "16951bc1f4c54222"
+    "scraped_at": "2026-09-05T11:37:53.611728+00:00",
+    "id": "16951bc1f4c54222",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -460,8 +532,12 @@
     "listed_at": "2026-09-01T10:15:35Z",
     "latitude": 25.293140411376953,
     "longitude": 55.37431716918945,
-    "scraped_at": "2026-09-05T11:26:41.399871+00:00",
-    "id": "9b8f10dfd25a20ff"
+    "scraped_at": "2026-09-05T11:37:53.611736+00:00",
+    "id": "9b8f10dfd25a20ff",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -476,8 +552,12 @@
     "listed_at": "2026-08-24T07:37:37Z",
     "latitude": 25.166156768798828,
     "longitude": 55.404541015625,
-    "scraped_at": "2026-09-05T11:26:41.399874+00:00",
-    "id": "0b8408c7b8f3b8f2"
+    "scraped_at": "2026-09-05T11:37:53.611740+00:00",
+    "id": "0b8408c7b8f3b8f2",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -492,8 +572,12 @@
     "listed_at": "2026-08-25T06:29:59Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:41.399879+00:00",
-    "id": "296ce2132cdcc253"
+    "scraped_at": "2026-09-05T11:37:53.611744+00:00",
+    "id": "296ce2132cdcc253",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -508,8 +592,12 @@
     "listed_at": "2026-09-01T10:33:44Z",
     "latitude": 25.090364456176758,
     "longitude": 55.386417388916016,
-    "scraped_at": "2026-09-05T11:26:41.399901+00:00",
-    "id": "5d320775531a5661"
+    "scraped_at": "2026-09-05T11:37:53.611766+00:00",
+    "id": "5d320775531a5661",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1800.0,
+    "net_cost_best_case_aed": 500.0
   },
   {
     "source": "propertyfinder",
@@ -524,8 +612,12 @@
     "listed_at": "2026-08-30T13:16:41Z",
     "latitude": 25.29547882080078,
     "longitude": 55.3818244934082,
-    "scraped_at": "2026-09-05T11:26:41.399910+00:00",
-    "id": "babcbe95262cb728"
+    "scraped_at": "2026-09-05T11:37:53.611774+00:00",
+    "id": "babcbe95262cb728",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -540,8 +632,12 @@
     "listed_at": "2026-08-29T09:23:45Z",
     "latitude": 25.29547882080078,
     "longitude": 55.3818244934082,
-    "scraped_at": "2026-09-05T11:26:41.399914+00:00",
-    "id": "7d3affd3cb29edf0"
+    "scraped_at": "2026-09-05T11:37:53.611778+00:00",
+    "id": "7d3affd3cb29edf0",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -556,8 +652,12 @@
     "listed_at": "2026-08-13T12:56:23Z",
     "latitude": 25.295324325561523,
     "longitude": 55.380165100097656,
-    "scraped_at": "2026-09-05T11:26:42.081172+00:00",
-    "id": "3218ae2b12cb9385"
+    "scraped_at": "2026-09-05T11:37:54.230595+00:00",
+    "id": "3218ae2b12cb9385",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -572,8 +672,12 @@
     "listed_at": "2026-08-13T08:28:26Z",
     "latitude": 25.295324325561523,
     "longitude": 55.380165100097656,
-    "scraped_at": "2026-09-05T11:26:42.081196+00:00",
-    "id": "0355b2784467ce51"
+    "scraped_at": "2026-09-05T11:37:54.230630+00:00",
+    "id": "0355b2784467ce51",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -588,8 +692,12 @@
     "listed_at": "2026-08-11T15:37:21Z",
     "latitude": 25.29547882080078,
     "longitude": 55.3818244934082,
-    "scraped_at": "2026-09-05T11:26:42.081204+00:00",
-    "id": "278c1dce7f3bd9f4"
+    "scraped_at": "2026-09-05T11:37:54.230638+00:00",
+    "id": "278c1dce7f3bd9f4",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -604,8 +712,12 @@
     "listed_at": "2026-08-20T17:37:05Z",
     "latitude": 25.29547882080078,
     "longitude": 55.3818244934082,
-    "scraped_at": "2026-09-05T11:26:42.081222+00:00",
-    "id": "2f0fdfacc896bfa7"
+    "scraped_at": "2026-09-05T11:37:54.230648+00:00",
+    "id": "2f0fdfacc896bfa7",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -620,8 +732,12 @@
     "listed_at": "2026-08-09T11:34:31Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:42.081237+00:00",
-    "id": "ae18c9c1dfc47f39"
+    "scraped_at": "2026-09-05T11:37:54.230664+00:00",
+    "id": "ae18c9c1dfc47f39",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -636,8 +752,12 @@
     "listed_at": "2026-08-26T18:06:32Z",
     "latitude": 25.276981353759766,
     "longitude": 55.37242889404297,
-    "scraped_at": "2026-09-05T11:26:42.081242+00:00",
-    "id": "e3a3e715088033c1"
+    "scraped_at": "2026-09-05T11:37:54.230668+00:00",
+    "id": "e3a3e715088033c1",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -652,8 +772,12 @@
     "listed_at": "2026-08-19T09:16:18Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:42.081254+00:00",
-    "id": "b6c8cbd103fcb1d8"
+    "scraped_at": "2026-09-05T11:37:54.230681+00:00",
+    "id": "b6c8cbd103fcb1d8",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1883.333333333333,
+    "net_cost_best_case_aed": 583.333333333333
   },
   {
     "source": "propertyfinder",
@@ -668,8 +792,12 @@
     "listed_at": "2026-08-28T14:10:52Z",
     "latitude": 25.274507522583008,
     "longitude": 55.37808609008789,
-    "scraped_at": "2026-09-05T11:26:42.081297+00:00",
-    "id": "2487d979f52d3851"
+    "scraped_at": "2026-09-05T11:37:54.230719+00:00",
+    "id": "2487d979f52d3851",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2966.666666666667,
+    "net_cost_best_case_aed": 1666.666666666667
   },
   {
     "source": "propertyfinder",
@@ -684,8 +812,12 @@
     "listed_at": "2026-08-09T21:50:15Z",
     "latitude": 25.035409927368164,
     "longitude": 55.210819244384766,
-    "scraped_at": "2026-09-05T11:26:42.081310+00:00",
-    "id": "4916b7bf737940f3"
+    "scraped_at": "2026-09-05T11:37:54.230731+00:00",
+    "id": "4916b7bf737940f3",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1966.666666666667,
+    "net_cost_best_case_aed": 666.666666666667
   },
   {
     "source": "propertyfinder",
@@ -700,8 +832,12 @@
     "listed_at": "2026-08-20T15:12:09Z",
     "latitude": 25.29494857788086,
     "longitude": 55.38013458251953,
-    "scraped_at": "2026-09-05T11:26:42.862067+00:00",
-    "id": "967b1e0fd2157515"
+    "scraped_at": "2026-09-05T11:37:54.814909+00:00",
+    "id": "967b1e0fd2157515",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 2966.666666666667,
+    "net_cost_best_case_aed": 1666.666666666667
   },
   {
     "source": "propertyfinder",
@@ -716,8 +852,12 @@
     "listed_at": "2026-08-19T09:09:33Z",
     "latitude": 25.091928482055664,
     "longitude": 55.38493728637695,
-    "scraped_at": "2026-09-05T11:26:42.862087+00:00",
-    "id": "5143a5b8fe451635"
+    "scraped_at": "2026-09-05T11:37:54.814930+00:00",
+    "id": "5143a5b8fe451635",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 1966.666666666667,
+    "net_cost_best_case_aed": 666.666666666667
   },
   {
     "source": "propertyfinder",
@@ -732,8 +872,12 @@
     "listed_at": "2026-09-01T11:27:56Z",
     "latitude": 25.29248809814453,
     "longitude": 55.37263870239258,
-    "scraped_at": "2026-09-05T11:26:42.862107+00:00",
-    "id": "edaeaaa343ca9964"
+    "scraped_at": "2026-09-05T11:37:54.814948+00:00",
+    "id": "edaeaaa343ca9964",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3050.0,
+    "net_cost_best_case_aed": 1750.0
   },
   {
     "source": "propertyfinder",
@@ -748,8 +892,12 @@
     "listed_at": "2026-08-16T17:23:58Z",
     "latitude": 25.294649124145508,
     "longitude": 55.3660774230957,
-    "scraped_at": "2026-09-05T11:26:42.862111+00:00",
-    "id": "093d7253fb151366"
+    "scraped_at": "2026-09-05T11:37:54.814952+00:00",
+    "id": "093d7253fb151366",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3050.0,
+    "net_cost_best_case_aed": 1750.0
   },
   {
     "source": "propertyfinder",
@@ -764,8 +912,12 @@
     "listed_at": "2026-08-14T18:45:02Z",
     "latitude": 25.291656494140625,
     "longitude": 55.380062103271484,
-    "scraped_at": "2026-09-05T11:26:42.862116+00:00",
-    "id": "e3b3c37325d81f0c"
+    "scraped_at": "2026-09-05T11:37:54.814957+00:00",
+    "id": "e3b3c37325d81f0c",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3050.0,
+    "net_cost_best_case_aed": 1750.0
   },
   {
     "source": "propertyfinder",
@@ -780,8 +932,12 @@
     "listed_at": "2026-08-11T15:10:11Z",
     "latitude": 25.29494857788086,
     "longitude": 55.38013458251953,
-    "scraped_at": "2026-09-05T11:26:42.862129+00:00",
-    "id": "c2533131358456ba"
+    "scraped_at": "2026-09-05T11:37:54.814970+00:00",
+    "id": "c2533131358456ba",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3050.0,
+    "net_cost_best_case_aed": 1750.0
   },
   {
     "source": "propertyfinder",
@@ -796,8 +952,12 @@
     "listed_at": "2026-08-26T10:27:13Z",
     "latitude": 25.098133087158203,
     "longitude": 55.363590240478516,
-    "scraped_at": "2026-09-05T11:26:42.862154+00:00",
-    "id": "5c9c9dc364859e8a"
+    "scraped_at": "2026-09-05T11:37:54.814995+00:00",
+    "id": "5c9c9dc364859e8a",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2050.0,
+    "net_cost_best_case_aed": 750.0
   },
   {
     "source": "propertyfinder",
@@ -812,8 +972,12 @@
     "listed_at": "2026-09-03T15:20:11Z",
     "latitude": 25.168548583984375,
     "longitude": 55.40835189819336,
-    "scraped_at": "2026-09-05T11:26:42.862166+00:00",
-    "id": "6f3e267b174cae70"
+    "scraped_at": "2026-09-05T11:37:54.814999+00:00",
+    "id": "6f3e267b174cae70",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3133.333333333333,
+    "net_cost_best_case_aed": 1833.333333333333
   },
   {
     "source": "propertyfinder",
@@ -828,8 +992,12 @@
     "listed_at": "2026-08-30T11:11:24Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:43.635599+00:00",
-    "id": "985c557538f5dcba"
+    "scraped_at": "2026-09-05T11:37:55.552509+00:00",
+    "id": "985c557538f5dcba",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2208.333333333333,
+    "net_cost_best_case_aed": 908.333333333333
   },
   {
     "source": "propertyfinder",
@@ -844,8 +1012,12 @@
     "listed_at": "2026-08-27T11:41:38Z",
     "latitude": 25.063365936279297,
     "longitude": 55.24134063720703,
-    "scraped_at": "2026-09-05T11:26:43.635630+00:00",
-    "id": "c14b850c5cd8317a"
+    "scraped_at": "2026-09-05T11:37:55.552536+00:00",
+    "id": "c14b850c5cd8317a",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.25,
+    "net_cost_best_case_aed": 916.25
   },
   {
     "source": "propertyfinder",
@@ -860,8 +1032,12 @@
     "listed_at": "2026-08-08T08:24:48Z",
     "latitude": 25.090986251831055,
     "longitude": 55.3853874206543,
-    "scraped_at": "2026-09-05T11:26:43.635639+00:00",
-    "id": "ae3b59219b16b6fd"
+    "scraped_at": "2026-09-05T11:37:55.552543+00:00",
+    "id": "ae3b59219b16b6fd",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.583333333333,
+    "net_cost_best_case_aed": 916.583333333333
   },
   {
     "source": "propertyfinder",
@@ -876,8 +1052,12 @@
     "listed_at": "2026-08-20T09:19:55Z",
     "latitude": 25.29195785522461,
     "longitude": 55.36551284790039,
-    "scraped_at": "2026-09-05T11:26:43.635721+00:00",
-    "id": "6c48c845d43ba596"
+    "scraped_at": "2026-09-05T11:37:55.552608+00:00",
+    "id": "6c48c845d43ba596",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -892,8 +1072,12 @@
     "listed_at": "2026-08-12T06:25:26Z",
     "latitude": 25.29195785522461,
     "longitude": 55.36551284790039,
-    "scraped_at": "2026-09-05T11:26:43.635727+00:00",
-    "id": "06879a9f3b2e21c1"
+    "scraped_at": "2026-09-05T11:37:55.552613+00:00",
+    "id": "06879a9f3b2e21c1",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -908,8 +1092,12 @@
     "listed_at": "2026-09-02T07:47:28Z",
     "latitude": 25.168548583984375,
     "longitude": 55.40835189819336,
-    "scraped_at": "2026-09-05T11:26:43.635752+00:00",
-    "id": "f647a053ac88264b"
+    "scraped_at": "2026-09-05T11:37:55.552635+00:00",
+    "id": "f647a053ac88264b",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -924,8 +1112,12 @@
     "listed_at": "2026-08-18T12:58:50Z",
     "latitude": 25.296897888183594,
     "longitude": 55.39591979980469,
-    "scraped_at": "2026-09-05T11:26:43.635761+00:00",
-    "id": "7be0198b42c21531"
+    "scraped_at": "2026-09-05T11:37:55.552643+00:00",
+    "id": "7be0198b42c21531",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -940,8 +1132,12 @@
     "listed_at": "2026-09-01T15:24:07Z",
     "latitude": 25.168548583984375,
     "longitude": 55.40835189819336,
-    "scraped_at": "2026-09-05T11:26:43.635767+00:00",
-    "id": "11da74decc3f5eef"
+    "scraped_at": "2026-09-05T11:37:55.552647+00:00",
+    "id": "11da74decc3f5eef",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -956,8 +1152,12 @@
     "listed_at": "2026-09-01T16:11:21Z",
     "latitude": 25.19599723815918,
     "longitude": 55.398738861083984,
-    "scraped_at": "2026-09-05T11:26:44.570457+00:00",
-    "id": "061e7cf7af64c67c"
+    "scraped_at": "2026-09-05T11:37:56.298545+00:00",
+    "id": "061e7cf7af64c67c",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -972,8 +1172,12 @@
     "listed_at": "2026-08-24T11:19:43Z",
     "latitude": 25.100252151489258,
     "longitude": 55.36405944824219,
-    "scraped_at": "2026-09-05T11:26:44.570463+00:00",
-    "id": "cad838fe90191488"
+    "scraped_at": "2026-09-05T11:37:56.298551+00:00",
+    "id": "cad838fe90191488",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -988,8 +1192,12 @@
     "listed_at": "2026-08-25T15:10:16Z",
     "latitude": 25.295501708984375,
     "longitude": 55.36528778076172,
-    "scraped_at": "2026-09-05T11:26:44.570468+00:00",
-    "id": "98efaf2f38dfa0fd"
+    "scraped_at": "2026-09-05T11:37:56.298555+00:00",
+    "id": "98efaf2f38dfa0fd",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1004,8 +1212,12 @@
     "listed_at": "2026-08-14T11:33:14Z",
     "latitude": 25.090364456176758,
     "longitude": 55.386417388916016,
-    "scraped_at": "2026-09-05T11:26:44.570473+00:00",
-    "id": "20b59dc4647bb787"
+    "scraped_at": "2026-09-05T11:37:56.298560+00:00",
+    "id": "20b59dc4647bb787",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1020,8 +1232,12 @@
     "listed_at": "2026-08-12T15:09:34Z",
     "latitude": 25.108135223388672,
     "longitude": 55.36874008178711,
-    "scraped_at": "2026-09-05T11:26:44.570478+00:00",
-    "id": "be7350898ddda63c"
+    "scraped_at": "2026-09-05T11:37:56.298564+00:00",
+    "id": "be7350898ddda63c",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1036,8 +1252,12 @@
     "listed_at": "2026-08-26T08:52:28Z",
     "latitude": 25.29494857788086,
     "longitude": 55.38013458251953,
-    "scraped_at": "2026-09-05T11:26:44.570528+00:00",
-    "id": "6b845cdfc7373399"
+    "scraped_at": "2026-09-05T11:37:56.298610+00:00",
+    "id": "6b845cdfc7373399",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1052,8 +1272,12 @@
     "listed_at": "2026-08-19T09:44:33Z",
     "latitude": 25.1483211517334,
     "longitude": 55.40553665161133,
-    "scraped_at": "2026-09-05T11:26:44.570545+00:00",
-    "id": "47b4f957c9297c98"
+    "scraped_at": "2026-09-05T11:37:56.298668+00:00",
+    "id": "47b4f957c9297c98",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1068,8 +1292,12 @@
     "listed_at": "2026-09-02T12:08:38Z",
     "latitude": 25.146272659301758,
     "longitude": 55.403289794921875,
-    "scraped_at": "2026-09-05T11:26:45.440362+00:00",
-    "id": "012ba7756b58c620"
+    "scraped_at": "2026-09-05T11:37:57.057256+00:00",
+    "id": "012ba7756b58c620",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1084,8 +1312,12 @@
     "listed_at": "2026-08-25T07:43:06Z",
     "latitude": 25.253055572509766,
     "longitude": 55.329166412353516,
-    "scraped_at": "2026-09-05T11:26:45.440368+00:00",
-    "id": "647e182c98377694"
+    "scraped_at": "2026-09-05T11:37:57.057260+00:00",
+    "id": "647e182c98377694",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1100,8 +1332,12 @@
     "listed_at": "2026-08-26T18:01:45Z",
     "latitude": 25.276981353759766,
     "longitude": 55.37242889404297,
-    "scraped_at": "2026-09-05T11:26:45.440387+00:00",
-    "id": "14f293d7c2d00533"
+    "scraped_at": "2026-09-05T11:37:57.057277+00:00",
+    "id": "14f293d7c2d00533",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1116,8 +1352,12 @@
     "listed_at": "2026-08-12T18:57:19Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:45.440396+00:00",
-    "id": "205eca4c00711161"
+    "scraped_at": "2026-09-05T11:37:57.057285+00:00",
+    "id": "205eca4c00711161",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3216.666666666667,
+    "net_cost_best_case_aed": 1916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1132,8 +1372,12 @@
     "listed_at": "2026-08-15T09:30:00Z",
     "latitude": 25.098133087158203,
     "longitude": 55.363590240478516,
-    "scraped_at": "2026-09-05T11:26:45.440401+00:00",
-    "id": "d70dda529f2bee41"
+    "scraped_at": "2026-09-05T11:37:57.057290+00:00",
+    "id": "d70dda529f2bee41",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2216.666666666667,
+    "net_cost_best_case_aed": 916.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1148,8 +1392,12 @@
     "listed_at": "2026-08-26T18:17:26Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:45.440440+00:00",
-    "id": "475afc0ab9cdb363"
+    "scraped_at": "2026-09-05T11:37:57.057323+00:00",
+    "id": "475afc0ab9cdb363",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1164,8 +1412,12 @@
     "listed_at": "2026-08-21T14:29:26Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:45.440445+00:00",
-    "id": "46c21397a04e62c1"
+    "scraped_at": "2026-09-05T11:37:57.057328+00:00",
+    "id": "46c21397a04e62c1",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1180,8 +1432,12 @@
     "listed_at": "2026-08-31T10:51:22Z",
     "latitude": 25.2863712310791,
     "longitude": 55.360389709472656,
-    "scraped_at": "2026-09-05T11:26:46.120559+00:00",
-    "id": "d9d659ea363aac64"
+    "scraped_at": "2026-09-05T11:37:57.792297+00:00",
+    "id": "d9d659ea363aac64",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1196,8 +1452,12 @@
     "listed_at": "2026-09-04T17:59:18Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:46.120597+00:00",
-    "id": "8a16d783fe698c24"
+    "scraped_at": "2026-09-05T11:37:57.792330+00:00",
+    "id": "8a16d783fe698c24",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1212,8 +1472,12 @@
     "listed_at": "2026-08-15T12:38:56Z",
     "latitude": 25.168170928955078,
     "longitude": 55.40679931640625,
-    "scraped_at": "2026-09-05T11:26:46.120603+00:00",
-    "id": "059ad15ebdd3a99d"
+    "scraped_at": "2026-09-05T11:37:57.792335+00:00",
+    "id": "059ad15ebdd3a99d",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1228,8 +1492,12 @@
     "listed_at": "2026-08-29T16:36:37Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120614+00:00",
-    "id": "60d0ee3441c4795d"
+    "scraped_at": "2026-09-05T11:37:57.792345+00:00",
+    "id": "60d0ee3441c4795d",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1244,8 +1512,12 @@
     "listed_at": "2026-08-28T14:58:51Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120620+00:00",
-    "id": "59b0a02915170e94"
+    "scraped_at": "2026-09-05T11:37:57.792349+00:00",
+    "id": "59b0a02915170e94",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1260,8 +1532,12 @@
     "listed_at": "2026-08-27T17:23:23Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120625+00:00",
-    "id": "e339b38f160c18be"
+    "scraped_at": "2026-09-05T11:37:57.792353+00:00",
+    "id": "e339b38f160c18be",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1276,8 +1552,12 @@
     "listed_at": "2026-08-25T18:14:45Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120630+00:00",
-    "id": "eebb31c2e3a18876"
+    "scraped_at": "2026-09-05T11:37:57.792358+00:00",
+    "id": "eebb31c2e3a18876",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1292,8 +1572,12 @@
     "listed_at": "2026-08-24T17:36:41Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120635+00:00",
-    "id": "2b7e3771e176f45e"
+    "scraped_at": "2026-09-05T11:37:57.792362+00:00",
+    "id": "2b7e3771e176f45e",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1308,8 +1592,12 @@
     "listed_at": "2026-08-12T08:11:30Z",
     "latitude": 25.29494857788086,
     "longitude": 55.38013458251953,
-    "scraped_at": "2026-09-05T11:26:46.120645+00:00",
-    "id": "0ad6a718e19e961c"
+    "scraped_at": "2026-09-05T11:37:57.792370+00:00",
+    "id": "0ad6a718e19e961c",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1324,8 +1612,12 @@
     "listed_at": "2026-09-05T06:48:04Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120650+00:00",
-    "id": "780c1683135830d2"
+    "scraped_at": "2026-09-05T11:37:57.792374+00:00",
+    "id": "780c1683135830d2",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1340,8 +1632,12 @@
     "listed_at": "2026-09-03T16:26:14Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120655+00:00",
-    "id": "794c3b9560429871"
+    "scraped_at": "2026-09-05T11:37:57.792378+00:00",
+    "id": "794c3b9560429871",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1356,8 +1652,12 @@
     "listed_at": "2026-08-31T16:23:12Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120660+00:00",
-    "id": "9d440047a75c64dc"
+    "scraped_at": "2026-09-05T11:37:57.792382+00:00",
+    "id": "9d440047a75c64dc",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1372,8 +1672,12 @@
     "listed_at": "2026-08-30T17:55:12Z",
     "latitude": 25.288808822631836,
     "longitude": 55.37796401977539,
-    "scraped_at": "2026-09-05T11:26:46.120673+00:00",
-    "id": "caa6b64cf5397a10"
+    "scraped_at": "2026-09-05T11:37:57.792386+00:00",
+    "id": "caa6b64cf5397a10",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1388,8 +1692,12 @@
     "listed_at": "2026-08-11T08:51:29Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:46.120678+00:00",
-    "id": "ebc2f5ef21183b51"
+    "scraped_at": "2026-09-05T11:37:57.792390+00:00",
+    "id": "ebc2f5ef21183b51",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1404,8 +1712,12 @@
     "listed_at": "2026-08-09T09:09:04Z",
     "latitude": 25.18745994567871,
     "longitude": 55.405635833740234,
-    "scraped_at": "2026-09-05T11:26:46.120688+00:00",
-    "id": "65da18524dab0213"
+    "scraped_at": "2026-09-05T11:37:57.792399+00:00",
+    "id": "65da18524dab0213",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3300.0,
+    "net_cost_best_case_aed": 2000.0
   },
   {
     "source": "propertyfinder",
@@ -1420,8 +1732,12 @@
     "listed_at": "2026-09-03T20:30:55Z",
     "latitude": 25.184097290039062,
     "longitude": 55.40061950683594,
-    "scraped_at": "2026-09-05T11:26:46.923076+00:00",
-    "id": "6aac96a89d7ce3b9"
+    "scraped_at": "2026-09-05T11:37:58.462717+00:00",
+    "id": "6aac96a89d7ce3b9",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3383.333333333333,
+    "net_cost_best_case_aed": 2083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1436,8 +1752,12 @@
     "listed_at": "2026-08-12T13:59:48Z",
     "latitude": 25.29494857788086,
     "longitude": 55.38013458251953,
-    "scraped_at": "2026-09-05T11:26:46.923114+00:00",
-    "id": "7279370153cad603"
+    "scraped_at": "2026-09-05T11:37:58.462739+00:00",
+    "id": "7279370153cad603",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3383.333333333333,
+    "net_cost_best_case_aed": 2083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1452,8 +1772,12 @@
     "listed_at": "2026-08-22T14:35:38Z",
     "latitude": 25.095142364501953,
     "longitude": 55.38102722167969,
-    "scraped_at": "2026-09-05T11:26:46.923119+00:00",
-    "id": "ac6dd7685b0c478f"
+    "scraped_at": "2026-09-05T11:37:58.462743+00:00",
+    "id": "ac6dd7685b0c478f",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2383.333333333333,
+    "net_cost_best_case_aed": 1083.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1468,8 +1792,12 @@
     "listed_at": "2026-08-15T12:22:00Z",
     "latitude": 25.118541717529297,
     "longitude": 55.39448165893555,
-    "scraped_at": "2026-09-05T11:26:46.923183+00:00",
-    "id": "ab4268af9b67940a"
+    "scraped_at": "2026-09-05T11:37:58.462805+00:00",
+    "id": "ab4268af9b67940a",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2466.583333333333,
+    "net_cost_best_case_aed": 1166.583333333333
   },
   {
     "source": "propertyfinder",
@@ -1484,8 +1812,12 @@
     "listed_at": "2026-08-21T02:43:33Z",
     "latitude": 25.040416717529297,
     "longitude": 55.22331619262695,
-    "scraped_at": "2026-09-05T11:26:47.601194+00:00",
-    "id": "cef8b2f23defebe8"
+    "scraped_at": "2026-09-05T11:37:59.153152+00:00",
+    "id": "cef8b2f23defebe8",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2466.666666666667,
+    "net_cost_best_case_aed": 1166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1500,8 +1832,12 @@
     "listed_at": "2026-08-30T11:13:54Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:47.601225+00:00",
-    "id": "bfa507bee048a2f8"
+    "scraped_at": "2026-09-05T11:37:59.153186+00:00",
+    "id": "bfa507bee048a2f8",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2466.666666666667,
+    "net_cost_best_case_aed": 1166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1516,8 +1852,12 @@
     "listed_at": "2026-08-11T10:18:15Z",
     "latitude": 25.10329246520996,
     "longitude": 55.36702346801758,
-    "scraped_at": "2026-09-05T11:26:47.601236+00:00",
-    "id": "9d214e4d345e7f4d"
+    "scraped_at": "2026-09-05T11:37:59.153195+00:00",
+    "id": "9d214e4d345e7f4d",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2466.666666666667,
+    "net_cost_best_case_aed": 1166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1532,8 +1872,12 @@
     "listed_at": "2026-08-15T12:26:09Z",
     "latitude": 25.118541717529297,
     "longitude": 55.39448165893555,
-    "scraped_at": "2026-09-05T11:26:47.601268+00:00",
-    "id": "8de2946eee78ea4c"
+    "scraped_at": "2026-09-05T11:37:59.153222+00:00",
+    "id": "8de2946eee78ea4c",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2466.666666666667,
+    "net_cost_best_case_aed": 1166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1548,8 +1892,12 @@
     "listed_at": "2026-08-19T08:58:25Z",
     "latitude": 25.168548583984375,
     "longitude": 55.40835189819336,
-    "scraped_at": "2026-09-05T11:26:47.601298+00:00",
-    "id": "ed0b15e90b3ce0d5"
+    "scraped_at": "2026-09-05T11:37:59.153246+00:00",
+    "id": "ed0b15e90b3ce0d5",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3466.666666666667,
+    "net_cost_best_case_aed": 2166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1564,8 +1912,12 @@
     "listed_at": "2026-08-21T12:21:46Z",
     "latitude": 25.090986251831055,
     "longitude": 55.3853874206543,
-    "scraped_at": "2026-09-05T11:26:47.601318+00:00",
-    "id": "9ab408ca3c0ff8b2"
+    "scraped_at": "2026-09-05T11:37:59.153264+00:00",
+    "id": "9ab408ca3c0ff8b2",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2466.666666666667,
+    "net_cost_best_case_aed": 1166.666666666667
   },
   {
     "source": "propertyfinder",
@@ -1580,8 +1932,12 @@
     "listed_at": "2026-08-20T11:21:24Z",
     "latitude": 24.95046615600586,
     "longitude": 55.231048583984375,
-    "scraped_at": "2026-09-05T11:26:48.426022+00:00",
-    "id": "2a90be031e43095a"
+    "scraped_at": "2026-09-05T11:37:59.948384+00:00",
+    "id": "2a90be031e43095a",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2550.0,
+    "net_cost_best_case_aed": 1250.0
   },
   {
     "source": "propertyfinder",
@@ -1596,8 +1952,12 @@
     "listed_at": "2026-08-19T10:24:39Z",
     "latitude": 25.044111251831055,
     "longitude": 55.28537368774414,
-    "scraped_at": "2026-09-05T11:26:48.426053+00:00",
-    "id": "49a862c5841778a4"
+    "scraped_at": "2026-09-05T11:37:59.948413+00:00",
+    "id": "49a862c5841778a4",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.25,
+    "net_cost_best_case_aed": 1333.25
   },
   {
     "source": "propertyfinder",
@@ -1612,8 +1972,12 @@
     "listed_at": "2026-08-12T13:07:42Z",
     "latitude": 24.948810577392578,
     "longitude": 55.20297622680664,
-    "scraped_at": "2026-09-05T11:26:48.426063+00:00",
-    "id": "7376338390a58045"
+    "scraped_at": "2026-09-05T11:37:59.948422+00:00",
+    "id": "7376338390a58045",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.25,
+    "net_cost_best_case_aed": 1333.25
   },
   {
     "source": "propertyfinder",
@@ -1628,8 +1992,12 @@
     "listed_at": "2026-09-05T06:40:33Z",
     "latitude": 25.091413497924805,
     "longitude": 55.385902404785156,
-    "scraped_at": "2026-09-05T11:26:48.426068+00:00",
-    "id": "fb29f4b90c0779a3"
+    "scraped_at": "2026-09-05T11:37:59.948426+00:00",
+    "id": "fb29f4b90c0779a3",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1644,8 +2012,12 @@
     "listed_at": "2026-08-21T07:34:25Z",
     "latitude": 25.031902313232422,
     "longitude": 55.223079681396484,
-    "scraped_at": "2026-09-05T11:26:48.426073+00:00",
-    "id": "b71ce6e92dc6bea0"
+    "scraped_at": "2026-09-05T11:37:59.948431+00:00",
+    "id": "b71ce6e92dc6bea0",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1660,8 +2032,12 @@
     "listed_at": "2026-08-22T09:57:01Z",
     "latitude": 25.04277992248535,
     "longitude": 55.221771240234375,
-    "scraped_at": "2026-09-05T11:26:48.426078+00:00",
-    "id": "5ced24f7efd31bb3"
+    "scraped_at": "2026-09-05T11:37:59.948435+00:00",
+    "id": "5ced24f7efd31bb3",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1676,8 +2052,12 @@
     "listed_at": "2026-08-27T12:18:37Z",
     "latitude": 25.11629867553711,
     "longitude": 55.3906135559082,
-    "scraped_at": "2026-09-05T11:26:48.426088+00:00",
-    "id": "e1e429f307411b6e"
+    "scraped_at": "2026-09-05T11:37:59.948445+00:00",
+    "id": "e1e429f307411b6e",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1692,8 +2072,12 @@
     "listed_at": "2026-09-01T12:23:45Z",
     "latitude": 25.090364456176758,
     "longitude": 55.386417388916016,
-    "scraped_at": "2026-09-05T11:26:48.426093+00:00",
-    "id": "58635d4abd798ab5"
+    "scraped_at": "2026-09-05T11:37:59.948450+00:00",
+    "id": "58635d4abd798ab5",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1708,8 +2092,12 @@
     "listed_at": "2026-08-25T10:31:28Z",
     "latitude": 25.228717803955078,
     "longitude": 55.335716247558594,
-    "scraped_at": "2026-09-05T11:26:48.426098+00:00",
-    "id": "66e99cae3932ca7d"
+    "scraped_at": "2026-09-05T11:37:59.948454+00:00",
+    "id": "66e99cae3932ca7d",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1724,8 +2112,12 @@
     "listed_at": "2026-08-21T16:27:08Z",
     "latitude": 25.184114456176758,
     "longitude": 55.40427780151367,
-    "scraped_at": "2026-09-05T11:26:48.426112+00:00",
-    "id": "81cce19909882977"
+    "scraped_at": "2026-09-05T11:37:59.948468+00:00",
+    "id": "81cce19909882977",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1740,8 +2132,12 @@
     "listed_at": "2026-08-25T15:13:14Z",
     "latitude": 25.121198654174805,
     "longitude": 55.373626708984375,
-    "scraped_at": "2026-09-05T11:26:49.130477+00:00",
-    "id": "54bca32b46d3bf22"
+    "scraped_at": "2026-09-05T11:38:00.632369+00:00",
+    "id": "54bca32b46d3bf22",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1756,8 +2152,12 @@
     "listed_at": "2026-08-22T07:17:55Z",
     "latitude": 25.176761627197266,
     "longitude": 55.40158462524414,
-    "scraped_at": "2026-09-05T11:26:49.130488+00:00",
-    "id": "53373819a0eba944"
+    "scraped_at": "2026-09-05T11:38:00.632375+00:00",
+    "id": "53373819a0eba944",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1772,8 +2172,12 @@
     "listed_at": "2026-08-11T11:14:35Z",
     "latitude": 25.090986251831055,
     "longitude": 55.3853874206543,
-    "scraped_at": "2026-09-05T11:26:49.130530+00:00",
-    "id": "6b32f9173a9630c7"
+    "scraped_at": "2026-09-05T11:38:00.632396+00:00",
+    "id": "6b32f9173a9630c7",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1788,8 +2192,12 @@
     "listed_at": "2026-08-11T10:56:25Z",
     "latitude": 25.19599723815918,
     "longitude": 55.398738861083984,
-    "scraped_at": "2026-09-05T11:26:49.130659+00:00",
-    "id": "b38369507cead168"
+    "scraped_at": "2026-09-05T11:38:00.632458+00:00",
+    "id": "b38369507cead168",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1804,8 +2212,12 @@
     "listed_at": "2026-09-05T07:32:51Z",
     "latitude": 25.168170928955078,
     "longitude": 55.40679931640625,
-    "scraped_at": "2026-09-05T11:26:49.130696+00:00",
-    "id": "6b0b5990c3024916"
+    "scraped_at": "2026-09-05T11:38:00.632475+00:00",
+    "id": "6b0b5990c3024916",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1820,8 +2232,12 @@
     "listed_at": "2026-08-25T07:25:01Z",
     "latitude": 25.118480682373047,
     "longitude": 55.39235305786133,
-    "scraped_at": "2026-09-05T11:26:49.130706+00:00",
-    "id": "32a650d0cfc5cd42"
+    "scraped_at": "2026-09-05T11:38:00.632480+00:00",
+    "id": "32a650d0cfc5cd42",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1836,8 +2252,12 @@
     "listed_at": "2026-08-20T08:33:15Z",
     "latitude": 25.27837562561035,
     "longitude": 55.35127639770508,
-    "scraped_at": "2026-09-05T11:26:50.393697+00:00",
-    "id": "8f55dce20f5490f9"
+    "scraped_at": "2026-09-05T11:38:01.533328+00:00",
+    "id": "8f55dce20f5490f9",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1852,8 +2272,12 @@
     "listed_at": "2026-08-12T07:13:58Z",
     "latitude": 25.221742630004883,
     "longitude": 55.276668548583984,
-    "scraped_at": "2026-09-05T11:26:50.393719+00:00",
-    "id": "2d0a3ea495f14336"
+    "scraped_at": "2026-09-05T11:38:01.533364+00:00",
+    "id": "2d0a3ea495f14336",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1868,8 +2292,12 @@
     "listed_at": "2026-08-15T10:24:19Z",
     "latitude": 25.090364456176758,
     "longitude": 55.386417388916016,
-    "scraped_at": "2026-09-05T11:26:50.393730+00:00",
-    "id": "46f8434a13417a2b"
+    "scraped_at": "2026-09-05T11:38:01.533380+00:00",
+    "id": "46f8434a13417a2b",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1884,8 +2312,12 @@
     "listed_at": "2026-08-08T12:29:04Z",
     "latitude": 25.090986251831055,
     "longitude": 55.3853874206543,
-    "scraped_at": "2026-09-05T11:26:50.393747+00:00",
-    "id": "2d466047aa0ecdf0"
+    "scraped_at": "2026-09-05T11:38:01.533411+00:00",
+    "id": "2d466047aa0ecdf0",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1900,8 +2332,12 @@
     "listed_at": "2026-09-05T08:46:43Z",
     "latitude": 25.041284561157227,
     "longitude": 55.2885627746582,
-    "scraped_at": "2026-09-05T11:26:50.393751+00:00",
-    "id": "f9c67bede03c8d82"
+    "scraped_at": "2026-09-05T11:38:01.533419+00:00",
+    "id": "f9c67bede03c8d82",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1916,8 +2352,12 @@
     "listed_at": "2026-08-27T08:04:28Z",
     "latitude": 25.090364456176758,
     "longitude": 55.386417388916016,
-    "scraped_at": "2026-09-05T11:26:51.147231+00:00",
-    "id": "19cd62ee3f9f3748"
+    "scraped_at": "2026-09-05T11:38:02.593250+00:00",
+    "id": "19cd62ee3f9f3748",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1932,8 +2372,12 @@
     "listed_at": "2026-09-04T09:28:54Z",
     "latitude": 25.090986251831055,
     "longitude": 55.3853874206543,
-    "scraped_at": "2026-09-05T11:26:51.147240+00:00",
-    "id": "b1c3abfa6c395f9c"
+    "scraped_at": "2026-09-05T11:38:02.593259+00:00",
+    "id": "b1c3abfa6c395f9c",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1948,8 +2392,12 @@
     "listed_at": "2026-08-13T10:16:02Z",
     "latitude": 25.27699851989746,
     "longitude": 55.33370590209961,
-    "scraped_at": "2026-09-05T11:26:51.147249+00:00",
-    "id": "7072a3c1cb6888ed"
+    "scraped_at": "2026-09-05T11:38:02.593268+00:00",
+    "id": "7072a3c1cb6888ed",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1964,8 +2412,12 @@
     "listed_at": "2026-08-25T06:15:32Z",
     "latitude": 25.256879806518555,
     "longitude": 55.289039611816406,
-    "scraped_at": "2026-09-05T11:26:51.147258+00:00",
-    "id": "d7afab93bd7d9c31"
+    "scraped_at": "2026-09-05T11:38:02.593276+00:00",
+    "id": "d7afab93bd7d9c31",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1980,8 +2432,12 @@
     "listed_at": "2026-08-25T07:29:09Z",
     "latitude": 25.276981353759766,
     "longitude": 55.37242889404297,
-    "scraped_at": "2026-09-05T11:26:51.147263+00:00",
-    "id": "ef13d7aed9cf9cdb"
+    "scraped_at": "2026-09-05T11:38:02.593280+00:00",
+    "id": "ef13d7aed9cf9cdb",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3633.333333333333,
+    "net_cost_best_case_aed": 2333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -1996,8 +2452,12 @@
     "listed_at": "2026-08-21T10:59:37Z",
     "latitude": 25.089357376098633,
     "longitude": 55.38515090942383,
-    "scraped_at": "2026-09-05T11:26:51.147279+00:00",
-    "id": "b50cc0c39bb0749f"
+    "scraped_at": "2026-09-05T11:38:02.593294+00:00",
+    "id": "b50cc0c39bb0749f",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2633.333333333333,
+    "net_cost_best_case_aed": 1333.333333333333
   },
   {
     "source": "propertyfinder",
@@ -2012,8 +2472,52 @@
     "listed_at": "2026-08-13T09:47:53Z",
     "latitude": 25.035409927368164,
     "longitude": 55.210819244384766,
-    "scraped_at": "2026-09-05T11:26:51.147297+00:00",
-    "id": "acd04c3d3b27e485"
+    "scraped_at": "2026-09-05T11:38:02.593312+00:00",
+    "id": "acd04c3d3b27e485",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2716.666666666667,
+    "net_cost_best_case_aed": 1416.666666666667
+  },
+  {
+    "source": "propertyfinder",
+    "source_id": "137433714",
+    "title": "2 BED-BALCONY-GAS AND CHILLER FREE-AMC INC-12 CHQS",
+    "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137433714.html",
+    "price_monthly_aed": 5950.0,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "area": "Hanover Square, District 10, Jumeirah Village Circle, Dubai",
+    "image_url": "https://static.shared.propertyfinder.ae/media/images/listing/NJ1Y87030SQ4KBXZPVY347WZ8C/8619b25d-116e-4b6a-a287-693068d00731/668x452.jpg?v=e01aa88d4fa7ed48bacc801df14a935c",
+    "listed_at": "2026-08-29T09:18:27Z",
+    "latitude": 25.068262100219727,
+    "longitude": 55.20476531982422,
+    "scraped_at": "2026-09-05T11:38:03.142081+00:00",
+    "id": "6e61bdae8a578687",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2750.0,
+    "net_cost_best_case_aed": 1450.0
+  },
+  {
+    "source": "propertyfinder",
+    "source_id": "137431154",
+    "title": "GAS AND CHILLER FREE-12 CHQS-AMC INC-VACANT NOW",
+    "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137431154.html",
+    "price_monthly_aed": 5950.0,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "area": "Hanover Square, District 10, Jumeirah Village Circle, Dubai",
+    "image_url": "https://static.shared.propertyfinder.ae/media/images/listing/TGTX3F5VDQP71PCD2M103T73ZR/0b70c9a1-bf30-4d0f-a62d-2b3d76c94d20/668x452.jpg?v=4e5abec722a4724d20d997d1434e2379",
+    "listed_at": "2026-08-29T08:24:07Z",
+    "latitude": 25.068262100219727,
+    "longitude": 55.20476531982422,
+    "scraped_at": "2026-09-05T11:38:03.142088+00:00",
+    "id": "d7e5caec661c3143",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2750.0,
+    "net_cost_best_case_aed": 1450.0
   },
   {
     "source": "propertyfinder",
@@ -2028,8 +2532,12 @@
     "listed_at": "2026-09-04T10:46:41Z",
     "latitude": 24.94025421142578,
     "longitude": 55.21700668334961,
-    "scraped_at": "2026-09-05T11:26:51.864820+00:00",
-    "id": "f74a300cb85672ab"
+    "scraped_at": "2026-09-05T11:38:03.142098+00:00",
+    "id": "f74a300cb85672ab",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2799.583333333333,
+    "net_cost_best_case_aed": 1499.583333333333
   },
   {
     "source": "propertyfinder",
@@ -2044,8 +2552,12 @@
     "listed_at": "2026-08-07T19:38:40Z",
     "latitude": 25.118480682373047,
     "longitude": 55.39235305786133,
-    "scraped_at": "2026-09-05T11:26:51.864863+00:00",
-    "id": "ba925833d3e42f48"
+    "scraped_at": "2026-09-05T11:38:03.142169+00:00",
+    "id": "ba925833d3e42f48",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2060,8 +2572,12 @@
     "listed_at": "2026-08-09T21:59:51Z",
     "latitude": 25.035409927368164,
     "longitude": 55.210819244384766,
-    "scraped_at": "2026-09-05T11:26:51.864868+00:00",
-    "id": "46c85eea7c39a222"
+    "scraped_at": "2026-09-05T11:38:03.142174+00:00",
+    "id": "46c85eea7c39a222",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2076,8 +2592,12 @@
     "listed_at": "2026-08-30T12:45:59Z",
     "latitude": 25.248279571533203,
     "longitude": 55.30547332763672,
-    "scraped_at": "2026-09-05T11:26:51.864874+00:00",
-    "id": "68cf938153e66597"
+    "scraped_at": "2026-09-05T11:38:03.142179+00:00",
+    "id": "68cf938153e66597",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2092,8 +2612,12 @@
     "listed_at": "2026-08-19T05:58:24Z",
     "latitude": 25.28639793395996,
     "longitude": 55.402748107910156,
-    "scraped_at": "2026-09-05T11:26:51.864879+00:00",
-    "id": "4f897be571a3ff57"
+    "scraped_at": "2026-09-05T11:38:03.142184+00:00",
+    "id": "4f897be571a3ff57",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3800.0,
+    "net_cost_best_case_aed": 2500.0
   },
   {
     "source": "propertyfinder",
@@ -2108,8 +2632,12 @@
     "listed_at": "2026-08-27T06:58:34Z",
     "latitude": 25.091928482055664,
     "longitude": 55.38493728637695,
-    "scraped_at": "2026-09-05T11:26:51.864899+00:00",
-    "id": "3e84ee65412a7f51"
+    "scraped_at": "2026-09-05T11:38:03.142204+00:00",
+    "id": "3e84ee65412a7f51",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2124,8 +2652,12 @@
     "listed_at": "2026-09-04T05:50:24Z",
     "latitude": 25.118480682373047,
     "longitude": 55.39235305786133,
-    "scraped_at": "2026-09-05T11:26:51.864903+00:00",
-    "id": "62cc3607bfd2e4c7"
+    "scraped_at": "2026-09-05T11:38:03.142209+00:00",
+    "id": "62cc3607bfd2e4c7",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2140,8 +2672,12 @@
     "listed_at": "2026-08-30T09:56:21Z",
     "latitude": 25.248279571533203,
     "longitude": 55.30547332763672,
-    "scraped_at": "2026-09-05T11:26:51.864908+00:00",
-    "id": "b5954c6fedf4c661"
+    "scraped_at": "2026-09-05T11:38:03.142213+00:00",
+    "id": "b5954c6fedf4c661",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2156,8 +2692,12 @@
     "listed_at": "2026-08-23T20:26:21Z",
     "latitude": 25.118480682373047,
     "longitude": 55.39235305786133,
-    "scraped_at": "2026-09-05T11:26:51.864917+00:00",
-    "id": "3533fe4aeca3de71"
+    "scraped_at": "2026-09-05T11:38:03.142222+00:00",
+    "id": "3533fe4aeca3de71",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2172,8 +2712,12 @@
     "listed_at": "2026-08-20T07:04:22Z",
     "latitude": 25.118480682373047,
     "longitude": 55.39235305786133,
-    "scraped_at": "2026-09-05T11:26:52.779038+00:00",
-    "id": "889add30308bee9f"
+    "scraped_at": "2026-09-05T11:38:03.840003+00:00",
+    "id": "889add30308bee9f",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2188,8 +2732,12 @@
     "listed_at": "2026-09-03T12:45:44Z",
     "latitude": 24.944856643676758,
     "longitude": 55.20997619628906,
-    "scraped_at": "2026-09-05T11:26:52.779076+00:00",
-    "id": "a8e9656cef2d0bf0"
+    "scraped_at": "2026-09-05T11:38:03.840035+00:00",
+    "id": "a8e9656cef2d0bf0",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   },
   {
     "source": "propertyfinder",
@@ -2204,8 +2752,12 @@
     "listed_at": "2026-08-07T11:24:56Z",
     "latitude": 25.28639793395996,
     "longitude": 55.402748107910156,
-    "scraped_at": "2026-09-05T11:26:52.779091+00:00",
-    "id": "d61bcfd197073f42"
+    "scraped_at": "2026-09-05T11:38:03.840045+00:00",
+    "id": "d61bcfd197073f42",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3800.0,
+    "net_cost_best_case_aed": 2500.0
   },
   {
     "source": "propertyfinder",
@@ -2220,8 +2772,12 @@
     "listed_at": "2026-09-01T11:24:50Z",
     "latitude": 25.27574920654297,
     "longitude": 55.32229995727539,
-    "scraped_at": "2026-09-05T11:26:52.779098+00:00",
-    "id": "138645d025da057f"
+    "scraped_at": "2026-09-05T11:38:03.840050+00:00",
+    "id": "138645d025da057f",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3800.0,
+    "net_cost_best_case_aed": 2500.0
   },
   {
     "source": "propertyfinder",
@@ -2236,8 +2792,12 @@
     "listed_at": "2026-08-31T13:34:00Z",
     "latitude": 25.27574920654297,
     "longitude": 55.32229995727539,
-    "scraped_at": "2026-09-05T11:26:52.779103+00:00",
-    "id": "da26a8e0954ac2b9"
+    "scraped_at": "2026-09-05T11:38:03.840054+00:00",
+    "id": "da26a8e0954ac2b9",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3800.0,
+    "net_cost_best_case_aed": 2500.0
   },
   {
     "source": "propertyfinder",
@@ -2252,8 +2812,12 @@
     "listed_at": "2026-09-04T12:00:56Z",
     "latitude": 25.252241134643555,
     "longitude": 55.287330627441406,
-    "scraped_at": "2026-09-05T11:26:52.779109+00:00",
-    "id": "e144e6978f47c3b4"
+    "scraped_at": "2026-09-05T11:38:03.840100+00:00",
+    "id": "e144e6978f47c3b4",
+    "est_room_rent_typical_aed": 2200.0,
+    "est_room_rent_max_aed": 3500.0,
+    "net_cost_typical_aed": 3800.0,
+    "net_cost_best_case_aed": 2500.0
   },
   {
     "source": "propertyfinder",
@@ -2268,7 +2832,11 @@
     "listed_at": "2026-09-05T05:31:47Z",
     "latitude": 25.118480682373047,
     "longitude": 55.39235305786133,
-    "scraped_at": "2026-09-05T11:26:52.779133+00:00",
-    "id": "44bed318ca94d902"
+    "scraped_at": "2026-09-05T11:38:03.840126+00:00",
+    "id": "44bed318ca94d902",
+    "est_room_rent_typical_aed": 3200.0,
+    "est_room_rent_max_aed": 4500.0,
+    "net_cost_typical_aed": 2800.0,
+    "net_cost_best_case_aed": 1500.0
   }
 ]

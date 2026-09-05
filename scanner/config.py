@@ -21,8 +21,16 @@ class Criteria:
     # Listings in these areas are flagged "preferred" on the dashboard and sorted first.
     # This is a *preference*, not a filter — matching listings outside this list still show up,
     # as long as they clear the excluded_areas check above.
+    #
+    # Deliberately NOT including a bare "jumeirah" entry: Dubai has several
+    # "Jumeirah *"-branded areas that aren't actually the water-adjacent Jumeirah
+    # district — Jumeirah Village Circle/Triangle, Jumeirah Lake Towers, Jumeirah Park,
+    # Jumeirah Heights — and a plain substring match on "jumeirah" was silently
+    # matching all of them too (confirmed live: "Jumeirah Village Circle, Dubai" was
+    # getting flagged "Preferred area"). The specific entries below (Jumeirah 1/2/3,
+    # JBR, Palm Jumeirah, Jumeirah Golf Estates, etc.) already cover every genuine
+    # Jumeirah-area listing seen in real data without that false-positive risk.
     preferred_areas: tuple[str, ...] = (
-        "jumeirah",
         "jumeirah 1",
         "jumeirah 2",
         "jumeirah 3",

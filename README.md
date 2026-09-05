@@ -25,6 +25,35 @@ don't (same reason as above); Facebook/Apify is best-effort depending on what th
 actor's dataset includes. The map footer always shows "X of Y listings have map
 coordinates" so it's obvious when a source isn't contributing to it.
 
+## Room-sublet estimate
+
+Every card also shows what you'd actually net-pay if you sublet the second bedroom —
+useful if you're renting the flat yourself and covering part of the cost that way.
+This is **not scraped live data**: Dubai's room/shared-accommodation listings
+(Dubizzle's "Rooms for rent" category, mainly) sit behind the same Imperva Incapsula
+wall that blocks the Dubizzle flat scraper, so `scanner/room_rent.py` uses tiered
+estimates built from published market ranges instead — three tiers (budget / mid /
+premium) keyed off area name, winter/peak-season figures since that's Dubai's highest
+room-demand season:
+
+| Tier | Areas | Typical | Max |
+|---|---|---|---|
+| Budget | Deira, Bur Dubai, Al Nahda, International City, Muhaisnah, Al Warqa, Al Qusais, Discovery Gardens, Al Quoz | 2,200 AED/mo | 3,500 AED/mo |
+| Mid (default) | everything else | 3,200 AED/mo | 4,500 AED/mo |
+| Premium | same "preferred" list as the main criteria, plus Downtown/Business Bay | 4,800 AED/mo | 7,000 AED/mo |
+
+Treat these as a ballpark for budgeting, not a quote — the real rate for a specific
+room depends heavily on furnishing, the exact building, and who you rent to. If you
+want to tighten these numbers, `scanner/room_rent.py` is the one place to edit.
+
+**A bug this surfaced and fixed:** the "Preferred area" tagging used to substring-match
+a bare `"jumeirah"`, which silently matched non-water areas that just have "Jumeirah"
+in their name — Jumeirah Village Circle, Jumeirah Lake Towers, Jumeirah Park, Jumeirah
+Heights — none of which are the actual coastal Jumeirah district. That's fixed now
+(`scanner/config.py` only matches the specific real sub-areas), which also fixed the
+room-rent tier for those areas — they were getting the premium tier's inflated
+estimate before the fix.
+
 ## Run it locally
 
 ```bash

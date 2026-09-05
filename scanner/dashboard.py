@@ -7,6 +7,7 @@ from pathlib import Path
 from .config import Criteria
 from .filters import is_preferred_area
 from .models import Listing
+from .room_rent import estimate_room_rent
 
 DUBAI_CENTER = (25.2048, 55.2708)
 
@@ -68,6 +69,8 @@ PAGE_TEMPLATE = """<!doctype html>
   .badges {{ display:flex; gap:6px; flex-wrap: wrap; }}
   .badge {{ font-size: 0.72rem; background: var(--badge); color: var(--accent); padding: 2px 8px; border-radius: 999px; font-weight: 600; }}
   .source {{ font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }}
+  .sublet {{ font-size: 0.78rem; color: var(--muted); background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; padding: 6px 8px; margin-top: 2px; }}
+  .sublet b {{ color: var(--text); }}
   a.card {{ text-decoration: none; color: inherit; }}
   a.card:hover {{ border-color: var(--accent); }}
   .empty {{ color: var(--muted); padding: 40px 0; text-align: center; }}
@@ -82,6 +85,7 @@ PAGE_TEMPLATE = """<!doctype html>
   <h1>Dubai Flat Scanner</h1>
   <div class="meta">Last updated {generated_at} &middot; {count} matching listings</div>
   <div class="criteria">Budget &le; {max_price} AED/month &middot; {bedrooms} bed / {bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days</div>
+  <div class="criteria">Each card also shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out &mdash; ballpark figures from market research, not live data; see the README for methodology.</div>
 </header>
 <main>
   <div class="view-toggle" role="tablist">
@@ -172,6 +176,7 @@ CARD_TEMPLATE = """
     <div class="price">{price} AED/mo</div>
     <div class="title">{title}</div>
     <div class="area">{area}</div>
+    <div class="sublet">Sublet a room (winter): ~{room_typical}&ndash;{room_max} AED/mo &rarr; <b>you'd pay ~{net_best}&ndash;{net_typical}/mo net</b></div>
     <div class="row">
       <div class="badges">
         {preferred_badge}
@@ -194,13 +199,25 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
 
     (out_dir / "favicon.svg").write_text(FAVICON_SVG, encoding="utf-8")
 
-    data = [l.to_dict() for l in listings]
-    (out_dir / "data.json").write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-
+    data = []
     cards_html = []
     map_points = []
     for l in listings:
         preferred = is_preferred_area(l, criteria)
+        room_typical, room_max = estimate_room_rent(l.area)
+        if l.price_monthly_aed is not None:
+            net_typical = l.price_monthly_aed - room_typical
+            net_best = l.price_monthly_aed - room_max
+        else:
+            net_typical = net_best = None
+
+        d = l.to_dict()
+        d["est_room_rent_typical_aed"] = room_typical
+        d["est_room_rent_max_aed"] = room_max
+        d["net_cost_typical_aed"] = net_typical
+        d["net_cost_best_case_aed"] = net_best
+        data.append(d)
+
         cards_html.append(
             CARD_TEMPLATE.format(
                 url=l.url,
@@ -208,6 +225,10 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
                 price=_fmt_price(l.price_monthly_aed),
                 title=l.title,
                 area=l.area,
+                room_typical=_fmt_price(room_typical),
+                room_max=_fmt_price(room_max),
+                net_best=_fmt_price(net_best),
+                net_typical=_fmt_price(net_typical),
                 preferred_badge='<span class="badge">Preferred area</span>' if preferred else "",
                 source=l.source,
             )
@@ -224,6 +245,8 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
                     "source": l.source,
                 }
             )
+
+    (out_dir / "data.json").write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
     center_lat, center_lon = DUBAI_CENTER
     if map_points:
