@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7d774"/>
+      <stop offset="1" stop-color="#e8794f"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sky)"/>
+  <polygon fill="#1a2332" points="
+    44,58 41,58 41,49 38,49 38,41 36,41 36,33 34,33 34,24 33,24 33,15 32.6,15 32.6,4
+    31.4,4 31.4,15 31,15 31,24 30,24 30,33 28,33 28,41 26,41 26,49 23,49 23,58 20,58
+    20,60 44,60
+  "/>
+</svg>

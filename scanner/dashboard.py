@@ -10,12 +10,31 @@ from .models import Listing
 
 DUBAI_CENTER = (25.2048, 55.2708)
 
+# Burj Khalifa silhouette (stepped taper + spire) on a sunset gradient — reads clearly
+# even at 16x16, verified by rendering it at 16/32/64/128px before wiring it in.
+FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7d774"/>
+      <stop offset="1" stop-color="#e8794f"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sky)"/>
+  <polygon fill="#1a2332" points="
+    44,58 41,58 41,49 38,49 38,41 36,41 36,33 34,33 34,24 33,24 33,15 32.6,15 32.6,4
+    31.4,4 31.4,15 31,15 31,24 30,24 30,33 28,33 28,41 26,41 26,49 23,49 23,58 20,58
+    20,60 44,60
+  "/>
+</svg>
+"""
+
 PAGE_TEMPLATE = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dubai Flat Scanner</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 <style>
   :root {{
@@ -172,6 +191,8 @@ def _fmt_price(v: float | None) -> str:
 
 def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    (out_dir / "favicon.svg").write_text(FAVICON_SVG, encoding="utf-8")
 
     data = [l.to_dict() for l in listings]
     (out_dir / "data.json").write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
