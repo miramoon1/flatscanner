@@ -1,12 +1,33 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 from .config import Criteria
 from .models import Listing
+
+MAX_LISTING_AGE = timedelta(days=30)
 
 
 def _area_matches_any(area: str, needles: tuple[str, ...]) -> bool:
     area_lower = (area or "").lower()
     return any(needle in area_lower for needle in needles)
+
+
+def _is_too_old(listing: Listing) -> bool:
+    """True only when the source told us a listed_at AND it's >30 days old.
+    No listed_at (Bayut/Dubizzle don't reliably expose one from the search-results
+    page — see their source modules) means we can't verify age, so we don't drop it;
+    that would silently zero out sources that don't have a "posted date" available.
+    """
+    if not listing.listed_at:
+        return False
+    try:
+        listed = datetime.fromisoformat(listing.listed_at.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if listed.tzinfo is None:
+        listed = listed.replace(tzinfo=timezone.utc)
+    return datetime.now(timezone.utc) - listed > MAX_LISTING_AGE
 
 
 def is_match(listing: Listing, criteria: Criteria) -> bool:
@@ -17,6 +38,8 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     if listing.bathrooms != criteria.bathrooms:
         return False
     if _area_matches_any(listing.area, criteria.excluded_areas):
+        return False
+    if _is_too_old(listing):
         return False
     return True
 

@@ -78,6 +78,7 @@ def _parse_card(card) -> Listing | None:
 
         source_id = url.rstrip("/").rsplit("-", 1)[-1].split(".")[0]
 
+        # No listed_at or coordinates here either — same reasoning as bayut.py.
         return Listing(
             source="dubizzle",
             source_id=source_id or url,

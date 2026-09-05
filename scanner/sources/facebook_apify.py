@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import os
 import re
+from datetime import datetime, timezone
 
 import requests
 
@@ -92,12 +93,26 @@ def _to_listing(item: dict, criteria: Criteria) -> Listing | None:
         return None  # can't verify bed/bath count from the listing text, skip rather than guess
 
     price_monthly = _extract_price_monthly(item, text)
-    area = item.get("locationText") or item.get("location") or ""
+
+    # "location" can come back as a plain string OR a nested {text, latitude,
+    # longitude} object depending on the actor version — handle both rather than
+    # assume, since assigning a dict straight into area (a string field) would be wrong.
+    raw_location = item.get("location")
+    nested_location = raw_location if isinstance(raw_location, dict) else {}
+    area = item.get("locationText") or nested_location.get("text") or (raw_location if isinstance(raw_location, str) else "") or ""
 
     photos = item.get("listingPhotos") or item.get("images") or []
     image_url = photos[0] if photos and isinstance(photos[0], str) else None
 
     source_id = str(item.get("id") or url.rstrip("/").rsplit("/", 1)[-1])
+
+    listed_at = item.get("creationTime") or item.get("creation_time") or item.get("listingCreationTime")
+    if isinstance(listed_at, (int, float)):
+        # Some Apify FB actors report this as a unix timestamp rather than ISO text.
+        listed_at = datetime.fromtimestamp(listed_at, tz=timezone.utc).isoformat()
+
+    latitude = item.get("latitude") or nested_location.get("latitude")
+    longitude = item.get("longitude") or nested_location.get("longitude")
 
     return Listing(
         source="facebook",
@@ -109,6 +124,9 @@ def _to_listing(item: dict, criteria: Criteria) -> Listing | None:
         bathrooms=int(baths_match.group(1)),
         area=area,
         image_url=image_url,
+        listed_at=listed_at if isinstance(listed_at, str) else None,
+        latitude=latitude,
+        longitude=longitude,
     )
 
 

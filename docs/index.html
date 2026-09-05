@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dubai Flat Scanner</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 <style>
   :root {
     --bg: #f7f5f2; --card: #ffffff; --text: #1a1a1a; --muted: #6b6b6b;
@@ -19,6 +20,12 @@
   .meta { color: var(--muted); font-size: 0.9rem; }
   .criteria { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
   main { max-width: 1100px; margin: 0 auto; padding: 8px 24px 48px; }
+  .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+  .view-toggle button {
+    font: inherit; font-weight: 600; font-size: 0.85rem; padding: 7px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer;
+  }
+  .view-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--card); border-color: var(--accent); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
   .card img { width: 100%; height: 160px; object-fit: cover; background: var(--border); }
@@ -33,16 +40,25 @@
   a.card { text-decoration: none; color: inherit; }
   a.card:hover { border-color: var(--accent); }
   .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+  #map { height: 70vh; min-height: 420px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+  .map-note { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
+  .leaflet-popup-content b { color: var(--accent); }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <header>
   <h1>Dubai Flat Scanner</h1>
-  <div class="meta">Last updated 2026-09-05 09:54 UTC &middot; 229 matching listings</div>
-  <div class="criteria">Budget &le; 6,000 AED/month &middot; 2 bed / 2 bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred</div>
+  <div class="meta">Last updated 2026-09-05 10:37 UTC &middot; 142 matching listings</div>
+  <div class="criteria">Budget &le; 6,000 AED/month &middot; 2 bed / 2 bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days</div>
 </header>
 <main>
-  <div class="grid">
+  <div class="view-toggle" role="tablist">
+    <button id="btn-list" type="button" aria-pressed="true">List</button>
+    <button id="btn-map" type="button" aria-pressed="false">Map</button>
+  </div>
+
+  <div class="grid" id="list-view">
     
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137433714.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/NJ1Y87030SQ4KBXZPVY347WZ8C/8619b25d-116e-4b6a-a287-693068d00731/668x452.jpg?v=e01aa88d4fa7ed48bacc801df14a935c" alt="" loading="lazy" onerror="this.style.display='none'" />
@@ -76,43 +92,11 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-damas-al-qusais-105980502.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/78ESNDKV3B6E366E3QV7W4RFER/90a742e2-ee86-4c9c-89f1-4ba94f5343b5/668x452.jpg?v=6f03738d9b649782d3295eca251fe958" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,250 AED/mo</div>
-    <div class="title">Free Car Parking I Close Kitchen I Spacious 2BR</div>
-    <div class="area">Damas Al Qusais, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-s-s-lootah-building-muhaisnah-4-132941531.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/EZKQ0ZZQ9V0S0TH4Z53WPFP5AC/397a2c42-0342-4aa3-8c21-e47878b49f39/668x452.jpg?v=593daee73b01f05a8486f9b7a3651024" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">4,333 AED/mo</div>
     <div class="title">2 Bedroom Hall | Free Parking | Near Madian Mall</div>
-    <div class="area">S. S. Lootah Building Muhaisnah 4, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-s-s-lootah-building-muhaisnah-4-117280917.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/CPSZT3E3T47JDCTT1B8WY7NT64/5636fd0e-36f5-4985-bf48-075753c88b32/668x452.jpg?v=72fb8a0c2a11ecc68973e9f0a79c66db" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,333 AED/mo</div>
-    <div class="title">Close to Madina Mall | 2 BHK | Family Only</div>
     <div class="area">S. S. Lootah Building Muhaisnah 4, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
     <div class="row">
       <div class="badges">
@@ -162,38 +146,6 @@
     <div class="price">4,500 AED/mo</div>
     <div class="title">Spacious 1 BHK SOK Apartment With All Facilities</div>
     <div class="area">Al Warqa'a 1, Al Warqa'a, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-china-cluster-building-a9-117277604.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/J4RFXMYAV8Q30QKTV96QARJX30/7a8ae197-879b-4011-8029-a5c5efd6d56d/668x452.jpg?v=ad07c8bce0f973d6d1111b8ec8194491" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,500 AED/mo</div>
-    <div class="title">2 Bedroom for Company Staff Accommodation</div>
-    <div class="area">Building A9, China Cluster, International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-building-b04-76589451.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/HQ1308HZWXPJ9HDHN3QGK1SJD4/27f6e1bf-c26d-48ab-96b0-bc838353b3a7/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,500 AED/mo</div>
-    <div class="title">Prime Location 2BR | Spacious Layout Home - 54K</div>
-    <div class="area">Building B04, CBD (Central Business District), International City, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -332,22 +284,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-106391792.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/XQ2JM583FQ2TTZ6MKSJ2NN5JVC/90eaa233-a6ee-4cd5-b53d-814abae303bd/668x452.jpg?v=663e041b6e66ff2793fef1c3f40c5655" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,583 AED/mo</div>
-    <div class="title">Cheapest 2Bhk Apartment 55K Rent</div>
-    <div class="area">Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-140571156.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/9W0KCW1YJFSBFA8AJ5APFZNRSM/bebb9ae0-3021-41b3-b0b0-02042ee04a5a/668x452.jpg?v=b6b69f179748938167e3232d3e413ab4" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -460,22 +396,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-al-jabris-towers-al-jabri-tower-b-111430597.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/PSPWYVZDXZQ7HWPJBJRC4EZ4MG/7e423c98-3414-4b0c-9a18-a4e1555166ad/668x452.jpg?v=4bff40969846b598d1371bed858f9226" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,833 AED/mo</div>
-    <div class="title">2bhk affordable for family front of school</div>
-    <div class="area">Al Jabri Tower B, Al Jabris Towers, Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-muhaisnah-plaza-127473209.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/5SKFFH9G9A48320F3NCFRHXK1W/9a1cf63b-4a13-4fff-9461-1f2a60de9c79/668x452.jpg?v=0ad8f617d10da12129579f03c66a6d86" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -492,60 +412,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-raf-raf-building-121546161.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/JKWEB83QCVJAH4S87WYSFH3VSW/18d9830d-a4dc-4215-b73c-620b3ae6a89a/668x452.jpg?v=2e96f69ed5f6ad1152643a0ab618eda1" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,833 AED/mo</div>
-    <div class="title">Near ST Mary School | 2BHK | Balcony | Gymnasium</div>
-    <div class="area">Raf Raf Building, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-al-warqa-a-1-building-138789768.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/JTYKV6P4M0860Q2MWKW4076KER/b02e2231-5cdf-4622-af0a-c46ca8e5f562/668x452.jpg?v=00f525f7a1601423524e7975974d767d" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">4,833 AED/mo</div>
     <div class="title">LOWEST NEAR TO SCHOOL WITH FREE PARKING NEAR TO EX</div>
     <div class="area">Al Warqa'a 1 Building, Al Warqa'a 1, Al Warqa'a, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-sabah-tower-114170198.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/1AW9AVBSZ78T5DAPQ234GM74XR/df3c587e-df82-44d4-87f7-7756bace2b9c/668x452.jpg?v=11e4d4586dfa9b9582363470db3890fb" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,833 AED/mo</div>
-    <div class="title">Affordable 2BHK | Near Park | Prime Location</div>
-    <div class="area">Al Sabah Tower, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-china-cluster-building-a9-77362942.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/4A5T2F90TX504MN17ZHJ6SP1XC/2d12db1d-fee1-48c6-950e-c11be9b1cce3/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,833 AED/mo</div>
-    <div class="title">2 bedroom for company accommodation</div>
-    <div class="area">Building A9, China Cluster, International City, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -588,54 +460,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-china-cluster-building-a9-121095536.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/XCPMD7JFB9820FNDMES3RAJQG4/61625d5e-22fe-4067-8ae4-513f4fe92a5b/668x452.jpg?v=e478c73ce5d99d14ec967b860a512559" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,833 AED/mo</div>
-    <div class="title">Spacious 2 BR Apartment  International City</div>
-    <div class="area">Building A9, China Cluster, International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-saeed-tower-106390727.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/9NTTSBBCEVK1AVSG93HVNNECQ4/66307ef2-54da-4f46-85a9-ecbb4da271b9/668x452.jpg?v=2d55ee41ccf66cb12eeea707941f46a3" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,833 AED/mo</div>
-    <div class="title">2Bhk Apartment 58K Rent Near Park Al Nahda Dut</div>
-    <div class="area">Saeed Tower, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-87870141.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/N8QCJ6HE8JX1PQEHNP1RER039C/dcd53979-84cb-4b57-9f48-d4fc23dce477/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">4,917 AED/mo</div>
-    <div class="title">DISCOUNT AVAILABLE | Good for Family 2BR for RENT</div>
-    <div class="area">Maryam Building, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-137874474.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/H3746RGYT9GFQ9GTJ7N3N4E3A8/ceeb0f5f-58bf-4264-b718-55d9d9893067/668x452.jpg?v=c39259b0da3855ce9c238a32854f5451" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -668,22 +492,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-nahda-tower-114595693.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/DGP24DCSKDZETXC5C25EN74CJR/a7bc8166-3694-4cbc-ab51-fa1b14a34f6f/668x452.jpg?v=7f7b6908a51e9b52719bcd38662160cc" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Prime Living  Your Perfect 2-Bedroom Awaits</div>
-    <div class="area">Al Nahda Tower, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-3-127465146.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/WGPGMD77Z0EJ5ZHVE301SCACAR/a81c29e7-1c78-4847-a97e-68bd036bd3e3/668x452.jpg?v=0f589be09daa33a01e876bf686a11c22" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -700,44 +508,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-global-green-view-124281092.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/8AF6P41VVTJ6FSTY3R7AS29NE4/ae1fb0e3-c10a-4c74-b3d1-bf09b1692231/668x452.jpg?v=108c00c5dece327b0672953f6d076674" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Company staff Welcome| 2BHK with balcony for Rent</div>
-    <div class="area">Global Green View, CBD (Central Business District), International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-wasl-oasis-iii-140139500.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/1QDA5EZ7K6EE6T8X8J2ZV1S54M/9034317f-5396-4b3e-88ff-3bcfd4f51a25/668x452.jpg?v=fdd31823d1ded075ae303b17755466c9" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,000 AED/mo</div>
     <div class="title">Super Offer - 2bhk - Near Indian Academy- Only 60k</div>
     <div class="area">wasl Oasis III, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-al-jabris-towers-al-jabri-tower-a-111430747.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/3TE53WSGBB2ZVAWCKXPSV6HYPC/b98e6985-abf8-4fb3-8887-c36d670ce278/668x452.jpg?v=3b62b89bcfde652f2fd49e00555b9d00" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Well-maintained 2bhk for family near to shool</div>
-    <div class="area">Al Jabri Tower A, Al Jabris Towers, Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -796,60 +572,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-1-al-nahda-al-salem-tower-2-121548687.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/W1YA14PMNV531KKX8WHYPCVA5G/35eee14a-9339-4387-8d1a-35da8caa922c/668x452.jpg?v=74fa2846900b4047f52487c5675dad54" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Ready to Move | 2BHK | Full Amenities | Nahda 1</div>
-    <div class="area">Al Salem Tower 2, Al Nahda 1, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-global-green-view-97372936.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/MR3FQN3XBPSFRD1VEYVD9NXS10/f3e66ba3-a2af-4887-b7ee-4575966a520f/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">2BR For Rent | Available | Affordable Unit</div>
-    <div class="area">Global Green View, CBD (Central Business District), International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-138766069.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/70ZJXH42J6NAHZMD31KGSM9R1M/51466020-770a-4d80-aa48-99cbf382e15d/668x452.jpg?v=e20970da57f01415ef3982ededea408c" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,000 AED/mo</div>
     <div class="title">SPACIOUS | 2 BEDROOM HALL l VACANT</div>
     <div class="area">Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-al-jabris-towers-al-jabri-tower-b-101298522.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/Y59J19SZ0KBJ15T5G53QECEE00/ea8a3dc2-85df-459e-984b-a88c42453a35/668x452.jpg?v=1a7c29ec53557164ed22985eab8b8370" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Budget Friendly 2BHK Near Metro Location</div>
-    <div class="area">Al Jabri Tower B, Al Jabris Towers, Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -940,22 +668,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-prime-residency-prime-residency-a-112755377.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/39MC6WQV4AD1QDZF4FZS4S462W/704bc6fa-78de-49e1-b015-fde9c461cdb7/668x452.jpg?v=63632c69eafac92444297d34a0d94273" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">2BHK Apartment PR with Cover Parking</div>
-    <div class="area">Prime Residency A, Prime Residency, International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-132986972.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/5GPYXF05NKG0PBCV2QCK5JHWCG/59016081-49d4-4592-b21c-55fc01aecffa/668x452.jpg?v=3f7daa518edb0be9aac87e1a6c9de65c" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -1004,76 +716,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-116377422.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/WDC4CX3T6J177NE2K4JD5905W8/c7c225b8-33d4-4b28-b224-4aaf8b41bb02/668x452.jpg?v=98cbc3fb0a54fce607255538f5902767" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Elegant Unit | Near Pond Park | Balcony</div>
-    <div class="area">Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-15444540.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/01JT04SHM7XT9QHXQX9QM3RGVC/7640a804-0d0a-4243-bf38-8e3b51bc5b21/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,000 AED/mo</div>
-    <div class="title">Full Facilities | Ready to Move in | Spacious</div>
-    <div class="area">Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-132495413.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/E7PB7ZQWTH5R9RNDQYEY3M01P8/ad29c7d3-39ad-4c54-95e1-8a127d722436/668x452.jpg?v=511a900b0ca72a5ba4f59f48baab7a38" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,083 AED/mo</div>
     <div class="title">Amazing layout 2beds no balcony garden view</div>
     <div class="area">Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-concord-3-121544303.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/TA0ZM33RN764VGNHPTE04SF1T8/b44011d8-22a0-4bf4-81c2-cd9e50df73a0/668x452.jpg?v=01b260135138e771b5d1d878cc3c88b9" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,167 AED/mo</div>
-    <div class="title">2BR Near Talal Mart & Schools & Masjid For Family</div>
-    <div class="area">Concord 3, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-121544046.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/D1R7QXW0PKDHNS7GR79K8CZP84/8ef038a0-923c-421c-8314-410895fd8537/668x452.jpg?v=64dd9c4b9a591a4bc658c9760813878d" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,167 AED/mo</div>
-    <div class="title">2BR Near Talal Mart & Schools & Masjid For Family</div>
-    <div class="area">Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -1100,22 +748,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-al-muteena-16261028.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/84F0TR6GRWJVZKFBDRB0V97VWG/b56256ec-4d5f-47bf-9506-22b57029b4ca/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,167 AED/mo</div>
-    <div class="title">QUALITY-2 BEDROOM+BALCONY-AL MUTEENA</div>
-    <div class="area">Al Muteena, Deira, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-sun-point-dubai-sun-point-dubai-a-127936757.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/KK6Z68DC2W693YHQETT00JN73W/8a23ea30-e695-4573-9520-17ce4b8f0f54/668x452.jpg?v=79c67f3376c695ea4a622d7efb96bd80" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -1132,44 +764,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-al-jabri-tower-4-101294033.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/8W3C8CKX3EAASWD8R902CDG2ZW/be29c7ca-8689-44da-8bdd-9b1dab1f3896/668x452.jpg?v=6de33c39ec715bc702711e570244bb13" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,167 AED/mo</div>
-    <div class="title">Spacious 2BHK | Prime Location | Family building</div>
-    <div class="area">Al Jabri Tower 4, Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-132982762.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/GD4W8Y126KGKHFG9FZSN5TCZSW/65741c99-bd49-4771-927c-53dfdd8c2b85/668x452.jpg?v=bbd9abd010549368902508651894088e" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,167 AED/mo</div>
     <div class="title">Specious 2BHK Apartment in New Building</div>
     <div class="area">Bait Aseel, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-riviera-lake-view-123389105.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/CSCPD4X2CJE1YGF2CN592P86KM/c37e228b-af7b-4a5d-ae62-f43786a78a06/668x452.jpg?v=d55f79603c8aaccf42474de3ab0a06df" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,167 AED/mo</div>
-    <div class="title">Spacious Apartment | Vacant | Well Maintained</div>
-    <div class="area">Riviera Lake View, CBD (Central Business District), International City, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -1260,70 +860,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-3-102844318.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/RVQ3PMVMM7QEX2NNN074VT0WNM/0807f523-69cf-41e8-bd73-ffd3caecaa3e/668x452.jpg?v=64db0f418c7ee69d69bcfc6ed4844adc" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,250 AED/mo</div>
-    <div class="title">2bhk affordable price for family near bus stop</div>
-    <div class="area">Al Qusais Industrial Area 3, Al Qusais Industrial Area, Al Qusais, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-salem-tower-88295482.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/N013DSVM2YYXBFTRQ88DMNQT4W/e35edb4e-5c8b-4b8d-8728-c6605626f65c/668x452.jpg?v=d9bda8eedabe0be8cc0370309bf03eae" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,250 AED/mo</div>
-    <div class="title">Dream 2BHK with Relaxing Pond and Garden Park View</div>
-    <div class="area">Al Salem Tower, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-3-118581798.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/SA2647VQ8CAWNZBYQRS7414FWR/b0b2115a-aa25-4807-b060-2aa7145b8f6d/668x452.jpg?v=104911440c65d1500119175e021d12fe" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,250 AED/mo</div>
-    <div class="title">2 BHK for Rent | Prime Al Qusais Industrial Area 3</div>
-    <div class="area">Al Qusais Industrial Area 3, Al Qusais Industrial Area, Al Qusais, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-3-109487270.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/0400R05QT2092H8QS63J9AG9RM/f9dd67e6-5a24-4808-bca9-1faffd893413/668x452.jpg?v=a80137087fdd05b11a03e8cb5e0d6c63" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,250 AED/mo</div>
-    <div class="title">Spacious 2BHK Apartment-Gym-Pool</div>
-    <div class="area">Al Qusais Industrial Area 3, Al Qusais Industrial Area, Al Qusais, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-2-136090287.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/Q599Q4CFC5BMDK8EPJT84K8TG0/be44b81d-5f7d-4dcd-b793-090a02cb562e/668x452.jpg?v=229f5cc643d3540964f82ad7e88e02a9" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -1404,22 +940,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-windsor-residence-99547131.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/FK79JVZ7VA074XKMS6W5VC7R64/a08d8aa1-aa98-490f-9920-b110d225f57f/668x452.jpg?v=9e66ef6120ad09bdf0e350bc8d1edc11" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">UNFURNISHED | WITHOUT BALCONY | COMMUNITY VIEW</div>
-    <div class="area">Windsor Residence, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-132955947.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/FVEKPREYMGBZ1JZ2WR1E26Q5HC/2a9f1957-87f6-49bf-913f-445dc30b0833/668x452.jpg?v=73cd8db074fac46a551c834ff97f9a7e" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -1442,22 +962,6 @@
     <div class="price">5,417 AED/mo</div>
     <div class="title">2BR + Maid's with Balcony @ Al Nahda 1</div>
     <div class="area">Al Nahda 1, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-zumurrud-tower-107746643.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/ZP93SXTJ6DC7FZDXCBQDP9YT90/01adf313-23d7-4eb5-a1e7-7b1a92c49cf0/668x452.jpg?v=b4921c938ef162cae273045e20059048" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">2BR  with  Balcony with All Facilitieas</div>
-    <div class="area">Al Zumurrud Tower, Al Nahda 2, Al Nahda, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -1506,70 +1010,6 @@
     <div class="price">5,417 AED/mo</div>
     <div class="title">2-Bedroom for rent CBD Al Dana 1 IC</div>
     <div class="area">Al Dana 1, Al Dana, CBD (Central Business District), International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-kappa-acca-3-122441082.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/VWJBK3RFR8GR0YNZTREF04R63M/93ba6c4b-5a9a-4fbb-a397-abe2d452f04a/668x452.jpg?v=545590c6e4795840aacf0bc54ef3c760" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Kappa Acca 3 | Bright and Spacious 2br | Furnished</div>
-    <div class="area">Kappa Acca 3, Residential District, Dubai South (Dubai World Central), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-salem-tower-108609352.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/N0FTEE7BX932GPWZVJE0NEZZ64/8373880a-5989-499e-b634-fca31488ecde/668x452.jpg?v=c82b0e67b98eb5a7e125b68bd2488a34" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Close to School 2 Bed Room | Nahda 2 | 4 CHQs</div>
-    <div class="area">Al Salem Tower, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-concord-3-74634210.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/QTY19QV1WHQ6P9VQ6G643QBSK0/c41d2159-436a-4ef3-9f2e-65384f9c9c17/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Close to School 2BHK With Balcony & Swimming Pool</div>
-    <div class="area">Concord 3, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-sabah-tower-100845386.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/857BBGSGD2RB4SCG585XRKFFXW/22397ec2-3f77-47c7-8db5-ddd97de8ea9f/668x452.jpg?v=799c9d14fa2ae9a2e2341c85f414b740" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Premium 2BHK Apartment for Families | Amenities</div>
-    <div class="area">Al Sabah Tower, Al Nahda 2, Al Nahda, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -1660,60 +1100,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-1-al-nahda-al-salem-tower-2-88296997.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/GCEYG075HGPZ90XK6KEDXM0B7R/57ecdfd8-2d68-41de-8a22-f64a616430d3/668x452.jpg?v=d9bda8eedabe0be8cc0370309bf03eae" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Affordable 2BHK Close to Metro Connectivity</div>
-    <div class="area">Al Salem Tower 2, Al Nahda 1, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-sheebani-tower-78998455.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/9D5VNZ42NEWT2SVN8WCE2D6YN0/c0a2a199-0405-4415-bc71-34820a11da85/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">2 bedroom | Near nesto  | Huge size</div>
-    <div class="area">Al Sheebani Tower, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-136080312.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/DM01Q6G1CYFPCNBAPTCKBM3D7C/5ea6d0e4-25ce-4ce8-9e82-e0b7b05f8764/668x452.jpg?v=1b75f3f1238e57e79fc831ef6fdf1180" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,417 AED/mo</div>
     <div class="title">New building specious 2bhk apartment clos to schol</div>
     <div class="area">Bait Aseel, Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-116389624.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/62BHS5Y7NFARVGENE73NV18WX8/ea34df20-c731-424a-9341-ed6a69144cf2/668x452.jpg?v=1a4f3443fde54f4ea81e8e78998627ba" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Massive 2 BR Apartment with Landmark View</div>
-    <div class="area">CBD (Central Business District), International City, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -1788,22 +1180,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-elite-sports-residence-elite-sports-residence-1-73114984.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/0DGMC48N4J29NFZ94ZA1K753GC/ad32903e-3be5-43bf-85a0-8d5cacc365a3/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">2 BEDROOM AND HALL | SPACIOUS FULLY</div>
-    <div class="area">Elite Sports Residence 1, Elite Sports Residence, Dubai Sports City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-129317700.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/PGYSEDHDE64PD846217J19S6YG/f23b413a-51cc-47d6-8e7c-43c98709affd/668x452.jpg?v=47a1fcf91fb8cf1044103f30aed55a8e" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -1826,54 +1202,6 @@
     <div class="price">5,417 AED/mo</div>
     <div class="title">Spacious 2 Bhk ||Huge Balcony || Community View.</div>
     <div class="area">Liwan 2, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-126109461.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/JEPNZSZ8KY4R4N17AX37A59RRM/fb833269-e559-4e45-80d5-cfba4d85f7e6/668x452.jpg?v=fea4b2777f0badb5bd68eb3261b2de8d" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Your Next Home Just Opened Up | Newly Vacant Unit</div>
-    <div class="area">CBD (Central Business District), International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-107290168.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/2AEKJJCSVH6PG2MWVD3G8QTZ58/f01d4129-54e5-4d39-a93d-d6796b7cd69c/668x452.jpg?v=d235bd568ab80f601f69a356b325548a" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,417 AED/mo</div>
-    <div class="title">Full Facilities | Ready to Move in | Spacious</div>
-    <div class="area">Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-kappa-acca-5-115487940.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/NXBDMN3C7QW332TMN3MSVQKXVC/9e5d0c1c-ff70-4d0a-86b2-92447db119ea/668x452.jpg?v=209d85c727a232f90d278e4d636ab91a" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,500 AED/mo</div>
-    <div class="title">Spacious layout | vacant | unfurnished</div>
-    <div class="area">Kappa Acca 5, Residential District, Dubai South (Dubai World Central), Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -1916,60 +1244,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-quoz-al-khail-gate-80248997.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/Z1NEC55WR06C01BM4T4EQE9CF0/92c11b7d-d713-4611-85ab-d1cffcb30695/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,500 AED/mo</div>
-    <div class="title">2BR | Direct from Developer | No Commission</div>
-    <div class="area">Al Khail Gate, Al Quoz, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-quoz-al-khail-gate-80249220.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/WV9HF8PWH3WBAKBX3AK6B2Q1VW/99868d8b-445a-48e6-ba0f-a1c30df8a806/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,500 AED/mo</div>
-    <div class="title">2 Bedroom | Family Home for Rent in Al Khail Gate</div>
-    <div class="area">Al Khail Gate, Al Quoz, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-maria-1-building-138316719.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/6EZ113TE4K59YQF8MRGTG2WXWW/77d5a4f8-c7b2-4e5c-b4b7-137213560369/668x452.jpg?v=4fea8d60c0c15f10a94f1f3c77e6c2c0" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,500 AED/mo</div>
     <div class="title">2 BHK | Balcony | Parking | Al Nahda 1</div>
     <div class="area">Maria 1 Building, Al Nahda 1, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-125189682.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/Z1RAXBDTHWX0FDR8SPB8GA467M/5d4a6e88-6a44-4c70-a350-187d9c77de4e/668x452.jpg?v=3d793b2a8122df12ad03d09ba3f51eaf" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,500 AED/mo</div>
-    <div class="title">2BHK | 3 SPLIT AC | CLOSE TO METRO | FOR 66K ONLY</div>
-    <div class="area">Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -2002,22 +1282,6 @@
     <div class="price">5,500 AED/mo</div>
     <div class="title">Spacious Fully Furnished 2-Bedroom Apartment</div>
     <div class="area">Universal Apartments, CBD (Central Business District), International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-rukan-rukan-tower-rukan-tower-b-110952373.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/PYEB0VN0DJHF4N9TA1KJ3R24S8/46aef4bd-1f9c-4b84-a078-24ac51b05cb0/668x452.jpg?v=083494501016c8bc20624faff0635687" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,500 AED/mo</div>
-    <div class="title">SPACIOUS 2 BHK | UNFURNISHED| AED 66K | 6 CHEQUES</div>
-    <div class="area">Rukan Tower B, Rukan Tower, Rukan, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -2220,54 +1484,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-125163907.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/6RF48QVXYRWDPPRBJ3ED4K14SC/3bd0815e-eb18-403b-b2ba-c4e2e1e4a985/668x452.jpg?v=67d622690507acbfd0b9dc5a10fd8163" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,583 AED/mo</div>
-    <div class="title">SPACIOUS || COMMUNITY VIEW || FAMILY ORIENTED</div>
-    <div class="area">Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-124711744.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/8B717T0MMF6CXN3CHH5G1CA6AR/4f9bc427-f74c-4efe-a7d3-cc34876e764f/668x452.jpg?v=f02649ea6a4ecf854a3fe669c4a5dc22" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,583 AED/mo</div>
-    <div class="title">12Cheque Payment 2Bhk Rent 67K With Gym-Pool</div>
-    <div class="area">Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-al-muraqqabat-makani-building-124725765.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/2MV9425K2WAF2FHQTFEY836X70/b7f51368-9534-4cf3-bb73-a2c054c0913f/668x452.jpg?v=834e9ae4ebf49924ee95943924364026" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,583 AED/mo</div>
-    <div class="title">Walkable To Metro | 2BHK | Balcony Wardrobe</div>
-    <div class="area">Makani Building, Al Muraqqabat, Deira, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-mounati-building-139721473.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/K2F316K8N8M3VTDMRA56A9VSQ8/0ce9ee6c-1b3c-42ff-8338-04173c60ce74/668x452.jpg?v=9eaf03a2201ecee54e6a4e749acc3272" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -2316,38 +1532,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-global-green-view-110980261.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/XW9HTRWP9G4RP7XMXJ8KY8FYQ4/61177893-803f-4d47-9b73-7e80d8f620a3/668x452.jpg?v=9c6aa37eef6d4a24bd4055006c144cdc" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,583 AED/mo</div>
-    <div class="title">2 BR Apartment in International City with Balcony</div>
-    <div class="area">Global Green View, CBD (Central Business District), International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-121099506.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/4CKV73BZZ66608E6NNT4VPX5JW/3892827d-0e2e-4d61-b05a-1f528f25da00/668x452.jpg?v=7a57ef47f55970bf4a964776dec8f6f3" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,625 AED/mo</div>
-    <div class="title">2BR Apartment | Best Price | Unfurnished</div>
-    <div class="area">Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-amna-building-130671375.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/BE7PV0QEGVRBMBA5HZZYXHR2YW/a041899a-3306-4b5a-9c0b-188c82054931/668x452.jpg?v=794c00e1b05b1b29a450ed86f2d0d9f9" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -2364,60 +1548,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-2-rami-residence-1-109487945.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/QAT08SJ7PPDE91YG00T1AGJHXG/9518e664-e4f3-454a-87f4-67a9b447093b/668x452.jpg?v=f90142d4943bec5139fce5b0fab65d8b" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">Modern Apartment | Spacious Layout | Prime Location in Liwan</div>
-    <div class="area">Rami Residence 1, Liwan 2, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-red-residency-133402996.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/690EXD5M8NZVGESS4DSGRXCSPG/8c17d495-a2fa-4f0d-ab0d-85f99e0c037b/668x452.jpg?v=776ca90257a1697197bee7a81feda40d" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,667 AED/mo</div>
     <div class="title">Cheapest 2 bed || open View || 3 Balcony</div>
     <div class="area">Red Residency, Dubai Sports City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-damac-hills-golf-vita-golf-vita-a-122936839.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/45QPBGQMT3RWGC5BT864XRHY70/6fe1fcce-8c81-4dee-b3c3-91e35b03b9ac/668x452.jpg?v=0d8964700ab6d99c65cd5154e8e4bf64" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">Spacious 2 Bedroom Apartment for Rent | Golf Vita</div>
-    <div class="area">Golf Vita A, Golf Vita, Damac Hills, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-91831041.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/9E354NH1G2J4DDHE18YBMHQZRC/6d0ddf6d-a832-4c33-81b7-9d0a31ea7efb/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">Highly Maintained and Spacious 2BR for RENT</div>
-    <div class="area">Bait Aseel, Al Nahda 2, Al Nahda, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -2460,60 +1596,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-global-golf-residences-2-99952926.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/M86P3HNNQT2V1ZRY1SK0WTHNRG/6fef635e-04a8-4765-9f34-57e5b4e6cc47/668x452.jpg?v=754ce2a6071186d1d6be319c01b721ed" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">High Floor | Canal and Golf View | Vacant</div>
-    <div class="area">Global Golf Residences 2, Dubai Sports City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-amna-building-130671616.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/K0X055QDTGVP0CW6S9WZXEBG0C/25b4ad43-2cfe-42e6-8026-247c21d7262e/668x452.jpg?v=b2e1c78d4e560bff98ce8cd93784e0c5" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,667 AED/mo</div>
     <div class="title">2 BHK BEST PRICE | READY TO MOVE IN</div>
     <div class="area">Amna Building, Dubai Silicon Oasis, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-2-rami-residence-1-121995720.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/FW5GN7WAHKXFYR0873GWNVCJR8/3ba70b64-da27-4db3-a31a-384427b715f4/668x452.jpg?v=8475021ada96981ccaebeb90d13c560c" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">2 BR Luxury Apartment Available Family Building</div>
-    <div class="area">Rami Residence 1, Liwan 2, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-2-16021737.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/VZAATVF9HET17HVASQQ3H2JVF0/80062b7b-3c0a-4388-92dc-056a60ddf925/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">Spacious 2 BHK Rent For Family In Al Qusais Area</div>
-    <div class="area">Al Qusais 2, Al Qusais Residential Area, Al Qusais, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -2556,22 +1644,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-120185200.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/H0TVVTAMC06AXKTG9F4D4PQYRW/7cfb7dba-1988-4ba7-ac46-0dda3ab60907/668x452.jpg?v=bd8b892067e1146657965af34a43b01e" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,667 AED/mo</div>
-    <div class="title">2BHK | FOR FAMILY | AL QUSAIS RESIDENTIAL</div>
-    <div class="area">Al Qusais Residential Area, Al Qusais, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-mag-5-boulevard-mag-535-132964554.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/G09M4HJYR4238JN3A54RT80RV0/276e6d4c-2355-4d9b-97b4-cf673ef7bcb7/668x452.jpg?v=f302dac7ed4d049034923238a4c1e396" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -2588,75 +1660,11 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-f-71517570.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/P7T3XCFXH9KZZQ0DH9YN51RAB4/0611e08c-932e-4b41-b8d8-247421352f48/668x452.jpg?v=ea9f83bea7295a1ebf4f5c4570851daf" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,832 AED/mo</div>
-    <div class="title">Bright & Spacious 2BHK | 3 Bathrooms | Balcony</div>
-    <div class="area">Skycourts Tower F, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-the-bridge-101302430.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/HDJTAP8E6NVTWKAVMQ6CQSDY28/1e5e0848-f8d1-484e-b3c5-20a24e621856/668x452.jpg?v=bfa19ccd7eead1ba03144520c7708f47" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Available! Unfurnished! Perfect Quality!</div>
-    <div class="area">The Bridge, Dubai Sports City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-gulf-national-residence-116832274.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/V878HP35574YJF77GB9EGQKQV4/64e1a08c-a944-4fa0-94e9-d1ddda4bc863/668x452.jpg?v=8314c168be00f21a734c99a985f14acd" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">1 YEAR CHILLER FREE | MODERN LIVING | SPACIOUS</div>
-    <div class="area">Gulf National Residence, Dubai Production City (IMPZ), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-rukan-rukan-tower-rukan-tower-b-132502933.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/QY4DATJP1FY2NYT1P5HQTBVGZR/5c1d0561-f4a7-4029-9b3f-0dcdf032fc13/668x452.jpg?v=32d654dd6a82cafaca94d189401d1818" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,833 AED/mo</div>
     <div class="title">Burj Khalifa View | Low Floor | Affordable Rental</div>
-    <div class="area">Rukan Tower B, Rukan Tower, Rukan, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-rukan-rukan-tower-rukan-tower-b-119736024.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/83VRFVSHJNAW84P4QDBW8EK1N8/149fa6af-9dfa-4d42-aff1-4f2aaa9ad70a/668x452.jpg?v=6c0926ce011df390c3dea4b81de4df55" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Park & Pool View | Modern Layout | Brand New</div>
     <div class="area">Rukan Tower B, Rukan Tower, Rukan, Dubai</div>
     <div class="row">
       <div class="badges">
@@ -2780,22 +1788,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-81111519.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/16GJ4V9S028N5JXWD2FSZ9E2QC/110ed019-8b2f-49f2-9f40-888866855892/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">2BHK | 1 Month Free | Sharing allowed | Pool | Gym</div>
-    <div class="area">Al Nahda 2, Al Nahda, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-al-bahri-platinum-residence-133441970.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/2Z0NPTNZ23TZ577JK45VA691HR/631a2664-aefc-4a16-aa84-ed493550a1b6/668x452.jpg?v=7d449355fdf2b4d2795d5fb2ca3d21db" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -2844,22 +1836,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-115494836.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/0RNNJ7YWGNQD2YQVKKP90PTS0W/02719500-8125-4de7-af0c-5531a8c0e855/668x452.jpg?v=f2ff3b46cc9a9dedb402beeb80c8ac8b" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Ready To Move In |Al ain road View | Spacaious</div>
-    <div class="area">Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-128830749.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/SGP7ZG563MJGD72NMAPVD8YH90/598d1a4d-914a-4383-8137-bd13455e4108/668x452.jpg?v=6fb432a3bb7284ae5ee49ea5af9a19b9" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -2876,76 +1852,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-al-mamzar-110510601.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/GSN7SDPRNKC12PA5K6TJJ8MA8G/a4cdb90b-03b2-4495-856f-2a6e6743a49c/668x452.jpg?v=c0ef749d847540c6a0328905f3fcfdee" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">QUALITY | 2 BHK | POOL | NEAR CENTURY MALL-MAMZAR</div>
-    <div class="area">Al Mamzar, Deira, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-downtown-jebel-ali-suburbia-suburbia-tower-2-121100305.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/7A17M6A3VWQZH6ERTZJD15280M/3fcc6b00-b7b1-42a1-bfe1-818fed7318d6/668x452.jpg?v=6d7da0e8adc1adf912dbc1d544ffa3be" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Spacious Layout | Furnished | Near Metro | Vacant</div>
-    <div class="area">Suburbia Tower 2, Suburbia, Downtown Jebel Ali, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-al-warqaa-building-128829322.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/C1DB500B1414WY1KK16Q2ZHPTC/97d0972c-b599-4788-9a01-79c3f963a394/668x452.jpg?v=8d183ff6565c36e0c2395fd15acbbd82" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,833 AED/mo</div>
     <div class="title">2 bhk Apartment | with best ammenities | Road view</div>
     <div class="area">Al Warqaa Building, Al Warqa'a 1, Al Warqa'a, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-rr-residence-74624172.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/BH3MYYJEF0BS0V15QGGXDJWRGM/9a51feaf-49a0-4a06-bbfc-dc12d63224f8/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Spacious 2-Bedroom Apartment for Rent</div>
-    <div class="area">RR Residence, Residential District, Dubai South (Dubai World Central), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-rukan-rukan-tower-rukan-tower-b-125185334.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/9V3NQB2RNEVASWT88CB4M8M37C/2dec8654-5491-4e27-8d36-abab50e4cc12/668x452.jpg?v=2e6a3fb8ade28e2461579d31f0f450e7" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Community View | Amenities | Prime Location</div>
-    <div class="area">Rukan Tower B, Rukan Tower, Rukan, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -2988,108 +1900,12 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-centrium-towers-centrium-tower-3-79390306.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/0RARSN4DR0B66G2MNGFTJM0QBC/37e246a1-6d1e-4318-bdde-ab2d3fe4a2e1/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Pool View Upgraded Bedroom plus maid with 2 Park</div>
-    <div class="area">Centrium Tower 3, Centrium Towers, Dubai Production City (IMPZ), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-sondos-orchid-99966929.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/M70GM7GC1QPJM3BCMJ0Z82W590/0f743e0a-76c5-441a-b1d9-71d0160a86af/668x452.jpg?v=3b549cb9b43e6753f69c420f75eac766" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Spcious big size wardrobes balcony gym and pool</div>
-    <div class="area">Sondos Orchid, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-royal-residence-royal-residence-1-103703565.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/DKT0CZFRDTTGP4YTFVQKKCGDTG/9251e55c-0b88-4356-ae0e-2ccc368ca3a4/668x452.jpg?v=cc0a7eb0cecf34a631bf7e11f36351a2" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Ready To Move | 2 Bedroom  | 2 With Balcony</div>
-    <div class="area">Royal Residence 1, Royal Residence, Dubai Sports City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-120667224.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/GE0DJGMAHRNV703CFEMR34AEA0/859eca90-3770-4394-9517-716742876cf5/668x452.jpg?v=b56ea64a20de62fec291620190c8e675" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">READY TO MOVE 2BHK | FULLY FURNISHED | HIGH FLOOR</div>
-    <div class="area">Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-spain-cluster-prime-residence-2-101272214.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/7SEQQHBS23AMNBZ20WZ903T3PG/7636706d-8932-470e-92ff-1e75ed5f76ec/668x452.jpg?v=db6bb27d0d5b68f02067a0dee4045444" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">LARGE AND SPACIOUS | READY NOW | FAMILY COMMUNITY</div>
-    <div class="area">Prime Residence 2, Spain Cluster, International City, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-hor-al-anz-hor-al-anz-east-deira-al-kazim-3-building-132952288.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/8BWYSY4SHF7XBM29AJQ0XJAQPG/f67cb8d2-dcc8-4797-813f-891adb4b8511/668x452.jpg?v=f1c4a107079b8e339b7bacd17ee16def" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
     <div class="price">5,833 AED/mo</div>
     <div class="title">Spacious 2 BHK Apartment | All Amenities | Near Al</div>
     <div class="area">Al Kazim 3 Building, Hor Al Anz East, Hor Al Anz, Deira, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-damac-hills-golf-vita-golf-vita-a-125152551.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/SMZ2GHX6EKBQFSM1HWYM9M9F6C/f8888acf-53ca-43ce-ab0d-d7679693a1ef/668x452.jpg?v=e8b7c7fc31a49dedacad6cc3123c701b" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Fully Furnished 2BHk | Golf vita |  Damac Hills</div>
-    <div class="area">Golf Vita A, Golf Vita, Damac Hills, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -3132,22 +1948,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-rr-residence-80696253.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/AZMS62WEHZHGMGY0JZ57DKQJ58/868875ca-43da-4750-a872-554991c84a87/668x452.jpg?v=96f7460e058f671fd0d4861f1082063a" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">BRAND NEW || BIG TERRACE || POOL VIEW</div>
-    <div class="area">RR Residence, Residential District, Dubai South (Dubai World Central), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-127482392.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/C2AV1QFH0PZ225G0TGW790ZRRR/5c2f93b0-0289-4f89-b09f-632a4ae0aac4/668x452.jpg?v=71745bea9bcc5973dfe4c39cdd4ffca8" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -3170,54 +1970,6 @@
     <div class="price">5,833 AED/mo</div>
     <div class="title">VACANT - PEACEFUL ENVIRONMENT - BOOK NOW !</div>
     <div class="area">Rukan Tower A, Rukan Tower, Rukan, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-downtown-jebel-ali-suburbia-suburbia-podium-126548991.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/FTW1X9P7Z9F0HSQ4897VK3PNMM/87f19c92-0898-41ab-a250-004d3ec95661/668x452.jpg?v=8807281acb5eccccbd09d3c1803be140" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">2BR | Vacant | Balcony & City View</div>
-    <div class="area">Suburbia Podium, Suburbia, Downtown Jebel Ali, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-122928211.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/WJ9SZHS0R8S009MM33HYWJQFK0/e70132ac-5fc0-4f08-86d8-70676c7682a5/668x452.jpg?v=b7a389b21d29084761888d65c9888f6d" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Upgraded Unit | High Floor| Alain Road View</div>
-    <div class="area">Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-bur-dubai-al-raffa-117711497.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/1BNSBZBS9BD119NSEDH4VYGF44/f66e17f9-5402-4e67-b43a-12826936293e/668x452.jpg?v=096d604df0009db47aae23f20991cd05" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Bright 2BR | Central AC | Family Building</div>
-    <div class="area">Al Raffa, Bur Dubai, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -3308,38 +2060,6 @@
 </a>
 
 
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warsan-al-warsan-4-122482055.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/PTEPD9NB05DHYAZZDDBKS63PXW/27a05282-c10f-4955-82a3-3266cd8defdc/668x452.jpg?v=6e2e434ad54e27e5ba009972e9558af3" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Spacious 2BHK W/Open Kitchen Rent 70k Upto 6 Chqs</div>
-    <div class="area">Al Warsan 4, Al Warsan, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warsan-al-warsan-4-122482000.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/GDSGWS9Q777C3ZVMWFD0S1G3D0/cbd515a9-d9d4-4266-9ac4-d4cded72bebc/668x452.jpg?v=f9b642b38976120344f4c0ca3f516816" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">5,833 AED/mo</div>
-    <div class="title">Spacious 2BHK Open Kitchen Rent 70k 6Chqs Call Now</div>
-    <div class="area">Al Warsan 4, Al Warsan, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
 <a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-sun-point-dubai-sun-point-dubai-a-129750034.html" target="_blank" rel="noopener">
   <img src="https://static.shared.propertyfinder.ae/media/images/listing/1T550XMDWQPNNS85ETDJCQNG5M/9e294d0d-4c76-47fa-87ae-5e835ec3d254/668x452.jpg?v=97fdb6ba454079e9872f69bdd60af006" alt="" loading="lazy" onerror="this.style.display='none'" />
   <div class="card-body">
@@ -3362,38 +2082,6 @@
     <div class="price">6,000 AED/mo</div>
     <div class="title">2BR Apartment | Spacious Balcony | Great Deal</div>
     <div class="area">29 Dubai South, Residential District, Dubai South (Dubai World Central), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-majestique-residence-majestique-residence-1-125635908.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/Y5TXWNW9Y00YTGE3BN1BNR8394/c9e97543-bb2b-4905-b565-970873d56cc7/668x452.jpg?v=a9a09ccf8bbf34c73c83a765b4af545d" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">6,000 AED/mo</div>
-    <div class="title">BRAND NEW I READY TO MOVE I GREAT LOCATION</div>
-    <div class="area">Majestique Residence 1, Majestique Residence, Residential District, Dubai South (Dubai World Central), Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-86604842.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/P5FGX1SFWRPJSA0NP74H8H20CW/9f48e00f-3630-4dce-b828-a7d75506251b/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">6,000 AED/mo</div>
-    <div class="title">LOW PRICE 2BR | PRIME COMMUNITY | CENTRAL LOCATION</div>
-    <div class="area">Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -3458,38 +2146,6 @@
     <div class="price">6,000 AED/mo</div>
     <div class="title">Spacious 2BR | Muhaisnah Fourth | For Rent</div>
     <div class="area">Al Muhaisnah Residence 1, Al Muhaisnah 4, Al Muhaisnah, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-rosah-building-103238870.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/HWGSD6N5FFX030CM2YG1WKBKFC/753be438-cfc4-4c4e-8333-1447c302b219/668x452.jpg?v=93f3eee79839b1dc30ffe0f3f04387ee" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">6,000 AED/mo</div>
-    <div class="title">Spacious 2BHK apartment in Al Warqaa 1</div>
-    <div class="area">Rosah Building, Al Warqa'a 1, Al Warqa'a, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-bur-dubai-al-raffa-105951530.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/8688JP2F77R6Z85Y5KEEYSQ5DW/df432a2b-7175-4f12-93ee-1bfef66283aa/668x452.jpg?v=058cc35b174237f407a8ac7244975fa2" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">6,000 AED/mo</div>
-    <div class="title">BEAUTIFUL - 2 BHK-BEHIND NEW GOLD SOUQ-AL RAFFA</div>
-    <div class="area">Al Raffa, Bur Dubai, Dubai</div>
     <div class="row">
       <div class="badges">
         
@@ -3675,40 +2331,75 @@
   </div>
 </a>
 
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-karama-sheikh-hamdan-colony-88752992.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/ZQP9ZKS6282D7544HNNMG726BW/c0871cf3-22ef-4bf5-a709-d9da17d8c2e9/668x452.jpg" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">6,000 AED/mo</div>
-    <div class="title">FAMILY LIVING | SPACIOUS APARTMENT | NO PARKING</div>
-    <div class="area">Sheikh Hamdan Colony, Al Karama, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
-
-<a class="card" href="https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-rosah-building-103238916.html" target="_blank" rel="noopener">
-  <img src="https://static.shared.propertyfinder.ae/media/images/listing/930196NTVBHNR5VXGQ20D9SC68/76843d40-fa73-4aea-9fbb-9772dc4ca4b1/668x452.jpg?v=93f3eee79839b1dc30ffe0f3f04387ee" alt="" loading="lazy" onerror="this.style.display='none'" />
-  <div class="card-body">
-    <div class="price">6,000 AED/mo</div>
-    <div class="title">Spacious 2BHK apartment in Al Warqaa 1</div>
-    <div class="area">Rosah Building, Al Warqa'a 1, Al Warqa'a, Dubai</div>
-    <div class="row">
-      <div class="badges">
-        
-      </div>
-      <div class="source">propertyfinder</div>
-    </div>
-  </div>
-</a>
-
   </div>
   
+
+  <div id="map-view" hidden>
+    <div id="map"></div>
+    <div class="map-note" id="map-note"></div>
+  </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+  const MAP_POINTS = [{"lat": 25.068262100219727, "lon": 55.20476531982422, "title": "2 BED-BALCONY-GAS AND CHILLER FREE-AMC INC-12 CHQS", "area": "Hanover Square, District 10, Jumeirah Village Circle, Dubai", "price": 5950.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137433714.html", "source": "propertyfinder"}, {"lat": 25.068262100219727, "lon": 55.20476531982422, "title": "GAS AND CHILLER FREE-12 CHQS-AMC INC-VACANT NOW", "area": "Hanover Square, District 10, Jumeirah Village Circle, Dubai", "price": 5950.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-jumeirah-village-circle-district-10-hanover-square-137431154.html", "source": "propertyfinder"}, {"lat": 25.28350257873535, "lon": 55.399356842041016, "title": "2 Bedroom Hall | Free Parking | Near Madian Mall", "area": "S. S. Lootah Building Muhaisnah 4, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 4333.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-s-s-lootah-building-muhaisnah-4-132941531.html", "source": "propertyfinder"}, {"lat": 25.28142547607422, "lon": 55.40922164916992, "title": "Close to ST Marry School | 2BHK | 4 Cheques", "area": "Al Mashroom 5, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 4416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-al-mashroom-5-130658441.html", "source": "propertyfinder"}, {"lat": 25.282108306884766, "lon": 55.4080810546875, "title": "Cheapest Apartment | 2_BHK | Close to UIPS | MH4", "area": "Raf Raf Building, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 4416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-raf-raf-building-136088786.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "Spacious 1 BHK SOK Apartment With All Facilities", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 4500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-139680644.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "CHEAPEST 2 BR || 2 BALCONY || 2 BATH ||", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-138335023.html", "source": "propertyfinder"}, {"lat": 25.27574920654297, "lon": 55.32229995727539, "title": "LOWEST PRICE | 2 BHK | OPP LULU CENTER | MUTEENA", "area": "Al Muteena, Deira, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-al-muteena-130203585.html", "source": "propertyfinder"}, {"lat": 25.28350257873535, "lon": 55.399356842041016, "title": "2 Bedroom Hall | Balcony Parking | Prime Location", "area": "S. S. Lootah Building Muhaisnah 4, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-s-s-lootah-building-muhaisnah-4-132941537.html", "source": "propertyfinder"}, {"lat": 25.05889892578125, "lon": 55.22414016723633, "title": "SPACIOUS AND LUXURY 2BHK FULL FAMILY BUILDING 55K", "area": "Bin Shabib Mall, Al Qusais Industrial Area 1, Al Qusais Industrial Area, Al Qusais, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-1-bin-shabib-mall-132967304.html", "source": "propertyfinder"}, {"lat": 25.297285079956055, "lon": 55.36249923706055, "title": "Hot Offer || Chiller Free 2BHK || Only For Family", "area": "Al Nahda Building, Al Nahda 1, Al Nahda, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-al-nahda-building-138336030.html", "source": "propertyfinder"}, {"lat": 25.2952938079834, "lon": 55.370697021484375, "title": "Close to Bus Stop | 2 Bhk with Balcony | 6 Cheques", "area": "A. W. Bin Shabib Twin Tower, Al Nahda 1, Al Nahda, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-a-w-bin-shabib-twin-tower-132963007.html", "source": "propertyfinder"}, {"lat": 25.29561424255371, "lon": 55.3796272277832, "title": "Spacious 2-Bedroom Apartment for Rent", "area": "Al Dona Building, Al Nahda 2, Al Nahda, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-dona-building-128813826.html", "source": "propertyfinder"}, {"lat": 25.222803115844727, "lon": 55.270713806152344, "title": "With balcony2bhk satwa road near bus stop only 55k", "area": "Satwa Road, Al Satwa, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-satwa-satwa-road-126581374.html", "source": "propertyfinder"}, {"lat": 25.276981353759766, "lon": 55.37242889404297, "title": "Spacious Apartment | Balcony | Prime location", "area": "Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai", "price": 4583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-140571156.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "Cheaper 2BHK Close Kitchen Aprt Without balcony", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 4666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-127916275.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "2 BHK FOR RENT, FOR FAMILY , CLOSE TO POND PARK", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 4750.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-130215021.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "Bright & Airy 2BR | Prime Dubai Residence", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 4750.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-128368450.html", "source": "propertyfinder"}, {"lat": 25.29547882080078, "lon": 55.3818244934082, "title": "Specious 2bhk apartment very clos to Metro bus stp", "area": "Maryam Building, Al Nahda 2, Al Nahda, Dubai", "price": 4750.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-136542415.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "UNFURNISH TWO BEDROOMS | SKYCOURTS TOWERS", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 4833.25, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-137874416.html", "source": "propertyfinder"}, {"lat": 25.165958404541016, "lon": 55.39775085449219, "title": "UNFURNISHED 2 BEDROOM | SPACIOUS LAYOUT | PREMIUM", "area": "Prime Residence 1, Spain Cluster, International City, Dubai", "price": 4833.25, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-spain-cluster-prime-residence-1-139227403.html", "source": "propertyfinder"}, {"lat": 25.286096572875977, "lon": 55.399776458740234, "title": "Family Building | 2 Bed Room | Swimming Pool", "area": "Muhaisnah Plaza, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 4833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-muhaisnah-plaza-127473209.html", "source": "propertyfinder"}, {"lat": 25.185928344726562, "lon": 55.406734466552734, "title": "LOWEST NEAR TO SCHOOL WITH FREE PARKING NEAR TO EX", "area": "Al Warqa'a 1 Building, Al Warqa'a 1, Al Warqa'a, Dubai", "price": 4833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-al-warqa-a-1-building-138789768.html", "source": "propertyfinder"}, {"lat": 25.294504165649414, "lon": 55.37981414794922, "title": "2bhk apartment plus one month free close to masque", "area": "Razn House, Al Nahda 2, Al Nahda, Dubai", "price": 4833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-razn-house-127494524.html", "source": "propertyfinder"}, {"lat": 25.090986251831055, "lon": 55.3853874206543, "title": "Very Nice 2 Bedroom For Rent In Skycourts Tower", "area": "Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 4833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-140137279.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "UNFURNISH TWO BEDROOMS | SKYCOURTS TOWERS", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 4999.916666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-137874474.html", "source": "propertyfinder"}, {"lat": 25.035940170288086, "lon": 55.211360931396484, "title": "PETS FRIENDLY 2BR 2ENSUIET BATHS NO HALL 1COVERED", "area": "Sun Point Dubai C, Sun Point Dubai, Dubai Production City (IMPZ), Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-sun-point-dubai-sun-point-dubai-c-127045955.html", "source": "propertyfinder"}, {"lat": 25.29859733581543, "lon": 55.39041519165039, "title": "2 BHK Apartment | 1 Month Free | Balcony | Qusais", "area": "Al Qusais Industrial Area 3, Al Qusais Industrial Area, Al Qusais, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-3-127465146.html", "source": "propertyfinder"}, {"lat": 25.282520294189453, "lon": 55.40166091918945, "title": "Super Offer - 2bhk - Near Indian Academy- Only 60k", "area": "wasl Oasis III, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-wasl-oasis-iii-140139500.html", "source": "propertyfinder"}, {"lat": 25.293140411376953, "lon": 55.37431716918945, "title": "2 BHK | SPACIOUS LAYOUT | BALCONY & PARKING", "area": "Al Sheebani Tower, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-sheebani-tower-138764377.html", "source": "propertyfinder"}, {"lat": 25.166156768798828, "lon": 55.404541015625, "title": "2 BED|Family Only|Chiller Free|Vacant Soon|Balcony", "area": "Building D05, CBD (Central Business District), International City, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-building-d05-135146991.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "LAST UNIT LEFT | 2BR w Balcony Available for Rent", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-135603677.html", "source": "propertyfinder"}, {"lat": 25.090364456176758, "lon": 55.386417388916016, "title": "SPACIOUS | 2 BEDROOM HALL l VACANT", "area": "Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-138766069.html", "source": "propertyfinder"}, {"lat": 25.29547882080078, "lon": 55.3818244934082, "title": "2BHK LAST UNIT REASONABLE PRICE ALL AMENITIES PARK", "area": "Maryam Building, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-137878735.html", "source": "propertyfinder"}, {"lat": 25.29547882080078, "lon": 55.3818244934082, "title": "Specious 2BHK Apartment Perfect for Family", "area": "Maryam Building, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-137433927.html", "source": "propertyfinder"}, {"lat": 25.295324325561523, "lon": 55.380165100097656, "title": "Substantial 2BHK Apartment for Rent", "area": "Saeed Tower, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-saeed-tower-129765033.html", "source": "propertyfinder"}, {"lat": 25.295324325561523, "lon": 55.380165100097656, "title": "2BHK FRONT VIEW WITH PARKING AND ALL FACILITIES AN", "area": "Saeed Tower, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-saeed-tower-129743372.html", "source": "propertyfinder"}, {"lat": 25.29547882080078, "lon": 55.3818244934082, "title": "2 BEDROOM WITH ALL FACILITIES AND NEGOCIATED PRICE", "area": "Maryam Building, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-128851703.html", "source": "propertyfinder"}, {"lat": 25.29547882080078, "lon": 55.3818244934082, "title": "Specious 2bhk apartment close to Metro bus station", "area": "Maryam Building, Al Nahda 2, Al Nahda, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-maryam-building-132986972.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "Unfurnished 2 BR Apartment with Covered Parking", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-127921407.html", "source": "propertyfinder"}, {"lat": 25.276981353759766, "lon": 55.37242889404297, "title": "Near Metro! 2Bhk Flat Available", "area": "Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai", "price": 5000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-136120209.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "Amazing layout 2beds no balcony garden view", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5083.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-132495413.html", "source": "propertyfinder"}, {"lat": 25.274507522583008, "lon": 55.37808609008789, "title": "Spacious 2 BHK | Al Qusais 1 | Near Metro", "area": "Al Jabri Tower B, Al Jabris Towers, Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai", "price": 5166.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-al-jabris-towers-al-jabri-tower-b-137007666.html", "source": "propertyfinder"}, {"lat": 25.035409927368164, "lon": 55.210819244384766, "title": "2BR 2ENSUIET BATH NO HALL FOR FAMILY OR STAFF IMPZ", "area": "Sun Point Dubai A, Sun Point Dubai, Dubai Production City (IMPZ), Dubai", "price": 5166.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-sun-point-dubai-sun-point-dubai-a-127936757.html", "source": "propertyfinder"}, {"lat": 25.29494857788086, "lon": 55.38013458251953, "title": "Specious 2BHK Apartment in New Building", "area": "Bait Aseel, Al Nahda 2, Al Nahda, Dubai", "price": 5166.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-132982762.html", "source": "propertyfinder"}, {"lat": 25.091928482055664, "lon": 55.38493728637695, "title": "Amazing road view 2beds no balcony", "area": "Skycourts Tower D, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5166.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-d-132494953.html", "source": "propertyfinder"}, {"lat": 25.29248809814453, "lon": 55.37263870239258, "title": "Huge Balcony I Large 2BHK | Closed Kitchen", "area": "Sunrise Building, Al Nahda 2, Al Nahda, Dubai", "price": 5250.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-sunrise-building-138770646.html", "source": "propertyfinder"}, {"lat": 25.294649124145508, "lon": 55.3660774230957, "title": "2-BHK CHILLER FREE WITH GYMNASTICS AMD POOL PARKIN", "area": "Bin Juma 4, Al Nahda 1, Al Nahda, Dubai", "price": 5250.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-bin-juma-4-131121608.html", "source": "propertyfinder"}, {"lat": 25.291656494140625, "lon": 55.380062103271484, "title": "2BHk front view with all amenities and free parkin", "area": "Al Falasi Building, Al Nahda 2, Al Nahda, Dubai", "price": 5250.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-al-falasi-building-130237238.html", "source": "propertyfinder"}, {"lat": 25.29494857788086, "lon": 55.38013458251953, "title": "Spacious 2bhk with gym & pool prime location", "area": "Bait Aseel, Al Nahda 2, Al Nahda, Dubai", "price": 5250.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-128850485.html", "source": "propertyfinder"}, {"lat": 25.098133087158203, "lon": 55.363590240478516, "title": "SPACIOUS 2BHK : RENT 63K : 1 PARKING", "area": "Liwan 2, Dubai", "price": 5250.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-2-136090287.html", "source": "propertyfinder"}, {"lat": 25.168548583984375, "lon": 55.40835189819336, "title": "2-Bedroom for rent CBD Al Dana 1", "area": "Al Dana 1, Al Dana, CBD (Central Business District), International City, Dubai", "price": 5333.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-al-dana-al-dana-1-139716091.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "UNFURNISH TWO BEDROOMS | SKYCOURTS TOWERS", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5408.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-137874483.html", "source": "propertyfinder"}, {"lat": 25.063365936279297, "lon": 55.24134063720703, "title": "2BR available | Spacious | Vacant| with Parking", "area": "Lincoln Park Northside, Lincoln Park, Arjan, Dubai", "price": 5416.25, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-arjan-lincoln-park-lincoln-park-northside-136558256.html", "source": "propertyfinder"}, {"lat": 25.090986251831055, "lon": 55.3853874206543, "title": "Ready To Move in | Spacious  Unit | No Balcony", "area": "Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5416.583333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-127468498.html", "source": "propertyfinder"}, {"lat": 25.29195785522461, "lon": 55.36551284790039, "title": "STUNNING VIEW | 2 BHK | BALCONY | AL NAHDA 1", "area": "Al Nahda 1, Al Nahda, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-132955947.html", "source": "propertyfinder"}, {"lat": 25.29195785522461, "lon": 55.36551284790039, "title": "2BR + Maid's with Balcony @ Al Nahda 1", "area": "Al Nahda 1, Al Nahda, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-129276975.html", "source": "propertyfinder"}, {"lat": 25.168548583984375, "lon": 55.40835189819336, "title": "Spacious 2BR with Parking & Balcony | Dana1|", "area": "Al Dana 1, Al Dana, CBD (Central Business District), International City, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-al-dana-al-dana-1-139208219.html", "source": "propertyfinder"}, {"lat": 25.296897888183594, "lon": 55.39591979980469, "title": "Highly Demand | 2BHK Family Al Qusais Industrial 3", "area": "Al Noor Building, Al Qusais Industrial Area 3, Al Qusais Industrial Area, Al Qusais, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-industrial-area-al-qusais-industrial-area-3-al-noor-building-132029773.html", "source": "propertyfinder"}, {"lat": 25.168548583984375, "lon": 55.40835189819336, "title": "2-Bedroom for rent CBD Al Dana 1 IC", "area": "Al Dana 1, Al Dana, CBD (Central Business District), International City, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-al-dana-al-dana-1-138788687.html", "source": "propertyfinder"}, {"lat": 25.19599723815918, "lon": 55.398738861083984, "title": "WITH GYM POOL FREE PARKING FRONT OF MOSQUE", "area": "Al Warqaa New Building, Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-al-warqaa-new-building-138789764.html", "source": "propertyfinder"}, {"lat": 25.100252151489258, "lon": 55.36405944824219, "title": "Book Now Spacious Luxury 2Bhk Family Building", "area": "Sondos Building, Liwan, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-sondos-building-135164835.html", "source": "propertyfinder"}, {"lat": 25.295501708984375, "lon": 55.36528778076172, "title": "Chiller Free Specious 2BHK Apartment foe Family", "area": "Bin Juma 5, Al Nahda 1, Al Nahda, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-bin-juma-5-135646108.html", "source": "propertyfinder"}, {"lat": 25.090364456176758, "lon": 55.386417388916016, "title": "Al Ain Road View | Spacious 2BR | Move-In Ready", "area": "Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-130216927.html", "source": "propertyfinder"}, {"lat": 25.108135223388672, "lon": 55.36874008178711, "title": "2 BEDROOM PLUS STORE ROOM FOR RENT GOOD LOCATION", "area": "Mazaya 11, Queue Point, Liwan, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-queue-point-mazaya-11-129312332.html", "source": "propertyfinder"}, {"lat": 25.29494857788086, "lon": 55.38013458251953, "title": "New building specious 2bhk apartment clos to schol", "area": "Bait Aseel, Al Nahda 2, Al Nahda, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-136080312.html", "source": "propertyfinder"}, {"lat": 25.1483211517334, "lon": 55.40553665161133, "title": "2 BR Apartment in Al Warsan", "area": "Al Jawzaa A, Al Jawzaa, International City Phase 2, Al Warsan 4, Al Warsan, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warsan-al-warsan-4-international-city-phase-2-al-jawzaa-al-jawzaa-a-132497534.html", "source": "propertyfinder"}, {"lat": 25.146272659301758, "lon": 55.403289794921875, "title": "Spacious 2Bhk || Huge Sizes ||All Amenities", "area": "Al Warsan 4, Al Warsan, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warsan-al-warsan-4-139228440.html", "source": "propertyfinder"}, {"lat": 25.253055572509766, "lon": 55.329166412353516, "title": "Family 2 Bedroom-Parking-Behind DNATA-Port Saeed", "area": "Port Saeed, Deira, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-port-saeed-135606907.html", "source": "propertyfinder"}, {"lat": 25.276981353759766, "lon": 55.37242889404297, "title": "Front Off Metro! 2Bhk Available! Window Ac", "area": "Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-136120178.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "SPACIOUS 2BHK : RENT 65K : 1 PARKING", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-129317700.html", "source": "propertyfinder"}, {"lat": 25.098133087158203, "lon": 55.363590240478516, "title": "Spacious 2 Bhk ||Huge Balcony || Community View.", "area": "Liwan 2, Dubai", "price": 5416.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-2-130662127.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2 BHK near Al Nahda metro with Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-136120283.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2 Bedroom Apartment in Al Nahda| Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-133437699.html", "source": "propertyfinder"}, {"lat": 25.2863712310791, "lon": 55.360389709472656, "title": "2 BHK | Balcony | Parking | Al Nahda 1", "area": "Maria 1 Building, Al Nahda 1, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-1-maria-1-building-138316719.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "Huge size 2bhk : Rent 66k :  1 Parking : gym", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-140160155.html", "source": "propertyfinder"}, {"lat": 25.168170928955078, "lon": 55.40679931640625, "title": "Spacious Fully Furnished 2-Bedroom Apartment", "area": "Universal Apartments, CBD (Central Business District), International City, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-universal-apartments-130672231.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-137452396.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-137008602.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with  Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-136574376.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-135651317.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-135185745.html", "source": "propertyfinder"}, {"lat": 25.29494857788086, "lon": 55.38013458251953, "title": "Specious 2bhk apartment close to metro busstation", "area": "Bait Aseel, Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-129281389.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-140569910.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-139717680.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-138333410.html", "source": "propertyfinder"}, {"lat": 25.288808822631836, "lon": 55.37796401977539, "title": "Luxury 2BR Apartment in Al Nahda with 1 Parking", "area": "Al Nahda 2, Al Nahda, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-137885907.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "GoodOffer 2 BR Apartment with Balcony and Only 66K", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-128818492.html", "source": "propertyfinder"}, {"lat": 25.18745994567871, "lon": 55.405635833740234, "title": "Decent Size 2 BHK Close Kitchen Apt With Parking.", "area": "Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5500.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-127916161.html", "source": "propertyfinder"}, {"lat": 25.184097290039062, "lon": 55.40061950683594, "title": "NEAR TO SCHOOL AND FRONT OF  BUS STOP NEAR TO EXIT", "area": "Mounati Building, Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqa-a-al-warqa-a-1-mounati-building-139721473.html", "source": "propertyfinder"}, {"lat": 25.29494857788086, "lon": 55.38013458251953, "title": "2BHK STYLISH APARTMENT WITH MASSIVE GALLERY AND AM", "area": "Bait Aseel, Al Nahda 2, Al Nahda, Dubai", "price": 5583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-nahda-al-nahda-2-bait-aseel-129309586.html", "source": "propertyfinder"}, {"lat": 25.095142364501953, "lon": 55.38102722167969, "title": "Hot Offer  | Well Maintained | Ready to Move |Dlrc", "area": "Alza 11, Dubai Land Residence Complex, Dubai", "price": 5583.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-alza-11-133886202.html", "source": "propertyfinder"}, {"lat": 25.118541717529297, "lon": 55.39448165893555, "title": "BEST PRICE | Spacious 2BR Apartment| READY TO MOVE", "area": "Amna Building, Dubai Silicon Oasis, Dubai", "price": 5666.583333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-amna-building-130671375.html", "source": "propertyfinder"}, {"lat": 25.040416717529297, "lon": 55.22331619262695, "title": "Cheapest 2 bed || open View || 3 Balcony", "area": "Red Residency, Dubai Sports City, Dubai", "price": 5666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-red-residency-133402996.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "UNFURNISH TWO BEDROOMS | STUDIO IN SKYCOURTS TOWER", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-137874512.html", "source": "propertyfinder"}, {"lat": 25.10329246520996, "lon": 55.36702346801758, "title": "2 BHK Fully Open View| Vacant |Q.Point Liwan 68K", "area": "Mazaya 24, Queue Point, Liwan, Dubai", "price": 5666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-liwan-queue-point-mazaya-24-128826492.html", "source": "propertyfinder"}, {"lat": 25.118541717529297, "lon": 55.39448165893555, "title": "2 BHK BEST PRICE | READY TO MOVE IN", "area": "Amna Building, Dubai Silicon Oasis, Dubai", "price": 5666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-amna-building-130671616.html", "source": "propertyfinder"}, {"lat": 25.168548583984375, "lon": 55.40835189819336, "title": "2 BR Apartment in International City with Balcony", "area": "Al Dana 1, Al Dana, CBD (Central Business District), International City, Dubai", "price": 5666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-al-dana-al-dana-1-132494097.html", "source": "propertyfinder"}, {"lat": 25.090986251831055, "lon": 55.3853874206543, "title": "Spacious Apartment | 2 Bed| Ready to Move", "area": "Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5666.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-133429540.html", "source": "propertyfinder"}, {"lat": 24.95046615600586, "lon": 55.231048583984375, "title": "Fully Furnished | Well Maintained | Two  Layouts", "area": "MAG 535, Mag 5 Boulevard, Residential District, Dubai South (Dubai World Central), Dubai", "price": 5750.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-mag-5-boulevard-mag-535-132964554.html", "source": "propertyfinder"}, {"lat": 25.044111251831055, "lon": 55.28537368774414, "title": "Burj Khalifa View | Low Floor | Affordable Rental", "area": "Rukan Tower B, Rukan Tower, Rukan, Dubai", "price": 5833.25, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-rukan-rukan-tower-rukan-tower-b-132502933.html", "source": "propertyfinder"}, {"lat": 24.948810577392578, "lon": 55.20297622680664, "title": "Spacious | Fully Furnished | Must-See Offer", "area": "Celestia B, Celestia, Residential District, Dubai South (Dubai World Central), Dubai", "price": 5833.25, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-celestia-celestia-b-129305247.html", "source": "propertyfinder"}, {"lat": 25.091413497924805, "lon": 55.385902404785156, "title": "Al Ain Facing | Best Price |Ready | well maintain", "area": "Skycourts Tower B, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-b-140569811.html", "source": "propertyfinder"}, {"lat": 25.031902313232422, "lon": 55.223079681396484, "title": "Fully Furnished 2BR | Al Thalal View | Vacant", "area": "Giovanni Boutique Suites, Dubai Sports City, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-giovanni-boutique-suites-133408700.html", "source": "propertyfinder"}, {"lat": 25.04277992248535, "lon": 55.221771240234375, "title": "Modern 2 BDR I Furnished I Unique Layout I Mid Flr", "area": "The Bridge, Dubai Sports City, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-sports-city-the-bridge-133871166.html", "source": "propertyfinder"}, {"lat": 25.11629867553711, "lon": 55.3906135559082, "title": "Newly Renovated | Chiller Free | Luxurious Unit", "area": "Palace Tower 2, Palace Towers, Dubai Silicon Oasis, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-palace-towers-palace-tower-2-136560822.html", "source": "propertyfinder"}, {"lat": 25.090364456176758, "lon": 55.386417388916016, "title": "High Floor / Spacious / Family Friendly", "area": "Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-138775769.html", "source": "propertyfinder"}, {"lat": 25.228717803955078, "lon": 55.335716247558594, "title": "BEST DEAL | WITH BALCONY | 1 MONTH FREE", "area": "Hala Building Al Jaddaf, Culture Village, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-culture-village-hala-building-al-jaddaf-135619282.html", "source": "propertyfinder"}, {"lat": 25.184114456176758, "lon": 55.40427780151367, "title": "Open View 2 BR Apartment with gym & pool only 70k", "area": "Al Bahri Platinum Residence, Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-al-bahri-platinum-residence-133441970.html", "source": "propertyfinder"}, {"lat": 25.121198654174805, "lon": 55.373626708984375, "title": "Luxury 2 BHK Living |Stylish, Spacious Comfortable", "area": "Binghatti Point, Dubai Silicon Oasis, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-binghatti-point-135646214.html", "source": "propertyfinder"}, {"lat": 25.176761627197266, "lon": 55.40158462524414, "title": "2 BR Spacious | 3 Balconies | Road Facing | 70K PA", "area": "Al Warsan 1, Al Warsan, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warsan-al-warsan-1-133863467.html", "source": "propertyfinder"}, {"lat": 25.090986251831055, "lon": 55.3853874206543, "title": "Large 2BR Apartment | Balcony | Ready for Viewing", "area": "Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-128830749.html", "source": "propertyfinder"}, {"lat": 25.19599723815918, "lon": 55.398738861083984, "title": "2 bhk Apartment | with best ammenities | Road view", "area": "Al Warqaa Building, Al Warqa'a 1, Al Warqa'a, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-warqaa-al-warqaa-1-al-warqaa-building-128829322.html", "source": "propertyfinder"}, {"lat": 25.168170928955078, "lon": 55.40679931640625, "title": "Fully Furnished 2 bhk with Balcony for Rent", "area": "Universal Apartments, CBD (Central Business District), International City, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-international-city-cbd-central-business-district-universal-apartments-140570878.html", "source": "propertyfinder"}, {"lat": 25.118480682373047, "lon": 55.39235305786133, "title": "Prime Location | Ready to Move | Bright Living", "area": "La Vista Residence 1, La Vista Residence, Dubai Silicon Oasis, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-la-vista-residence-la-vista-residence-1-135605851.html", "source": "propertyfinder"}, {"lat": 25.27837562561035, "lon": 55.35127639770508, "title": "Spacious 2 BHK Apartment | All Amenities | Near Al", "area": "Al Kazim 3 Building, Hor Al Anz East, Hor Al Anz, Deira, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-hor-al-anz-hor-al-anz-east-deira-al-kazim-3-building-132952288.html", "source": "propertyfinder"}, {"lat": 25.221742630004883, "lon": 55.276668548583984, "title": "2 BR Apartment in Jumeirah Garden City-Satwa", "area": "Solaire 15, Al Satwa, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-satwa-solaire-15-129278192.html", "source": "propertyfinder"}, {"lat": 25.090364456176758, "lon": 55.386417388916016, "title": "Large Unit | 2Bed|Upgraded", "area": "Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-130664982.html", "source": "propertyfinder"}, {"lat": 25.090986251831055, "lon": 55.3853874206543, "title": "2 BR Type A I Huge Balcony  Pets Friendly Building", "area": "Skycourts Tower E, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-e-127482392.html", "source": "propertyfinder"}, {"lat": 25.041284561157227, "lon": 55.2885627746582, "title": "VACANT - PEACEFUL ENVIRONMENT - BOOK NOW !", "area": "Rukan Tower A, Rukan Tower, Rukan, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-rukan-rukan-tower-rukan-tower-a-140573820.html", "source": "propertyfinder"}, {"lat": 25.090364456176758, "lon": 55.386417388916016, "title": "Amazing layout 2beds+balcony al ain road view", "area": "Skycourts Tower C, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-c-136541748.html", "source": "propertyfinder"}, {"lat": 25.27699851989746, "lon": 55.33370590209961, "title": "Huge 2BR For Family | Near Abu Baker Metro", "area": "Hor Al Anz, Deira, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-hor-al-anz-129751961.html", "source": "propertyfinder"}, {"lat": 25.256879806518555, "lon": 55.289039611816406, "title": "CENTRAL AC 2 BHK-BEHIND NEW GOLD SOUQ-RAFFA", "area": "Al Raffa, Bur Dubai, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-bur-dubai-al-raffa-135603191.html", "source": "propertyfinder"}, {"lat": 25.276981353759766, "lon": 55.37242889404297, "title": "STUNNING | 2 BHK + PARKING |  NEAR APPLE SCHOOL", "area": "Al Qusais 1, Al Qusais Residential Area, Al Qusais, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-qusais-al-qusais-residential-area-al-qusais-1-135606113.html", "source": "propertyfinder"}, {"lat": 25.089357376098633, "lon": 55.38515090942383, "title": "Luxurious 2BHK with Closed Kitchen @ Aquila School", "area": "Pluto Building, Dubai Land Residence Complex, Dubai", "price": 5833.333333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-pluto-building-133421941.html", "source": "propertyfinder"}, {"lat": 25.035409927368164, "lon": 55.210819244384766, "title": "PETS FRIENDLY OPEN PLAN VERY BRIGHT LIVING SPACE", "area": "Sun Point Dubai A, Sun Point Dubai, Dubai Production City (IMPZ), Dubai", "price": 5916.666666666667, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-sun-point-dubai-sun-point-dubai-a-129750034.html", "source": "propertyfinder"}, {"lat": 24.94025421142578, "lon": 55.21700668334961, "title": "2BR Apartment | Spacious Balcony | Great Deal", "area": "29 Dubai South, Residential District, Dubai South (Dubai World Central), Dubai", "price": 5999.583333333333, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-29-dubai-south-140141019.html", "source": "propertyfinder"}, {"lat": 25.118480682373047, "lon": 55.39235305786133, "title": "OPEN VIEW_NEAR GEMS ACADEMY_CHEAPER 2BR", "area": "La Vista Residence 1, La Vista Residence, Dubai Silicon Oasis, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-la-vista-residence-la-vista-residence-1-127044866.html", "source": "propertyfinder"}, {"lat": 25.035409927368164, "lon": 55.210819244384766, "title": "OPEN PLAN LAY OUT MODERN LIVING SPACE FOR RENT IMP", "area": "Sun Point Dubai A, Sun Point Dubai, Dubai Production City (IMPZ), Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-production-city-impz-sun-point-dubai-sun-point-dubai-a-127936769.html", "source": "propertyfinder"}, {"lat": 25.248279571533203, "lon": 55.30547332763672, "title": "ELEGANT 2 BHK | 2 BATHS | FAMILY ONLY", "area": "NKH, Al Karama, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-karama-nkh-137877282.html", "source": "propertyfinder"}, {"lat": 25.28639793395996, "lon": 55.402748107910156, "title": "Spacious 2BR | Muhaisnah Fourth | For Rent", "area": "Al Muhaisnah Residence 1, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-al-muhaisnah-residence-1-132484594.html", "source": "propertyfinder"}, {"lat": 25.091928482055664, "lon": 55.38493728637695, "title": "Spacious Apartment | With Balcony | Prime Location", "area": "Skycourts Tower D, Skycourts Towers, Dubai Land Residence Complex, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-land-residence-complex-skycourts-towers-skycourts-tower-d-136538645.html", "source": "propertyfinder"}, {"lat": 25.118480682373047, "lon": 55.39235305786133, "title": "NEAR GEMS SCHOOL_NEAR SIT TOWER_ALL AMENITIES", "area": "La Vista Residence 1, La Vista Residence, Dubai Silicon Oasis, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-la-vista-residence-la-vista-residence-1-140129961.html", "source": "propertyfinder"}, {"lat": 25.248279571533203, "lon": 55.30547332763672, "title": "SPACIOUS 2 BHK  | STORE ROOM | FAMILY ONLY", "area": "NKH, Al Karama, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-karama-nkh-137872378.html", "source": "propertyfinder"}, {"lat": 25.118480682373047, "lon": 55.39235305786133, "title": "2BR NEAR RTA BUS STOP_2 BALCONIES_CHEAPER 75K", "area": "La Vista Residence 1, La Vista Residence, Dubai Silicon Oasis, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-la-vista-residence-la-vista-residence-1-134728246.html", "source": "propertyfinder"}, {"lat": 25.118480682373047, "lon": 55.39235305786133, "title": "CHEAPEST 2BR_NEAR GEMS ACADEMY_ALL AMENITIES", "area": "La Vista Residence 1, La Vista Residence, Dubai Silicon Oasis, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-la-vista-residence-la-vista-residence-1-132945620.html", "source": "propertyfinder"}, {"lat": 24.944856643676758, "lon": 55.20997619628906, "title": "2 BR Furnished Apartment in Dubai South", "area": "Majestique Residence, Residential District, Dubai South (Dubai World Central), Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-south-dubai-world-central-residential-district-majestique-residence-139704987.html", "source": "propertyfinder"}, {"lat": 25.28639793395996, "lon": 55.402748107910156, "title": "Spacious 2BR | Easy Highway Access | Vacant", "area": "Al Muhaisnah Residence 1, Al Muhaisnah 4, Al Muhaisnah, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-al-muhaisnah-al-muhaisnah-4-al-muhaisnah-residence-1-127024326.html", "source": "propertyfinder"}, {"lat": 25.27574920654297, "lon": 55.32229995727539, "title": "2 Bedroom Apartment in Al Muteena near metro", "area": "Al Muteena, Deira, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-al-muteena-138770365.html", "source": "propertyfinder"}, {"lat": 25.27574920654297, "lon": 55.32229995727539, "title": "2 BR Apartment in Muteena with Landmark Views", "area": "Al Muteena, Deira, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-deira-al-muteena-138327096.html", "source": "propertyfinder"}, {"lat": 25.252241134643555, "lon": 55.287330627441406, "title": "Spacious l Prime location l Rented until 10th Nov", "area": "Al Awazi 4 Building, Al Raffa, Bur Dubai, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-bur-dubai-al-raffa-al-awazi-4-building-140144871.html", "source": "propertyfinder"}, {"lat": 25.118480682373047, "lon": 55.39235305786133, "title": "2-Bedroom | Double Balcony | 1-Master Room", "area": "La Vista Residence 1, La Vista Residence, Dubai Silicon Oasis, Dubai", "price": 6000.0, "url": "https://www.propertyfinder.ae/en/plp/rent/apartment-for-rent-dubai-dubai-silicon-oasis-la-vista-residence-la-vista-residence-1-140569197.html", "source": "propertyfinder"}];
+
+  const btnList = document.getElementById('btn-list');
+  const btnMap = document.getElementById('btn-map');
+  const listView = document.getElementById('list-view');
+  const mapView = document.getElementById('map-view');
+  const mapNote = document.getElementById('map-note');
+
+  let map = null;
+
+  function showList() {
+    listView.hidden = false;
+    mapView.hidden = true;
+    btnList.setAttribute('aria-pressed', 'true');
+    btnMap.setAttribute('aria-pressed', 'false');
+  }
+
+  function showMap() {
+    listView.hidden = true;
+    mapView.hidden = false;
+    btnList.setAttribute('aria-pressed', 'false');
+    btnMap.setAttribute('aria-pressed', 'true');
+
+    if (!map) {
+      map = L.map('map').setView([25.188293295846858, 55.36051787792797], 11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      const bounds = [];
+      MAP_POINTS.forEach(function (p) {
+        const marker = L.marker([p.lat, p.lon]).addTo(map);
+        const priceText = p.price != null ? p.price.toLocaleString() + ' AED/mo' : 'Price N/A';
+        marker.bindPopup(
+          '<b>' + priceText + '</b><br>' +
+          p.title.replace(/</g, '&lt;') + '<br>' +
+          '<span style="color:#6b6b6b">' + p.area.replace(/</g, '&lt;') + ' &middot; ' + p.source + '</span><br>' +
+          '<a href="' + p.url + '" target="_blank" rel="noopener">View listing &rarr;</a>'
+        );
+        bounds.push([p.lat, p.lon]);
+      });
+      if (bounds.length) {
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+      }
+      mapNote.textContent = MAP_POINTS.length
+        ? MAP_POINTS.length + ' of 142 listings have map coordinates (not every source provides them yet).'
+        : 'None of the current listings have map coordinates yet — check back after the next scan.';
+    }
+
+    // Leaflet miscalculates tile sizing when initialized inside a container
+    // that was `hidden` (display:none) at init time — force a recalc now that
+    // it's visible.
+    setTimeout(function () { map.invalidateSize(); }, 0);
+  }
+
+  btnList.addEventListener('click', showList);
+  btnMap.addEventListener('click', showMap);
+</script>
 </body>
 </html>

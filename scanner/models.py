@@ -17,6 +17,9 @@ class Listing:
     bathrooms: Optional[int]
     area: str  # e.g. "Jumeirah 1, Jumeirah, Dubai"
     image_url: Optional[str] = None
+    listed_at: Optional[str] = None  # ISO 8601 date the listing was posted, when the source exposes it
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     scraped_at: str = ""
 
     def __post_init__(self) -> None:

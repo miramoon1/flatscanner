@@ -81,6 +81,11 @@ def _parse_card(card) -> Listing | None:
         # source_id: Bayut permalinks end in ".../<numeric-id>.html"
         source_id = url.rstrip("/").rsplit("-", 1)[-1].replace(".html", "")
 
+        # No listed_at or coordinates: the search-results card doesn't expose a posted
+        # date or lat/lon (those live on the detail page's map widget), so the 30-day
+        # freshness filter and the map view can't cover Bayut listings — see
+        # scanner/filters.py's _is_too_old and scanner/dashboard.py's map rendering,
+        # both of which skip listings with no data rather than wrongly including/excluding.
         return Listing(
             source="bayut",
             source_id=source_id or url,

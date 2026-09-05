@@ -8,12 +8,15 @@ from .config import Criteria
 from .filters import is_preferred_area
 from .models import Listing
 
+DUBAI_CENTER = (25.2048, 55.2708)
+
 PAGE_TEMPLATE = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dubai Flat Scanner</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 <style>
   :root {{
     --bg: #f7f5f2; --card: #ffffff; --text: #1a1a1a; --muted: #6b6b6b;
@@ -29,6 +32,12 @@ PAGE_TEMPLATE = """<!doctype html>
   .meta {{ color: var(--muted); font-size: 0.9rem; }}
   .criteria {{ color: var(--muted); font-size: 0.85rem; margin-top: 8px; }}
   main {{ max-width: 1100px; margin: 0 auto; padding: 8px 24px 48px; }}
+  .view-toggle {{ display: flex; gap: 8px; margin-bottom: 16px; }}
+  .view-toggle button {{
+    font: inherit; font-weight: 600; font-size: 0.85rem; padding: 7px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer;
+  }}
+  .view-toggle button[aria-pressed="true"] {{ background: var(--accent); color: var(--card); border-color: var(--accent); }}
   .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }}
   .card {{ background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }}
   .card img {{ width: 100%; height: 160px; object-fit: cover; background: var(--border); }}
@@ -43,20 +52,96 @@ PAGE_TEMPLATE = """<!doctype html>
   a.card {{ text-decoration: none; color: inherit; }}
   a.card:hover {{ border-color: var(--accent); }}
   .empty {{ color: var(--muted); padding: 40px 0; text-align: center; }}
+  #map {{ height: 70vh; min-height: 420px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }}
+  .map-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 8px; }}
+  .leaflet-popup-content b {{ color: var(--accent); }}
+  [hidden] {{ display: none !important; }}
 </style>
 </head>
 <body>
 <header>
   <h1>Dubai Flat Scanner</h1>
   <div class="meta">Last updated {generated_at} &middot; {count} matching listings</div>
-  <div class="criteria">Budget &le; {max_price} AED/month &middot; {bedrooms} bed / {bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred</div>
+  <div class="criteria">Budget &le; {max_price} AED/month &middot; {bedrooms} bed / {bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days</div>
 </header>
 <main>
-  <div class="grid">
+  <div class="view-toggle" role="tablist">
+    <button id="btn-list" type="button" aria-pressed="true">List</button>
+    <button id="btn-map" type="button" aria-pressed="false">Map</button>
+  </div>
+
+  <div class="grid" id="list-view">
     {cards}
   </div>
   {empty_state}
+
+  <div id="map-view" hidden>
+    <div id="map"></div>
+    <div class="map-note" id="map-note"></div>
+  </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+  const MAP_POINTS = {map_points_json};
+
+  const btnList = document.getElementById('btn-list');
+  const btnMap = document.getElementById('btn-map');
+  const listView = document.getElementById('list-view');
+  const mapView = document.getElementById('map-view');
+  const mapNote = document.getElementById('map-note');
+
+  let map = null;
+
+  function showList() {{
+    listView.hidden = false;
+    mapView.hidden = true;
+    btnList.setAttribute('aria-pressed', 'true');
+    btnMap.setAttribute('aria-pressed', 'false');
+  }}
+
+  function showMap() {{
+    listView.hidden = true;
+    mapView.hidden = false;
+    btnList.setAttribute('aria-pressed', 'false');
+    btnMap.setAttribute('aria-pressed', 'true');
+
+    if (!map) {{
+      map = L.map('map').setView([{center_lat}, {center_lon}], 11);
+      L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }}).addTo(map);
+
+      const bounds = [];
+      MAP_POINTS.forEach(function (p) {{
+        const marker = L.marker([p.lat, p.lon]).addTo(map);
+        const priceText = p.price != null ? p.price.toLocaleString() + ' AED/mo' : 'Price N/A';
+        marker.bindPopup(
+          '<b>' + priceText + '</b><br>' +
+          p.title.replace(/</g, '&lt;') + '<br>' +
+          '<span style="color:#6b6b6b">' + p.area.replace(/</g, '&lt;') + ' &middot; ' + p.source + '</span><br>' +
+          '<a href="' + p.url + '" target="_blank" rel="noopener">View listing &rarr;</a>'
+        );
+        bounds.push([p.lat, p.lon]);
+      }});
+      if (bounds.length) {{
+        map.fitBounds(bounds, {{ padding: [30, 30], maxZoom: 14 }});
+      }}
+      mapNote.textContent = MAP_POINTS.length
+        ? MAP_POINTS.length + ' of {count} listings have map coordinates (not every source provides them yet).'
+        : 'None of the current listings have map coordinates yet — check back after the next scan.';
+    }}
+
+    // Leaflet miscalculates tile sizing when initialized inside a container
+    // that was `hidden` (display:none) at init time — force a recalc now that
+    // it's visible.
+    setTimeout(function () {{ map.invalidateSize(); }}, 0);
+  }}
+
+  btnList.addEventListener('click', showList);
+  btnMap.addEventListener('click', showMap);
+</script>
 </body>
 </html>
 """
@@ -92,6 +177,7 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
     (out_dir / "data.json").write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
     cards_html = []
+    map_points = []
     for l in listings:
         preferred = is_preferred_area(l, criteria)
         cards_html.append(
@@ -105,6 +191,23 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
                 source=l.source,
             )
         )
+        if l.latitude is not None and l.longitude is not None:
+            map_points.append(
+                {
+                    "lat": l.latitude,
+                    "lon": l.longitude,
+                    "title": l.title,
+                    "area": l.area,
+                    "price": l.price_monthly_aed,
+                    "url": l.url,
+                    "source": l.source,
+                }
+            )
+
+    center_lat, center_lon = DUBAI_CENTER
+    if map_points:
+        center_lat = sum(p["lat"] for p in map_points) / len(map_points)
+        center_lon = sum(p["lon"] for p in map_points) / len(map_points)
 
     page = PAGE_TEMPLATE.format(
         generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -114,5 +217,8 @@ def render_dashboard(listings: list[Listing], criteria: Criteria, out_dir: Path)
         bathrooms=criteria.bathrooms,
         cards="\n".join(cards_html),
         empty_state='<div class="empty">No matching listings right now — check back later.</div>' if not listings else "",
+        map_points_json=json.dumps(map_points, ensure_ascii=False),
+        center_lat=center_lat,
+        center_lon=center_lon,
     )
     (out_dir / "index.html").write_text(page, encoding="utf-8")

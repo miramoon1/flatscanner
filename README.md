@@ -10,6 +10,20 @@ rentals matching your criteria, and publishes a simple dashboard of everything i
 - Jumeirah and other water-adjacent areas (JBR, Palm Jumeirah, La Mer, Bluewaters, etc.)
   are flagged "Preferred area" and sorted first, but matching listings anywhere else
   (outside the excluded areas) still show up.
+- Listed within the last 30 days (`scanner/filters.py`, `MAX_LISTING_AGE`) — **only
+  enforced for sources that actually expose a posted date**. Property Finder does
+  (verified live); Bayut and Dubizzle's search-results cards don't expose one, so
+  their listings currently skip this check rather than being wrongly dropped. See the
+  "No listed_at or coordinates" comments in `scanner/sources/bayut.py`/`dubizzle.py`.
+
+## Map view
+
+The dashboard has a List/Map toggle (Leaflet + OpenStreetMap, no API key needed).
+Same caveat as the freshness filter: only listings with coordinates get a marker.
+Property Finder provides them on every listing (verified); Bayut/Dubizzle currently
+don't (same reason as above); Facebook/Apify is best-effort depending on what that
+actor's dataset includes. The map footer always shows "X of Y listings have map
+coordinates" so it's obvious when a source isn't contributing to it.
 
 ## Run it locally
 

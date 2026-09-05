@@ -114,6 +114,7 @@ def _to_listing(prop: dict) -> Listing | None:
     location = prop.get("location") or {}
     images = prop.get("images") or []
     image_url = images[0].get("medium") if images else None
+    coordinates = location.get("coordinates") or {}
 
     return Listing(
         source="propertyfinder",
@@ -125,6 +126,9 @@ def _to_listing(prop: dict) -> Listing | None:
         bathrooms=bathrooms,
         area=location.get("full_name") or location.get("path_name") or "",
         image_url=image_url,
+        listed_at=prop.get("listed_date"),
+        latitude=coordinates.get("lat"),
+        longitude=coordinates.get("lon"),
     )
 
 
