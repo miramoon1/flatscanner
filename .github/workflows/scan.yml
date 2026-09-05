@@ -9,12 +9,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   scan:
@@ -50,15 +44,19 @@ jobs:
             python -m scanner.main
           fi
 
-      - name: Upload dashboard artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-
-      # Also commit the generated dashboard into the repo (in addition to the
-      # GitHub Pages artifact above) so a git-based deploy — Vercel's own GitHub
-      # integration, for instance — has real content to serve instead of 404ing
-      # on an empty docs/ folder.
+      # Commit the generated dashboard back into the repo. This is what actually
+      # keeps the live site fresh — Vercel's GitHub integration auto-redeploys on
+      # every push, since it deploys straight from committed files (see vercel.json).
+      #
+      # NOTE: this project previously also tried to deploy docs/ to GitHub Pages via
+      # a second `deploy` job with `environment: github-pages`. That environment was
+      # never actually provisioned (Settings → Pages → Source was never set to
+      # "GitHub Actions"), and referencing a nonexistent deployment environment made
+      # GitHub reject the ENTIRE workflow run before scheduling any job at all — every
+      # run from #1 through #6 failed with zero jobs executed as a result. Since
+      # Pages was only ever a secondary option and Vercel is the actual deploy target,
+      # the fix is removing that job rather than going and enabling Pages for a
+      # dashboard nothing points at.
       - name: Commit dashboard to repo
         run: |
           git config user.name "github-actions[bot]"
@@ -66,13 +64,3 @@ jobs:
           git add docs
           git diff --cached --quiet || git commit -m "Update dashboard [skip ci]"
           git push
-
-  deploy:
-    needs: scan
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4

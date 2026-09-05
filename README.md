@@ -65,15 +65,23 @@ open docs/index.html   # or just double-click it
 
 This writes `docs/index.html` (the dashboard) and `docs/data.json` (raw matches).
 
-## Run it on a schedule with a hosted dashboard (GitHub Pages)
+## Run it on a schedule with a hosted dashboard
 
-This repo already includes `.github/workflows/scan.yml`, which runs every 3 hours,
-re-scans everything, and publishes `docs/` to GitHub Pages.
+`.github/workflows/scan.yml` runs every 3 hours, re-scans everything, and commits the
+refreshed `docs/index.html` + `docs/data.json` straight back into the repo. Vercel's
+GitHub integration auto-redeploys on every push (see `vercel.json`), so that commit is
+what actually keeps the live dashboard current — no extra deploy step needed once
+Vercel is connected to this repo.
 
-One-time setup after pushing this repo to GitHub:
-1. Repo **Settings → Pages → Source** → set to **GitHub Actions**.
-2. Push to `main` (or run the workflow manually from the **Actions** tab).
-3. Your dashboard will be live at `https://<you>.github.io/<repo>/`.
+This used to also deploy to GitHub Pages via a second job, but that job referenced a
+`github-pages` deployment environment that was never provisioned (Pages was never
+enabled in repo settings) — and GitHub rejects an entire workflow run before scheduling
+*any* job when a job in it references a nonexistent environment. That silently failed
+**every single scheduled run** (0 jobs executed, 6/6 failures) until it was caught and
+removed — meaning the schedule, including Facebook/Apify, had never actually executed;
+every dashboard update up to that point came from manual local runs. If you want a
+GitHub Pages mirror too, enable **Settings → Pages → Source → GitHub Actions** and
+re-add a `deploy` job — just confirm Pages is actually enabled first this time.
 
 ## Facebook Marketplace (optional — via Apify, recommended)
 
