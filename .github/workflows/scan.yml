@@ -55,6 +55,18 @@ jobs:
         with:
           path: docs
 
+      # Also commit the generated dashboard into the repo (in addition to the
+      # GitHub Pages artifact above) so a git-based deploy — Vercel's own GitHub
+      # integration, for instance — has real content to serve instead of 404ing
+      # on an empty docs/ folder.
+      - name: Commit dashboard to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git diff --cached --quiet || git commit -m "Update dashboard [skip ci]"
+          git push
+
   deploy:
     needs: scan
     runs-on: ubuntu-latest
