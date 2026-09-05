@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+fb_state.json
+.env

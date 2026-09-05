@@ -1,0 +1,66 @@
+name: Scan listings and publish dashboard
+
+on:
+  schedule:
+    - cron: "17 */3 * * *" # every 3 hours
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Bayut and Dubizzle both need a real browser (they sit behind bot-management
+      # JS challenges) — installed unconditionally, not just for Facebook.
+      - name: Install Playwright browsers
+        run: python -m playwright install --with-deps chromium
+
+      # Facebook Marketplace, recommended path: Apify (see scanner/sources/facebook_apify.py)
+      # — no login/browser of yours involved, just an API token as a repo secret.
+      - name: Restore Facebook login session (legacy fallback only)
+        if: ${{ secrets.FB_STORAGE_STATE != '' }}
+        run: echo '${{ secrets.FB_STORAGE_STATE }}' > fb_state.json
+
+      - name: Run scanner
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: |
+          if [ -n "$APIFY_API_TOKEN" ] || [ -f fb_state.json ]; then
+            python -m scanner.main --with-facebook
+          else
+            python -m scanner.main
+          fi
+
+      - name: Upload dashboard artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: scan
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
