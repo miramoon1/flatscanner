@@ -16,6 +16,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler
+from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,9 +26,11 @@ from scanner.pipeline import scan_enriched  # noqa: E402
 BLOB_PATHNAME = "data.json"
 
 
-def _build_payload() -> dict:
-    listings = scan_enriched(include_facebook=True, allow_browser=False)
-    return {
+def _build_payload() -> tuple[dict, dict]:
+    """Return (payload, per-source stats)."""
+    stats: dict = {}
+    listings = scan_enriched(include_facebook=True, allow_browser=False, stats=stats)
+    payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criteria": {
             "max_price_monthly_aed": CRITERIA.max_price_monthly_aed,
@@ -37,6 +40,7 @@ def _build_payload() -> dict:
         "count": len(listings),
         "listings": listings,
     }
+    return payload, stats
 
 
 def _write_blob(payload: dict) -> str:
@@ -61,17 +65,24 @@ def _write_blob(payload: dict) -> str:
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        # Auth: Vercel Cron sends `Authorization: Bearer <CRON_SECRET>`. For a manual
+        # browser trigger you can instead pass `?key=<CRON_SECRET>`. If CRON_SECRET is
+        # unset the endpoint is open (fine for a personal tool, but set it to be safe).
         secret = os.environ.get("CRON_SECRET")
-        if secret and self.headers.get("authorization") != f"Bearer {secret}":
-            self._respond(401, {"error": "unauthorized"})
+        qs = parse_qs(urlparse(self.path).query)
+        provided = self.headers.get("authorization") == f"Bearer {secret}" or qs.get("key", [""])[0] == secret
+        if secret and not provided:
+            self._respond(401, {"error": "unauthorized — add ?key=<CRON_SECRET> to trigger manually"})
             return
 
         try:
-            payload = _build_payload()
+            payload, stats = _build_payload()
             url = _write_blob(payload)
-            self._respond(200, {"ok": True, "count": payload["count"], "blob_url": url})
-        except Exception as e:  # surface the reason in the cron log
-            self._respond(500, {"ok": False, "error": str(e)})
+            self._respond(200, {"ok": True, "count": payload["count"], "sources": stats, "blob_url": url})
+        except Exception as e:  # surface the reason in the response + cron log
+            import traceback
+
+            self._respond(500, {"ok": False, "error": str(e), "trace": traceback.format_exc().splitlines()[-4:]})
 
     def _respond(self, status: int, body: dict):
         self.send_response(status)

@@ -56,17 +56,30 @@ def load_sources(include_facebook: bool, allow_browser: bool):
     return sources
 
 
-def collect(include_facebook: bool = True, allow_browser: bool = True) -> list[Listing]:
-    """Return filtered + ranked Listings from every available source."""
+def collect(include_facebook: bool = True, allow_browser: bool = True, stats: dict | None = None) -> list[Listing]:
+    """Return filtered + ranked Listings from every available source.
+
+    `stats`, if given, is populated with per-source diagnostics:
+    {source_name: {"fetched": int, "matched": int, "error": str | None}}. This is what
+    /api/scan surfaces so "0 listings" can be told apart from "a source errored".
+    """
     all_listings: list[Listing] = []
+    per_source: dict[str, list[Listing]] = {}
     for source in load_sources(include_facebook, allow_browser):
         try:
             log.info("Fetching from %s...", source.name)
             listings = source.fetch(CRITERIA)
             log.info("%s: got %d listings", source.name, len(listings))
+            per_source.setdefault(source.name, []).extend(listings)
             all_listings.extend(listings)
-        except Exception:
+            if stats is not None:
+                stats.setdefault(source.name, {"fetched": 0, "matched": 0, "error": None})
+                stats[source.name]["fetched"] += len(listings)
+        except Exception as e:
             log.exception("Source %s failed, skipping it for this run", source.name)
+            if stats is not None:
+                stats.setdefault(source.name, {"fetched": 0, "matched": 0, "error": None})
+                stats[source.name]["error"] = f"{type(e).__name__}: {e}"
 
     seen: set[tuple[str, str]] = set()
     deduped: list[Listing] = []
@@ -78,10 +91,14 @@ def collect(include_facebook: bool = True, allow_browser: bool = True) -> list[L
         deduped.append(l)
 
     matches = filter_and_rank(deduped, CRITERIA)
+    if stats is not None:
+        for m in matches:
+            if m.source in stats:
+                stats[m.source]["matched"] += 1
     log.info("%d / %d listings match the criteria", len(matches), len(deduped))
     return matches
 
 
-def scan_enriched(include_facebook: bool = True, allow_browser: bool = True) -> list[dict]:
+def scan_enriched(include_facebook: bool = True, allow_browser: bool = True, stats: dict | None = None) -> list[dict]:
     """collect() plus per-listing enrichment — the exact records the dashboard reads."""
-    return [enrich(l) for l in collect(include_facebook, allow_browser)]
+    return [enrich(l) for l in collect(include_facebook, allow_browser, stats=stats)]
