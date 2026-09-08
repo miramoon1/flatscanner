@@ -51,7 +51,7 @@ class DubizzleApifySource(Source):
                 "maxPrice": criteria.max_price_monthly_aed * 12,  # yearly quotes common
                 "maxItems": 200,
             },
-            timeout=300,
+            timeout=40,
         )
         resp.raise_for_status()
         return [l for l in (_to_listing(i) for i in resp.json()) if l is not None]

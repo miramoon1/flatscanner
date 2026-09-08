@@ -77,7 +77,8 @@ def collect(
     `stats`, if given, is populated with per-source diagnostics:
     {source_name: {"fetched": int, "matched": int, "error": str | None}}.
     """
-    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FTimeout, wait
+    import threading
+    import time
 
     sources = load_sources(include_facebook, allow_browser)
     all_listings: list[Listing] = []
@@ -88,27 +89,48 @@ def collect(
             return stats[name]
         return None
 
-    with ThreadPoolExecutor(max_workers=max(1, len(sources))) as pool:
-        futures = {pool.submit(s.fetch, CRITERIA): s for s in sources}
-        wait(list(futures), timeout=deadline_seconds)  # block up to the budget only
-        for fut, source in futures.items():
-            st = _stat(source.name)
-            if not fut.done():
-                log.warning("Source %s did not finish within the time budget", source.name)
-                if st is not None:
-                    st["error"] = "timed out (still running past the scan time budget)"
-                fut.cancel()
-                continue
-            try:
-                listings = fut.result()
-                log.info("%s: got %d listings", source.name, len(listings))
-                all_listings.extend(listings)
-                if st is not None:
-                    st["fetched"] += len(listings)
-            except Exception as e:
-                log.exception("Source %s failed, skipping it for this run", source.name)
-                if st is not None:
-                    st["error"] = f"{type(e).__name__}: {e}"
+    # DAEMON threads, deliberately — not ThreadPoolExecutor. A pool's worker threads are
+    # non-daemon and get joined both by shutdown(wait=True) AND by concurrent.futures'
+    # atexit hook, so a source still mid-run (a slow Apify actor call) blocks past the
+    # deadline and 504s the request. Daemon threads are never joined by anyone: we wait
+    # for each only up to the remaining budget, then move on and return; a straggler is
+    # abandoned and dies with the worker. This is what actually enforces the deadline.
+    results: dict[str, object] = {}  # name -> list[Listing] | Exception
+
+    def _run(src):
+        try:
+            results[src.name] = src.fetch(CRITERIA)
+        except Exception as e:  # noqa: BLE001 — recorded per-source below
+            results[src.name] = e
+
+    threads = []
+    for s in sources:
+        _stat(s.name)  # ensure every source appears in stats, even if it times out
+        t = threading.Thread(target=_run, args=(s,), daemon=True)
+        t.start()
+        threads.append((t, s))
+
+    deadline = (time.monotonic() + deadline_seconds) if deadline_seconds else None
+    for t, source in threads:
+        remaining = None if deadline is None else max(0.0, deadline - time.monotonic())
+        t.join(remaining)
+
+    for _t, source in threads:
+        st = _stat(source.name)
+        outcome = results.get(source.name)
+        if outcome is None:  # thread hadn't recorded anything by the deadline
+            log.warning("Source %s did not finish within the %ss budget", source.name, deadline_seconds)
+            if st is not None:
+                st["error"] = f"timed out (slower than the {deadline_seconds}s scan budget)"
+        elif isinstance(outcome, Exception):
+            log.warning("Source %s failed: %s", source.name, outcome)
+            if st is not None:
+                st["error"] = f"{type(outcome).__name__}: {outcome}"
+        else:
+            log.info("%s: got %d listings", source.name, len(outcome))
+            all_listings.extend(outcome)
+            if st is not None:
+                st["fetched"] += len(outcome)
 
     seen: set[tuple[str, str]] = set()
     deduped: list[Listing] = []

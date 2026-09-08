@@ -70,7 +70,7 @@ class FacebookApifySource(Source):
                 "resultsLimit": 200,
                 "includeListingDetails": True,
             },
-            timeout=180,
+            timeout=40,
         )
         resp.raise_for_status()
         items = resp.json()
