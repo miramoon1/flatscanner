@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dubai Flat Scanner</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<style>
+  :root {
+    --bg: #f7f5f2; --card: #ffffff; --text: #1a1a1a; --muted: #6b6b6b;
+    --accent: #0f6f5c; --border: #e6e2db; --badge: #eaf5f1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#15181a; --card:#1f2326; --text:#f1efe9; --muted:#9aa1a6; --accent:#4fd1b5; --border:#2c3134; --badge:#1c2b28; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { padding: 28px 24px 16px; max-width: 1100px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 1.5rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .criteria { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 24px 48px; }
+  .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+  .view-toggle button {
+    font: inherit; font-weight: 600; font-size: 0.85rem; padding: 7px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer;
+  }
+  .view-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--card); border-color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+  .card:hover { border-color: var(--accent); }
+  .card img { width: 100%; height: 160px; object-fit: cover; background: var(--border); }
+  .card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .price { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+  .title { font-weight: 600; font-size: 0.95rem; line-height: 1.3; }
+  .area { color: var(--muted); font-size: 0.85rem; }
+  .sublet { font-size: 0.78rem; color: var(--muted); background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; padding: 6px 8px; margin-top: 2px; }
+  .sublet b { color: var(--text); }
+  .sublet .fx { opacity: 0.7; font-size: 0.9em; }
+  .row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; }
+  .badges { display:flex; gap:6px; flex-wrap: wrap; }
+  .badge { font-size: 0.72rem; background: var(--badge); color: var(--accent); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .source { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+  #map { height: 70vh; min-height: 420px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+  .map-note { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
+  .leaflet-popup-content b { color: var(--accent); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dubai Flat Scanner</h1>
+  <div class="meta" id="meta">Loading…</div>
+  <div class="criteria" id="criteria"></div>
+  <div class="criteria">Each card shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out, in EUR (AED alongside) &mdash; ballpark figures from market research, not live data.</div>
+</header>
+<main>
+  <div class="view-toggle" role="tablist">
+    <button id="btn-list" type="button" aria-pressed="true">List</button>
+    <button id="btn-map" type="button" aria-pressed="false">Map</button>
+  </div>
+
+  <div class="grid" id="list-view"></div>
+  <div class="empty" id="empty" hidden></div>
+
+  <div id="map-view" hidden>
+    <div id="map"></div>
+    <div class="map-note" id="map-note"></div>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+  const DUBAI_CENTER = [25.2048, 55.2708];
+  let LISTINGS = [];
+  let map = null;
+
+  const el = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = (v) => v == null ? "?" : Math.round(v).toLocaleString();
+
+  function cardHtml(l) {
+    const roomEur = `~&euro;${fmt(l.est_room_rent_typical_eur)}&ndash;${fmt(l.est_room_rent_max_eur)}/mo`;
+    const roomAed = `(AED ${fmt(l.est_room_rent_typical_aed)}&ndash;${fmt(l.est_room_rent_max_aed)})`;
+    const netEur = `~&euro;${fmt(l.net_cost_best_case_eur)}&ndash;${fmt(l.net_cost_typical_eur)}/mo net`;
+    const netAed = `(AED ${fmt(l.net_cost_best_case_aed)}&ndash;${fmt(l.net_cost_typical_aed)})`;
+    return `
+      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener">
+        ${l.image_url ? `<img src="${esc(l.image_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
+        <div class="card-body">
+          <div class="price">${fmt(l.price_monthly_aed)} AED/mo</div>
+          <div class="title">${esc(l.title)}</div>
+          <div class="area">${esc(l.area)}</div>
+          <div class="sublet">Sublet a room (winter): ${roomEur} <span class="fx">${roomAed}</span> &rarr; <b>you'd pay ${netEur}</b> <span class="fx">${netAed}</span></div>
+          <div class="row">
+            <div class="badges">${l.preferred ? '<span class="badge">Preferred area</span>' : ""}</div>
+            <div class="source">${esc(l.source)}</div>
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function renderList() {
+    el("list-view").innerHTML = LISTINGS.map(cardHtml).join("\n");
+    el("empty").hidden = LISTINGS.length > 0;
+    if (!LISTINGS.length) el("empty").textContent = "No matching listings right now — check back later.";
+  }
+
+  function showList() {
+    el("list-view").hidden = false;
+    el("empty").hidden = LISTINGS.length > 0;
+    el("map-view").hidden = true;
+    el("btn-list").setAttribute("aria-pressed", "true");
+    el("btn-map").setAttribute("aria-pressed", "false");
+  }
+
+  function showMap() {
+    el("list-view").hidden = true;
+    el("empty").hidden = true;
+    el("map-view").hidden = false;
+    el("btn-list").setAttribute("aria-pressed", "false");
+    el("btn-map").setAttribute("aria-pressed", "true");
+
+    const points = LISTINGS.filter(l => l.latitude != null && l.longitude != null);
+    if (!map) {
+      const center = points.length
+        ? [points.reduce((s,p)=>s+p.latitude,0)/points.length, points.reduce((s,p)=>s+p.longitude,0)/points.length]
+        : DUBAI_CENTER;
+      map = L.map("map").setView(center, 11);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors", maxZoom: 19,
+      }).addTo(map);
+
+      const bounds = [];
+      points.forEach(p => {
+        const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
+        L.marker([p.latitude, p.longitude]).addTo(map).bindPopup(
+          "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
+          '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(p.source) + "</span><br>" +
+          '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
+        );
+        bounds.push([p.latitude, p.longitude]);
+      });
+      if (bounds.length) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+      el("map-note").textContent = points.length
+        ? points.length + " of " + LISTINGS.length + " listings have map coordinates (not every source provides them yet)."
+        : "None of the current listings have map coordinates yet — check back after the next scan.";
+    }
+    setTimeout(() => map.invalidateSize(), 0);
+  }
+
+  el("btn-list").addEventListener("click", showList);
+  el("btn-map").addEventListener("click", showMap);
+
+  // On Vercel the page fetches /api/data. For the local `python -m scanner.main`
+  // preview (opened as a file://, where fetch is CORS-blocked) the CLI injects the
+  // payload as window.__DATA__ instead — use that when present.
+  const boot = window.__DATA__
+    ? Promise.resolve(window.__DATA__)
+    : fetch("/api/data").then(r => r.json());
+
+  boot
+    .then(data => {
+      LISTINGS = data.listings || [];
+      const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
+      el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
+      if (data.criteria) {
+        const c = data.criteria;
+        el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;
+      }
+      if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
+      renderList();
+    })
+    .catch(e => { el("meta").textContent = "Could not load listings: " + e; });
+</script>
+</body>
+</html>

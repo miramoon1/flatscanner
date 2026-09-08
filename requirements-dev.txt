@@ -1,0 +1,5 @@
+# Local-only extras. Playwright drives the browser-based Bayut/Dubizzle scrapers when
+# you run the scanner locally (python -m scanner.main). NOT installed on Vercel — there
+# those two sources run through Apify instead. See README.
+-r requirements.txt
+playwright>=1.45

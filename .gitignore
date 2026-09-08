@@ -4,3 +4,7 @@ __pycache__/
 venv/
 fb_state.json
 .env
+.vercel/
+# docs/ is only the local `python -m scanner.main` preview now; the live site serves
+# public/ + Vercel Blob, so the generated preview isn't tracked.
+docs/

@@ -1,4 +1,7 @@
 {
-  "outputDirectory": "docs",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/scan", "schedule": "0 6 * * *" }
+  ],
   "cleanUrls": true
 }

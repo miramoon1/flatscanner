@@ -54,36 +54,73 @@ Heights — none of which are the actual coastal Jumeirah district. That's fixed
 room-rent tier for those areas — they were getting the premium tier's inflated
 estimate before the fix.
 
+## How it's hosted (Vercel — GitHub is just source)
+
+Nothing runs on GitHub. The repo is only source code; **Vercel** runs the scan and hosts
+the dashboard:
+
+- **`vercel.json` → `crons`** hits **`/api/scan`** once a day (06:00 UTC).
+- **`api/scan.py`** (Python serverless) runs the scan and writes the results to
+  **Vercel Blob** as `data.json`. It runs with no browser — Property Finder over plain
+  HTTP, and Bayut/Dubizzle/Facebook via Apify (see below), because Vercel serverless
+  can't launch a headless browser.
+- **`api/data.py`** reads that blob back and serves it at `/api/data`.
+- **`public/index.html`** is the dashboard — a static page that fetches `/api/data` and
+  renders the cards + map client-side.
+
+### One-time Vercel setup
+
+1. Import this repo into Vercel (New Project → pick `flatscanner`). No build command
+   needed — it's static `public/` + Python functions in `api/`.
+2. Add environment variables (Project → Settings → Environment Variables):
+   - `BLOB_READ_WRITE_TOKEN` — created automatically when you add a **Blob store**
+     (Storage tab → Create → Blob). **Required.**
+   - `CRON_SECRET` — any random string. Vercel sends it as a Bearer token on cron calls;
+     `/api/scan` refuses requests without it, so the endpoint can't be triggered publicly.
+     **Recommended.**
+   - `APIFY_API_TOKEN` — enables the Facebook source (and Bayut/Dubizzle if you set the
+     actor vars below). Optional.
+   - `APIFY_BAYUT_ACTOR` / `APIFY_DUBIZZLE_ACTOR` — optional. Set each to an Apify actor
+     id (e.g. `therealdude/bayut-uae-scraper`, `datafusion_x/dubizzle-property-scraper-uae`)
+     to turn those two sources on. Off by default — see "All four sources" below.
+3. Deploy. Trigger the first scan by visiting `/api/scan` once (with the cron secret) or
+   wait for the daily cron; the dashboard shows "no listings yet" until the first scan
+   writes the blob.
+
+> Note: Vercel Hobby crons run **once per day**, which matches this project's "checked
+> daily" goal. Property Finder alone already returns ~140 matches per scan.
+
 ## Run it locally
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt      # includes Playwright for local Bayut/Dubizzle
+python -m playwright install chromium     # one-time, local only
 python -m scanner.main
-open docs/index.html   # or just double-click it
+open docs/index.html                       # self-contained preview, just double-click it
 ```
 
-This writes `docs/index.html` (the dashboard) and `docs/data.json` (raw matches).
+Locally you get the real browser-based Bayut/Dubizzle too (Playwright), plus Property
+Finder and — if `APIFY_API_TOKEN` is set — Facebook. `docs/index.html` is a self-contained
+copy of the dashboard with the data baked in, so it opens straight from disk. (`docs/` is
+gitignored — it's only a local preview; the live site is served from `public/` + Blob.)
 
-## Run it on a schedule with a hosted dashboard
+## All four sources
 
-`.github/workflows/scan.yml` runs every 3 hours, re-scans everything, and commits the
-refreshed `docs/index.html` + `docs/data.json` straight back into the repo. Vercel's
-GitHub integration auto-redeploys on every push (see `vercel.json`), so that commit is
-what actually keeps the live dashboard current — no extra deploy step needed once
-Vercel is connected to this repo.
+Property Finder is plain HTTP and always on. Facebook goes through Apify. Bayut and
+Dubizzle sit behind bot-management (a JS challenge and Imperva Incapsula) so they need a
+real browser:
 
-This used to also deploy to GitHub Pages via a second job, but that job referenced a
-`github-pages` deployment environment that was never provisioned (Pages was never
-enabled in repo settings) — and GitHub rejects an entire workflow run before scheduling
-*any* job when a job in it references a nonexistent environment. That silently failed
-**every single scheduled run** (0 jobs executed, 6/6 failures) until it was caught and
-removed — meaning the schedule, including Facebook/Apify, had never actually executed;
-every dashboard update up to that point came from manual local runs. If you want a
-GitHub Pages mirror too, enable **Settings → Pages → Source → GitHub Actions** and
-re-add a `deploy` job — just confirm Pages is actually enabled first this time.
+- **Locally** they run via Playwright (`scanner/sources/bayut.py`, `dubizzle.py`).
+- **On Vercel** (no browser) they run through Apify (`scanner/sources/bayut_apify.py`,
+  `dubizzle_apify.py`), which is **off unless** you set `APIFY_BAYUT_ACTOR` /
+  `APIFY_DUBIZZLE_ACTOR`. Those are third-party (mostly paid) Apify actors, and their
+  exact output wasn't verifiable while building this — the parsing is defensive, but if
+  a source returns nothing after you enable it, run that actor once from the Apify
+  Console and diff its output against the `_to_listing` function in the corresponding
+  `*_apify.py` file.
 
-## Facebook Marketplace (optional — via Apify, recommended)
+## Facebook Marketplace (via Apify)
 
 Facebook requires a logged-in session and its Terms of Service explicitly ban
 automated access even while logged in as yourself — so this project does **not**
@@ -94,10 +131,9 @@ involved and carries no ban exposure.
 1. Sign up at [apify.com](https://apify.com) (free — $5/month usage credit, roughly
    1,000 listings/month, comfortably enough for a once-a-day check).
 2. Get an API token: Apify Console → Settings → Integrations.
-3. **Local runs:** `export APIFY_API_TOKEN=your_token` then `python -m scanner.main --with-facebook`.
-4. **Scheduled/GitHub Actions runs:** add it as a repository secret named
-   `APIFY_API_TOKEN` (Settings → Secrets and variables → Actions). The workflow
-   picks it up automatically once it's set.
+3. **On Vercel:** add `APIFY_API_TOKEN` as a project environment variable (see the Vercel
+   setup section above). The daily scan picks it up automatically.
+4. **Local runs:** `export APIFY_API_TOKEN=your_token` then `python -m scanner.main`.
 
 The confirmed Marketplace URL this scans is Dubai's property-rentals category
 (`facebook.com/marketplace/111070818917271/propertyrentals/` — Facebook uses a

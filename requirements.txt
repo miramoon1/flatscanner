@@ -1,2 +1,5 @@
+# Runtime deps for the Vercel serverless functions (api/*.py).
+# Kept to `requests` only — Vercel serverless can't run a headless browser, so the
+# browser-based sources go through Apify (also just HTTP). Playwright is a LOCAL-only
+# dev dependency; see requirements-dev.txt.
 requests>=2.31
-playwright>=1.45
