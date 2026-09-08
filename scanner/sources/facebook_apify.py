@@ -55,7 +55,12 @@ class FacebookApifySource(Source):
     def fetch(self, criteria: Criteria) -> list[Listing]:
         token = os.environ.get("APIFY_API_TOKEN")
         if not token:
-            return []
+            # Raise (rather than return []) so this surfaces in /api/data's `sources`
+            # block as a clear, actionable error instead of Facebook silently vanishing.
+            raise RuntimeError(
+                "APIFY_API_TOKEN is not set in this environment — add it in Vercel "
+                "(Project → Settings → Environment Variables), then redeploy."
+            )
 
         resp = requests.post(
             API_URL,

@@ -41,17 +41,22 @@ def load_sources(include_facebook: bool, allow_browser: bool):
 
             sources.append(DubizzleApifySource())
 
-    if include_facebook and os.environ.get("APIFY_API_TOKEN"):
-        from .sources.facebook_apify import FacebookApifySource
-
-        sources.append(FacebookApifySource())
-    elif include_facebook and allow_browser:
+    if include_facebook:
         from pathlib import Path
 
-        if (Path(__file__).resolve().parent.parent / "fb_state.json").exists():
+        # Local saved-login Playwright fallback only when there's no Apify token AND we
+        # can run a browser; otherwise use the Apify variant. The Apify variant is added
+        # even without a token so it reports a clear "set APIFY_API_TOKEN" error in the
+        # diagnostics instead of Facebook silently disappearing from the source list.
+        if not os.environ.get("APIFY_API_TOKEN") and allow_browser \
+                and (Path(__file__).resolve().parent.parent / "fb_state.json").exists():
             from .sources.facebook import FacebookMarketplaceSource
 
             sources.append(FacebookMarketplaceSource())
+        else:
+            from .sources.facebook_apify import FacebookApifySource
+
+            sources.append(FacebookApifySource())
 
     return sources
 
