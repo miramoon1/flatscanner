@@ -27,6 +27,8 @@
     border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer;
   }
   .view-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--card); border-color: var(--accent); }
+  .view-toggle button.scan { margin-left: auto; background: var(--accent); color: var(--card); border-color: var(--accent); }
+  .view-toggle button.scan[disabled] { opacity: 0.6; cursor: progress; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
   .card:hover { border-color: var(--accent); }
@@ -54,12 +56,14 @@
   <h1>Dubai Flat Scanner</h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
+  <div class="criteria" id="sources"></div>
   <div class="criteria">Each card shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out, in EUR (AED alongside) &mdash; ballpark figures from market research, not live data.</div>
 </header>
 <main>
   <div class="view-toggle" role="tablist">
     <button id="btn-list" type="button" aria-pressed="true">List</button>
     <button id="btn-map" type="button" aria-pressed="false">Map</button>
+    <button id="btn-scan" type="button" class="scan" hidden>↻ Scan now</button>
   </div>
 
   <div class="grid" id="list-view"></div>
@@ -154,26 +158,56 @@
   el("btn-list").addEventListener("click", showList);
   el("btn-map").addEventListener("click", showMap);
 
-  // On Vercel the page fetches /api/data. For the local `python -m scanner.main`
-  // preview (opened as a file://, where fetch is CORS-blocked) the CLI injects the
-  // payload as window.__DATA__ instead — use that when present.
-  const boot = window.__DATA__
-    ? Promise.resolve(window.__DATA__)
-    : fetch("/api/data").then(r => r.json());
+  function sourcesText(sources) {
+    if (!sources) return "";
+    return "Sources: " + Object.entries(sources).map(([name, s]) =>
+      s.error ? `${name} ✗ (${s.error.slice(0, 80)})` : `${name} ${s.matched}`
+    ).join(" · ");
+  }
 
-  boot
-    .then(data => {
-      LISTINGS = data.listings || [];
-      const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
-      el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
-      if (data.criteria) {
-        const c = data.criteria;
-        el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;
-      }
-      if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
-      renderList();
-    })
-    .catch(e => { el("meta").textContent = "Could not load listings: " + e; });
+  function render(data) {
+    LISTINGS = data.listings || [];
+    const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
+    el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
+    if (data.criteria) {
+      const c = data.criteria;
+      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;
+    }
+    el("sources").textContent = sourcesText(data.sources);
+    if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
+
+    // Rebuild the map next time it's shown, with the new points.
+    if (map) { map.remove(); map = null; }
+    renderList();
+    if (el("map-view").hidden === false) showMap();
+  }
+
+  function load(fresh) {
+    const btn = el("btn-scan");
+    btn.disabled = true;
+    const label = btn.textContent;
+    btn.textContent = "Scanning…";
+    el("meta").textContent = fresh ? "Scanning all sources… (this can take ~15s)" : "Loading…";
+    // `?fresh=<ts>` is a unique URL, so it bypasses Vercel's edge cache and forces a
+    // live scan. A plain /api/data (page load) is served from the last cached scan.
+    const url = fresh ? "/api/data?fresh=" + Date.now() : "/api/data";
+    return fetch(url)
+      .then(r => r.json())
+      .then(render)
+      .catch(e => { el("meta").textContent = "Could not load listings: " + e; })
+      .finally(() => { btn.disabled = false; btn.textContent = label; });
+  }
+
+  el("btn-scan").addEventListener("click", () => load(true));
+
+  // Local `python -m scanner.main` preview injects window.__DATA__ (file:// can't
+  // fetch). There the Scan button can't hit /api/data, so leave it hidden.
+  if (window.__DATA__) {
+    render(window.__DATA__);
+  } else {
+    el("btn-scan").hidden = false;   // live site: enable the button
+    load(false);                      // show the last cached scan on open
+  }
 </script>
 </body>
 </html>

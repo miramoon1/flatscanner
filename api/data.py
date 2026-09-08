@@ -25,9 +25,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scanner.config import CRITERIA  # noqa: E402
 from scanner.pipeline import scan_enriched  # noqa: E402
 
-# Cache the scan result at Vercel's edge for 6h; keep serving the stale copy for another
-# 18h while a fresh one is fetched in the background. Tunes how fresh vs. how snappy.
-CACHE_CONTROL = "public, s-maxage=21600, stale-while-revalidate=64800"
+# Scans are button-triggered (the dashboard's "Scan now" calls /api/data?fresh=<ts>,
+# a unique URL that bypasses this cache). A plain page-load GET is served from the last
+# scan's cached copy for a long window, so simply opening the site never kicks off a
+# scan (or an Apify charge) on its own — only the button does. If the cache does lapse
+# (7 days), the next load runs one scan to refresh it.
+CACHE_CONTROL = "public, s-maxage=604800"
 
 
 def _scan() -> dict:
