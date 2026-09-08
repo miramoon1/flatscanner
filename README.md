@@ -67,28 +67,30 @@ the dashboard:
 - **`api/data.py`** reads that blob back and serves it at `/api/data`.
 - **`public/index.html`** is the dashboard — a static page that fetches `/api/data` and
   renders the cards + map client-side.
+- **`api/data.py`** scans on demand and returns the results with a CDN cache header.
+  Vercel caches it at the edge, so the first request after the cache expires runs one
+  scan (~15s) and everyone after that is served instantly. A daily cron refreshes the
+  cache so nobody waits on a cold scan in practice.
 
-### One-time Vercel setup
+### Vercel setup — zero config
 
 1. Import this repo into Vercel (New Project → pick `flatscanner`). No build command
-   needed — it's static `public/` + Python functions in `api/`.
-2. Add environment variables (Project → Settings → Environment Variables):
-   - `BLOB_READ_WRITE_TOKEN` — created automatically when you add a **Blob store**
-     (Storage tab → Create → Blob). **Required.**
-   - `CRON_SECRET` — any random string. Vercel sends it as a Bearer token on cron calls;
-     `/api/scan` refuses requests without it, so the endpoint can't be triggered publicly.
-     **Recommended.**
-   - `APIFY_API_TOKEN` — enables the Facebook source (and Bayut/Dubizzle if you set the
-     actor vars below). Optional.
-   - `APIFY_BAYUT_ACTOR` / `APIFY_DUBIZZLE_ACTOR` — optional. Set each to an Apify actor
-     id (e.g. `therealdude/bayut-uae-scraper`, `datafusion_x/dubizzle-property-scraper-uae`)
-     to turn those two sources on. Off by default — see "All four sources" below.
-3. Deploy. Trigger the first scan by visiting `/api/scan` once (with the cron secret) or
-   wait for the daily cron; the dashboard shows "no listings yet" until the first scan
-   writes the blob.
+   needed — static `public/` + a Python function in `api/`.
+2. Deploy. **That's it** — Property Finder works with no env vars, no database, no
+   secrets. The dashboard is live immediately (the first load runs a scan, ~15s, then
+   it's cached).
 
-> Note: Vercel Hobby crons run **once per day**, which matches this project's "checked
-> daily" goal. Property Finder alone already returns ~140 matches per scan.
+Optional env vars (Project → Settings → Environment Variables) to add more sources:
+   - `APIFY_API_TOKEN` — turns on Facebook (via Apify). This is the one you already have.
+   - `APIFY_BAYUT_ACTOR` / `APIFY_DUBIZZLE_ACTOR` — set each to an Apify actor id
+     (e.g. `therealdude/bayut-uae-scraper`, `datafusion_x/dubizzle-property-scraper-uae`)
+     to turn those two on. Off by default — see "All four sources" below.
+
+> The daily cron (`0 6 * * *`) just keeps the edge cache warm; Vercel Hobby crons run
+> once a day, which matches the "checked daily" goal. Property Finder alone returns ~140
+> matches per scan. Hit `/api/data` directly any time to see the raw JSON, including a
+> `sources` block with per-source fetched/matched/error counts (handy for checking
+> whether Facebook is returning anything).
 
 ## Run it locally
 
@@ -103,7 +105,7 @@ open docs/index.html                       # self-contained preview, just double
 Locally you get the real browser-based Bayut/Dubizzle too (Playwright), plus Property
 Finder and — if `APIFY_API_TOKEN` is set — Facebook. `docs/index.html` is a self-contained
 copy of the dashboard with the data baked in, so it opens straight from disk. (`docs/` is
-gitignored — it's only a local preview; the live site is served from `public/` + Blob.)
+gitignored — it's only a local preview; the live site is served from `public/` + `/api/data`.)
 
 ## All four sources
 
