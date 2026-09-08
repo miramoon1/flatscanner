@@ -41,9 +41,18 @@ from scanner.pipeline import scan_enriched  # noqa: E402
 CACHE_CONTROL = "public, s-maxage=604800"
 
 
+# Hard scan budget, comfortably under the function's maxDuration (60s in vercel.json).
+# Sources still running at this point are reported as timed-out; whatever finished is
+# returned, so a slow Apify actor can't 504 the whole request.
+SCAN_DEADLINE_SECONDS = 45
+
+
 def _scan() -> dict:
     stats: dict = {}
-    listings = scan_enriched(include_facebook=True, allow_browser=False, stats=stats)
+    listings = scan_enriched(
+        include_facebook=True, allow_browser=False, stats=stats,
+        deadline_seconds=SCAN_DEADLINE_SECONDS,
+    )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criteria": {

@@ -35,46 +35,37 @@ USER_AGENT = (
 NEXT_DATA_RE = re.compile(
     r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', re.S
 )
-MAX_PAGES = 20
-# Stop once we've seen this many consecutive listings priced well above budget
-# (results are sorted price-ascending, so this means we've run past all matches).
-OVERSHOOT_STREAK = 8
+# Results come back sorted price-ascending. Because the exact-2-bathroom filter makes
+# matches sparse, they span ~15 pages of results, so we fetch this many. We fetch them
+# CONCURRENTLY (not one-by-one) so it stays ~2-3s total instead of ~15s sequential —
+# which matters on a serverless function with a hard time limit (the old sequential walk
+# contributed to Vercel 504 timeouts).
+MAX_PAGES = 16
+FETCH_WORKERS = 8
 
 
 class PropertyFinderSource(Source):
     name = "propertyfinder"
 
     def fetch(self, criteria: Criteria) -> list[Listing]:
-        session = requests.Session()
-        session.headers.update({"User-Agent": USER_AGENT, "Accept-Language": "en"})
+        from concurrent.futures import ThreadPoolExecutor
+
+        url = BASE_URL.format(bedrooms=criteria.bedrooms)
+        headers = {"User-Agent": USER_AGENT, "Accept-Language": "en"}
+
+        def fetch_page(page: int) -> list[dict]:
+            resp = requests.get(url, params={"ob": "pa", "page": page}, headers=headers, timeout=15)
+            if resp.status_code != 200:
+                return []
+            return _extract_properties(resp.text)
 
         listings: list[Listing] = []
-        overshoot = 0
-
-        for page in range(1, MAX_PAGES + 1):
-            url = BASE_URL.format(bedrooms=criteria.bedrooms)
-            resp = session.get(url, params={"ob": "pa", "page": page}, timeout=20)
-            if resp.status_code != 200:
-                break
-
-            props = _extract_properties(resp.text)
-            if not props:
-                break
-
-            for prop in props:
-                listing = _to_listing(prop)
-                if listing is None:
-                    continue
-                listings.append(listing)
-
-                if listing.price_monthly_aed is not None and listing.price_monthly_aed > criteria.max_price_monthly_aed * 1.5:
-                    overshoot += 1
-                else:
-                    overshoot = 0
-
-            if overshoot >= OVERSHOOT_STREAK:
-                break
-
+        with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
+            for props in pool.map(fetch_page, range(1, MAX_PAGES + 1)):
+                for prop in props:
+                    listing = _to_listing(prop)
+                    if listing is not None:
+                        listings.append(listing)
         return listings
 
 

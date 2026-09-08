@@ -61,30 +61,54 @@ def load_sources(include_facebook: bool, allow_browser: bool):
     return sources
 
 
-def collect(include_facebook: bool = True, allow_browser: bool = True, stats: dict | None = None) -> list[Listing]:
+def collect(
+    include_facebook: bool = True,
+    allow_browser: bool = True,
+    stats: dict | None = None,
+    deadline_seconds: float | None = None,
+) -> list[Listing]:
     """Return filtered + ranked Listings from every available source.
 
+    Sources run CONCURRENTLY and, if `deadline_seconds` is set, under a hard overall
+    budget: whatever has returned by the deadline is used, and any source still running
+    (e.g. a slow Apify actor run) is recorded as timed-out rather than being allowed to
+    hang the request past a serverless function's limit and 504.
+
     `stats`, if given, is populated with per-source diagnostics:
-    {source_name: {"fetched": int, "matched": int, "error": str | None}}. This is what
-    /api/scan surfaces so "0 listings" can be told apart from "a source errored".
+    {source_name: {"fetched": int, "matched": int, "error": str | None}}.
     """
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FTimeout, wait
+
+    sources = load_sources(include_facebook, allow_browser)
     all_listings: list[Listing] = []
-    per_source: dict[str, list[Listing]] = {}
-    for source in load_sources(include_facebook, allow_browser):
-        try:
-            log.info("Fetching from %s...", source.name)
-            listings = source.fetch(CRITERIA)
-            log.info("%s: got %d listings", source.name, len(listings))
-            per_source.setdefault(source.name, []).extend(listings)
-            all_listings.extend(listings)
-            if stats is not None:
-                stats.setdefault(source.name, {"fetched": 0, "matched": 0, "error": None})
-                stats[source.name]["fetched"] += len(listings)
-        except Exception as e:
-            log.exception("Source %s failed, skipping it for this run", source.name)
-            if stats is not None:
-                stats.setdefault(source.name, {"fetched": 0, "matched": 0, "error": None})
-                stats[source.name]["error"] = f"{type(e).__name__}: {e}"
+
+    def _stat(name):
+        if stats is not None:
+            stats.setdefault(name, {"fetched": 0, "matched": 0, "error": None})
+            return stats[name]
+        return None
+
+    with ThreadPoolExecutor(max_workers=max(1, len(sources))) as pool:
+        futures = {pool.submit(s.fetch, CRITERIA): s for s in sources}
+        wait(list(futures), timeout=deadline_seconds)  # block up to the budget only
+        for fut, source in futures.items():
+            st = _stat(source.name)
+            if not fut.done():
+                log.warning("Source %s did not finish within the time budget", source.name)
+                if st is not None:
+                    st["error"] = "timed out (still running past the scan time budget)"
+                fut.cancel()
+                continue
+            try:
+                listings = fut.result()
+                log.info("%s: got %d listings", source.name, len(listings))
+                all_listings.extend(listings)
+                if st is not None:
+                    st["fetched"] += len(listings)
+            except Exception as e:
+                log.exception("Source %s failed, skipping it for this run", source.name)
+                if st is not None:
+                    st["error"] = f"{type(e).__name__}: {e}"
 
     seen: set[tuple[str, str]] = set()
     deduped: list[Listing] = []
@@ -104,6 +128,11 @@ def collect(include_facebook: bool = True, allow_browser: bool = True, stats: di
     return matches
 
 
-def scan_enriched(include_facebook: bool = True, allow_browser: bool = True, stats: dict | None = None) -> list[dict]:
+def scan_enriched(
+    include_facebook: bool = True,
+    allow_browser: bool = True,
+    stats: dict | None = None,
+    deadline_seconds: float | None = None,
+) -> list[dict]:
     """collect() plus per-listing enrichment — the exact records the dashboard reads."""
-    return [enrich(l) for l in collect(include_facebook, allow_browser, stats=stats)]
+    return [enrich(l) for l in collect(include_facebook, allow_browser, stats=stats, deadline_seconds=deadline_seconds)]
