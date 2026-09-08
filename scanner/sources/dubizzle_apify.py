@@ -26,11 +26,24 @@ class DubizzleApifySource(Source):
         if not token or not actor:
             return []
 
+        # The cheapest usable Dubizzle actor (easyapi/dubizzle-list-search-scraper,
+        # ~$2.99/1000) takes a Dubizzle *search URL*, not filter fields. Set
+        # APIFY_DUBIZZLE_SEARCH_URL to the exact filtered URL from your browser (filter
+        # dubizzle to 2-bed apartments for rent in Dubai, copy the address bar) for best
+        # results; otherwise it falls back to the general apartments-for-rent search and
+        # our own filters (price/beds/baths/area) narrow it down. Filter-style keys are
+        # sent too so filter-based actors also work — extra keys are ignored.
+        search_url = os.environ.get(
+            "APIFY_DUBIZZLE_SEARCH_URL",
+            "https://dubai.dubizzle.com/property-for-rent/residential/apartments/",
+        )
         api_url = f"https://api.apify.com/v2/acts/{actor.replace('/', '~')}/run-sync-get-dataset-items"
         resp = requests.post(
             api_url,
             params={"token": token},
             json={
+                "searchUrl": search_url,
+                "maxResults": 200,
                 "city": "dubai",
                 "category": "property-for-rent",
                 "subCategory": "apartments",
