@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/data.py": { "maxDuration": 60 }
+    "api/data.py": {
+      "maxDuration": 60,
+      "includeFiles": "scanner/**"
+    }
   },
   "cleanUrls": true
 }

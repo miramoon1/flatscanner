@@ -20,7 +20,15 @@ import sys
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Make the sibling `scanner/` package importable regardless of Vercel's bundle layout
+# (vercel.json includeFiles ships it; add likely roots to the path to be safe).
+for _root in (
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),  # repo root (../ from api/)
+    os.getcwd(),
+    "/var/task",  # Vercel/Lambda deployment root
+):
+    if _root and _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from scanner.config import CRITERIA  # noqa: E402
 from scanner.pipeline import scan_enriched  # noqa: E402

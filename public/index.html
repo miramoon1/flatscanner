@@ -192,9 +192,19 @@
     // live scan. A plain /api/data (page load) is served from the last cached scan.
     const url = fresh ? "/api/data?fresh=" + Date.now() : "/api/data";
     return fetch(url)
-      .then(r => r.json())
+      .then(r => r.text().then(text => ({ status: r.status, text })))
+      .then(({ status, text }) => {
+        // The endpoint should return JSON. If it returns a plain-text error page
+        // instead (e.g. a Vercel function crash), surface that text rather than a
+        // cryptic "Unexpected token" JSON parse error.
+        try {
+          return JSON.parse(text);
+        } catch (_) {
+          throw new Error("server returned HTTP " + status + ": " + text.slice(0, 200).trim());
+        }
+      })
       .then(render)
-      .catch(e => { el("meta").textContent = "Could not load listings: " + e; })
+      .catch(e => { el("meta").textContent = "Could not load listings — " + e.message; })
       .finally(() => { btn.disabled = false; btn.textContent = label; });
   }
 
