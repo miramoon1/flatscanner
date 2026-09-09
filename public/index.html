@@ -54,6 +54,12 @@
   .chip.warn { background: #fdf0e4; color: #9a5a2a; border-color: #e8b98f; }
   @media (prefers-color-scheme: dark) { .chip.warn { background: #2c2114; color: #e6b58a; border-color: #6b4f2f; } }
   .chip b { font-weight: 700; }
+  .source-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; align-items: center; }
+  .src-btn { font: inherit; font-size: 0.82rem; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+  .src-btn[aria-pressed="false"] { opacity: 0.45; }
+  .src-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .src-btn .count { color: var(--muted); font-weight: 500; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -72,6 +78,8 @@
     <button id="btn-scan" type="button" class="scan" hidden>↻ Scan now</button>
   </div>
 
+  <div class="source-filter" id="source-filter"></div>
+
   <div class="grid" id="list-view"></div>
   <div class="empty" id="empty" hidden></div>
 
@@ -84,12 +92,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
   const DUBAI_CENTER = [25.2048, 55.2708];
+  const NAMES = { propertyfinder: "Property Finder", facebook: "Facebook", bayut: "Bayut", dubizzle: "Dubizzle" };
+  // One colour per source — used for the map markers, the legend, and the card source dot.
+  const SOURCE_COLORS = { propertyfinder: "#0f6f5c", facebook: "#1877f2", dubizzle: "#e4002b", bayut: "#16a34a" };
+  const colorFor = (src) => SOURCE_COLORS[src] || "#888";
+
   let LISTINGS = [];
-  let map = null;
+  let map = null, markersLayer = null;
+  let activeSources = new Set();  // which sources are currently shown (all, by default)
 
   const el = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const fmt = (v) => v == null ? "?" : Math.round(v).toLocaleString();
+
+  const visibleListings = () => LISTINGS.filter(l => activeSources.has(l.source));
 
   function cardHtml(l) {
     const roomEur = `~&euro;${fmt(l.est_room_rent_typical_eur)}&ndash;${fmt(l.est_room_rent_max_eur)}/mo`;
@@ -109,24 +125,88 @@
           <div class="sublet">Sublet a room (winter): ${roomEur} <span class="fx">${roomAed}</span> &rarr; <b>you'd pay ${netEur}</b> <span class="fx">${netAed}</span></div>
           <div class="row">
             <div class="badges">${l.preferred ? '<span class="badge">Preferred area</span>' : ""}</div>
-            <div class="source">${esc(l.source)}</div>
+            <div class="source"><span class="src-dot" style="background:${colorFor(l.source)}"></span> ${esc(NAMES[l.source] || l.source)}</div>
           </div>
         </div>
       </a>`;
   }
 
   function renderList() {
-    el("list-view").innerHTML = LISTINGS.map(cardHtml).join("\n");
-    el("empty").hidden = LISTINGS.length > 0;
-    if (!LISTINGS.length) el("empty").textContent = "No matching listings right now — check back later.";
+    const vis = visibleListings();
+    el("list-view").innerHTML = vis.map(cardHtml).join("\n");
+    el("empty").hidden = vis.length > 0;
+    if (!vis.length) el("empty").textContent = LISTINGS.length
+      ? "No listings from the selected source(s) — try enabling more above."
+      : "No matching listings right now — check back later.";
+  }
+
+  // Toggle chips, one per source present in the data, to filter list + map.
+  function renderSourceFilter() {
+    const box = el("source-filter");
+    const present = [...new Set(LISTINGS.map(l => l.source))];
+    if (present.length < 2) { box.innerHTML = ""; return; }  // nothing to filter with one source
+    const counts = {};
+    LISTINGS.forEach(l => { counts[l.source] = (counts[l.source] || 0) + 1; });
+    box.innerHTML = '<span class="criteria" style="margin:0 4px 0 0">Show:</span>' + present.map(src =>
+      `<button type="button" class="src-btn" data-src="${src}" aria-pressed="${activeSources.has(src)}">
+         <span class="src-dot" style="background:${colorFor(src)}"></span>${esc(NAMES[src] || src)} <span class="count">${counts[src]}</span>
+       </button>`
+    ).join("");
+    box.querySelectorAll(".src-btn").forEach(btn => btn.addEventListener("click", () => {
+      const src = btn.dataset.src;
+      if (activeSources.has(src)) {
+        if (activeSources.size > 1) activeSources.delete(src);  // keep at least one on
+      } else {
+        activeSources.add(src);
+      }
+      btn.setAttribute("aria-pressed", activeSources.has(src));
+      renderList();
+      if (!el("map-view").hidden) refreshMap();
+    }));
   }
 
   function showList() {
     el("list-view").hidden = false;
-    el("empty").hidden = LISTINGS.length > 0;
+    el("empty").hidden = visibleListings().length > 0;
     el("map-view").hidden = true;
     el("btn-list").setAttribute("aria-pressed", "true");
     el("btn-map").setAttribute("aria-pressed", "false");
+  }
+
+  function refreshMap() {
+    if (!map) {
+      map = L.map("map").setView(DUBAI_CENTER, 11);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors", maxZoom: 19,
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+    markersLayer.clearLayers();
+
+    const points = visibleListings().filter(l => l.latitude != null && l.longitude != null);
+    const bounds = [];
+    points.forEach(p => {
+      const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
+      L.circleMarker([p.latitude, p.longitude], {
+        radius: 8, color: "#fff", weight: 1.5, fillColor: colorFor(p.source), fillOpacity: 0.9,
+      }).addTo(markersLayer).bindPopup(
+        "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
+        '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) + "</span><br>" +
+        '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
+      );
+      bounds.push([p.latitude, p.longitude]);
+    });
+    if (bounds.length) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+
+    // Legend: which colour is which source (only those currently shown with points).
+    const shown = [...new Set(points.map(p => p.source))];
+    const legend = shown.map(s =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)}</span>`
+    ).join("");
+    el("map-note").innerHTML = points.length
+      ? legend + "<br>" + points.length + " of " + visibleListings().length + " shown listings have map coordinates (not every source provides them)."
+      : "None of the selected listings have map coordinates yet.";
+    setTimeout(() => map.invalidateSize(), 0);
   }
 
   function showMap() {
@@ -135,39 +215,11 @@
     el("map-view").hidden = false;
     el("btn-list").setAttribute("aria-pressed", "false");
     el("btn-map").setAttribute("aria-pressed", "true");
-
-    const points = LISTINGS.filter(l => l.latitude != null && l.longitude != null);
-    if (!map) {
-      const center = points.length
-        ? [points.reduce((s,p)=>s+p.latitude,0)/points.length, points.reduce((s,p)=>s+p.longitude,0)/points.length]
-        : DUBAI_CENTER;
-      map = L.map("map").setView(center, 11);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors", maxZoom: 19,
-      }).addTo(map);
-
-      const bounds = [];
-      points.forEach(p => {
-        const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
-        L.marker([p.latitude, p.longitude]).addTo(map).bindPopup(
-          "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
-          '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(p.source) + "</span><br>" +
-          '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
-        );
-        bounds.push([p.latitude, p.longitude]);
-      });
-      if (bounds.length) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
-      el("map-note").textContent = points.length
-        ? points.length + " of " + LISTINGS.length + " listings have map coordinates (not every source provides them yet)."
-        : "None of the current listings have map coordinates yet — check back after the next scan.";
-    }
-    setTimeout(() => map.invalidateSize(), 0);
+    refreshMap();
   }
 
   el("btn-list").addEventListener("click", showList);
   el("btn-map").addEventListener("click", showMap);
-
-  const NAMES = { propertyfinder: "Property Finder", facebook: "Facebook", bayut: "Bayut", dubizzle: "Dubizzle" };
 
   // Turn a raw per-source error into plain-English guidance, so the page itself says
   // exactly why a source isn't showing — no need to read logs or a terminal.
@@ -206,10 +258,11 @@
     renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
 
-    // Rebuild the map next time it's shown, with the new points.
-    if (map) { map.remove(); map = null; }
+    // New data → show all sources by default, rebuild the filter, list, and (if open) map.
+    activeSources = new Set(LISTINGS.map(l => l.source));
+    renderSourceFilter();
     renderList();
-    if (el("map-view").hidden === false) showMap();
+    if (!el("map-view").hidden) refreshMap();
   }
 
   function load(fresh) {
