@@ -26,7 +26,7 @@ PUBLIC_DIR = REPO_ROOT / "public"
 
 
 def run(out_dir: Path, include_facebook: bool) -> list[dict]:
-    listings = scan_enriched(include_facebook=include_facebook, allow_browser=True)
+    listings = scan_enriched(allow_browser=True, include_apify=include_facebook)
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criteria": {

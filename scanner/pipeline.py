@@ -13,25 +13,31 @@ from .models import Listing
 log = logging.getLogger("scanner")
 
 
-def load_sources(include_facebook: bool, allow_browser: bool):
+def load_sources(allow_browser: bool, include_apify: bool):
     """Assemble the source list.
 
-    allow_browser: whether Playwright-based sources (Bayut/Dubizzle) may be used. On
-    Vercel this is False — serverless can't launch a headless browser — so those two
-    only run when routed through Apify (env APIFY_BAYUT_ACTOR / APIFY_DUBIZZLE_ACTOR),
-    handled inside their Apify variants. See api/scan.py.
+    allow_browser: whether Playwright-based sources (Bayut/Dubizzle) may run. On Vercel
+    this is False — serverless can't launch a headless browser.
+
+    include_apify: whether PAID Apify-backed sources (Facebook, and Bayut/Dubizzle via
+    Apify) may run. This is the cost gate: every Apify run consumes credit, so these
+    NEVER run on a plain page load or default scan — only when the user explicitly asks
+    for them (api/data.py sets this from an ?apify=1 query param, i.e. the dedicated
+    "Include Facebook" button). Property Finder is free HTTP and always runs.
     """
     from .sources.propertyfinder import PropertyFinderSource
 
     sources = [PropertyFinderSource()]
 
+    # Local dev only: real browser scrapers for Bayut/Dubizzle (free, no Apify).
     if allow_browser:
         from .sources.bayut import BayutSource
         from .sources.dubizzle import DubizzleSource
 
         sources += [BayutSource(), DubizzleSource()]
-    else:
-        # Apify-backed Bayut/Dubizzle, only if an actor id is configured for each.
+
+    # Paid Apify sources — only when explicitly requested.
+    if include_apify:
         if os.environ.get("APIFY_BAYUT_ACTOR"):
             from .sources.bayut_apify import BayutApifySource
 
@@ -41,13 +47,8 @@ def load_sources(include_facebook: bool, allow_browser: bool):
 
             sources.append(DubizzleApifySource())
 
-    if include_facebook:
         from pathlib import Path
 
-        # Local saved-login Playwright fallback only when there's no Apify token AND we
-        # can run a browser; otherwise use the Apify variant. The Apify variant is added
-        # even without a token so it reports a clear "set APIFY_API_TOKEN" error in the
-        # diagnostics instead of Facebook silently disappearing from the source list.
         if not os.environ.get("APIFY_API_TOKEN") and allow_browser \
                 and (Path(__file__).resolve().parent.parent / "fb_state.json").exists():
             from .sources.facebook import FacebookMarketplaceSource
@@ -62,8 +63,8 @@ def load_sources(include_facebook: bool, allow_browser: bool):
 
 
 def collect(
-    include_facebook: bool = True,
     allow_browser: bool = True,
+    include_apify: bool = False,
     stats: dict | None = None,
     deadline_seconds: float | None = None,
 ) -> list[Listing]:
@@ -80,7 +81,7 @@ def collect(
     import threading
     import time
 
-    sources = load_sources(include_facebook, allow_browser)
+    sources = load_sources(allow_browser, include_apify)
     all_listings: list[Listing] = []
 
     def _stat(name):
@@ -151,10 +152,10 @@ def collect(
 
 
 def scan_enriched(
-    include_facebook: bool = True,
     allow_browser: bool = True,
+    include_apify: bool = False,
     stats: dict | None = None,
     deadline_seconds: float | None = None,
 ) -> list[dict]:
     """collect() plus per-listing enrichment — the exact records the dashboard reads."""
-    return [enrich(l) for l in collect(include_facebook, allow_browser, stats=stats, deadline_seconds=deadline_seconds)]
+    return [enrich(l) for l in collect(allow_browser, include_apify, stats=stats, deadline_seconds=deadline_seconds)]

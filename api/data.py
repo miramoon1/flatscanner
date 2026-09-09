@@ -48,10 +48,10 @@ CACHE_CONTROL = "public, s-maxage=604800"
 SCAN_DEADLINE_SECONDS = 55
 
 
-def _scan() -> dict:
+def _scan(include_apify: bool) -> dict:
     stats: dict = {}
     listings = scan_enriched(
-        include_facebook=True, allow_browser=False, stats=stats,
+        allow_browser=False, include_apify=include_apify, stats=stats,
         deadline_seconds=SCAN_DEADLINE_SECONDS,
     )
     return {
@@ -64,15 +64,22 @@ def _scan() -> dict:
         "count": len(listings),
         "sources": stats,
         "listings": listings,
+        "included_apify": include_apify,
     }
 
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        # PAID Apify sources (Facebook etc.) run ONLY when ?apify=1 is passed — i.e. the
+        # dedicated "Include Facebook" button. Plain loads and normal "Scan now" never
+        # touch Apify, so casual use costs nothing.
+        from urllib.parse import parse_qs, urlparse
+        include_apify = parse_qs(urlparse(self.path).query).get("apify", ["0"])[0] in ("1", "true", "yes")
         try:
-            payload = _scan()
+            payload = _scan(include_apify)
             self.send_response(200)
-            self.send_header("cache-control", CACHE_CONTROL)
+            # An Apify scan is a live paid run — never let a CDN serve it to others.
+            self.send_header("cache-control", "no-store" if include_apify else CACHE_CONTROL)
         except Exception as e:
             import traceback
 

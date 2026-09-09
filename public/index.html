@@ -28,6 +28,7 @@
   }
   .view-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--card); border-color: var(--accent); }
   .view-toggle button.scan { margin-left: auto; background: var(--accent); color: var(--card); border-color: var(--accent); }
+  .view-toggle button.scan.fb { margin-left: 0; background: #1877f2; border-color: #1877f2; }
   .view-toggle button.scan[disabled] { opacity: 0.6; cursor: progress; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
@@ -76,6 +77,7 @@
     <button id="btn-list" type="button" aria-pressed="true">List</button>
     <button id="btn-map" type="button" aria-pressed="false">Map</button>
     <button id="btn-scan" type="button" class="scan" hidden>↻ Scan now</button>
+    <button id="btn-fb" type="button" class="scan fb" hidden title="Runs the paid Facebook (Apify) scraper — uses Apify credit">＋ Include Facebook (uses Apify credit)</button>
   </div>
 
   <div class="source-filter" id="source-filter"></div>
@@ -268,15 +270,19 @@
     if (!el("map-view").hidden) refreshMap();
   }
 
-  function load(fresh) {
-    const btn = el("btn-scan");
-    btn.disabled = true;
-    const label = btn.textContent;
-    btn.textContent = "Scanning…";
-    el("meta").textContent = fresh ? "Scanning all sources… (this can take ~15s)" : "Loading…";
-    // `?fresh=<ts>` is a unique URL, so it bypasses Vercel's edge cache and forces a
-    // live scan. A plain /api/data (page load) is served from the last cached scan.
-    const url = fresh ? "/api/data?fresh=" + Date.now() : "/api/data";
+  // fresh: bypass the edge cache and run a live scan. apify: also run the PAID Apify
+  // sources (Facebook). Normal loads/scans pass apify=false, so they never cost credit.
+  function load(fresh, apify) {
+    const scanBtn = el("btn-scan"), fbBtn = el("btn-fb");
+    scanBtn.disabled = true; fbBtn.disabled = true;
+    const active = apify ? fbBtn : scanBtn;
+    const label = active.textContent;
+    active.textContent = "Scanning…";
+    el("meta").textContent = apify
+      ? "Scanning incl. Facebook via Apify… (this can take ~20s)"
+      : (fresh ? "Scanning… (a few seconds)" : "Loading…");
+    let url = fresh ? "/api/data?fresh=" + Date.now() : "/api/data";
+    if (apify) url += (url.includes("?") ? "&" : "?") + "apify=1";
     return fetch(url)
       .then(r => r.text().then(text => ({ status: r.status, text })))
       .then(({ status, text }) => {
@@ -291,18 +297,20 @@
       })
       .then(render)
       .catch(e => { el("meta").textContent = "Could not load listings — " + e.message; })
-      .finally(() => { btn.disabled = false; btn.textContent = label; });
+      .finally(() => { scanBtn.disabled = false; fbBtn.disabled = false; active.textContent = label; });
   }
 
-  el("btn-scan").addEventListener("click", () => load(true));
+  el("btn-scan").addEventListener("click", () => load(true, false));
+  el("btn-fb").addEventListener("click", () => load(true, true));
 
   // Local `python -m scanner.main` preview injects window.__DATA__ (file:// can't
-  // fetch). There the Scan button can't hit /api/data, so leave it hidden.
+  // fetch). There the buttons can't hit /api/data, so leave them hidden.
   if (window.__DATA__) {
     render(window.__DATA__);
   } else {
-    el("btn-scan").hidden = false;   // live site: enable the button
-    load(false);                      // show the last cached scan on open
+    el("btn-scan").hidden = false;
+    el("btn-fb").hidden = false;
+    load(false, false);   // show the last cached (Apify-free) scan on open — no credit used
   }
 </script>
 </body>
