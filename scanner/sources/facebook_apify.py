@@ -67,10 +67,15 @@ class FacebookApifySource(Source):
             params={"token": token},
             json={
                 "startUrls": [{"url": DUBAI_PROPERTY_RENTALS_URL}],
-                "resultsLimit": 200,
-                "includeListingDetails": True,
+                # Keep the run FAST enough to finish inside the request's time budget:
+                # a small result count and, crucially, includeListingDetails=False so the
+                # actor doesn't open a detail page per listing (that's what pushed the run
+                # past a minute and made Facebook time out every scan). Bed/bath are parsed
+                # from the listing card's title text, which the feed already includes.
+                "resultsLimit": 40,
+                "includeListingDetails": False,
             },
-            timeout=40,
+            timeout=55,
         )
         resp.raise_for_status()
         items = resp.json()
