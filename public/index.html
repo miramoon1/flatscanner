@@ -103,6 +103,9 @@
           <div class="price">${fmt(l.price_monthly_aed)} AED/mo</div>
           <div class="title">${esc(l.title)}</div>
           <div class="area">${esc(l.area)}</div>
+          <div class="area">${(l.bedrooms != null || l.bathrooms != null)
+            ? `${l.bedrooms != null ? l.bedrooms + " bed" : "? bed"} · ${l.bathrooms != null ? l.bathrooms + " bath" : "? bath"}`
+            : "beds/baths not listed"}</div>
           <div class="sublet">Sublet a room (winter): ${roomEur} <span class="fx">${roomAed}</span> &rarr; <b>you'd pay ${netEur}</b> <span class="fx">${netAed}</span></div>
           <div class="row">
             <div class="badges">${l.preferred ? '<span class="badge">Preferred area</span>' : ""}</div>

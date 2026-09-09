@@ -97,10 +97,14 @@ def _to_listing(item: dict, criteria: Criteria) -> Listing | None:
     description = item.get("description") or item.get("listingDescription") or ""
     text = f"{title} {description}"
 
+    # Parse bed/bath from the listing text when stated, but DON'T drop listings that
+    # don't — Facebook Marketplace cards are freeform and usually omit them. Unknown
+    # counts stay None; the lenient Facebook filter (scanner/filters.py) keeps these and
+    # the card shows "not listed". Dropping them here is what made Facebook show nothing.
     beds_match = BEDS_RE.search(text)
     baths_match = BATHS_RE.search(text)
-    if not beds_match or not baths_match:
-        return None  # can't verify bed/bath count from the listing text, skip rather than guess
+    bedrooms = int(beds_match.group(1)) if beds_match else None
+    bathrooms = int(baths_match.group(1)) if baths_match else None
 
     price_monthly = _extract_price_monthly(item, text)
 
@@ -130,8 +134,8 @@ def _to_listing(item: dict, criteria: Criteria) -> Listing | None:
         title=title or text[:80],
         url=url,
         price_monthly_aed=price_monthly,
-        bedrooms=int(beds_match.group(1)),
-        bathrooms=int(baths_match.group(1)),
+        bedrooms=bedrooms,
+        bathrooms=bathrooms,
         area=area,
         image_url=image_url,
         listed_at=listed_at if isinstance(listed_at, str) else None,
@@ -159,6 +163,11 @@ def _extract_price_monthly(item: dict, text: str) -> float | None:
         return None
 
     value = float(value)
-    if re.search(r"/\s*year|yearly|per year", text, re.I):
+    if re.search(r"/\s*year|yearly|per year|annually", text, re.I):
         return value / 12
-    return value  # Marketplace rentals are conventionally listed per-month
+    if re.search(r"/\s*mo|per month|monthly", text, re.I):
+        return value
+    # No period stated: Dubai rentals are often quoted per YEAR. A value in the tens of
+    # thousands can only be an annual rent, so treat large unlabelled figures as yearly
+    # (otherwise a real 90k/yr flat reads as 90k/mo and gets wrongly filtered out).
+    return value / 12 if value > 20000 else value
