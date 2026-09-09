@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dubai Flat Scanner</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
 <style>
   :root {
     --bg: #f7f5f2; --card: #ffffff; --text: #1a1a1a; --muted: #6b6b6b;
@@ -89,7 +89,7 @@
   </div>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="/vendor/leaflet/leaflet.js"></script>
 <script>
   const DUBAI_CENTER = [25.2048, 55.2708];
   const NAMES = { propertyfinder: "Property Finder", facebook: "Facebook", bayut: "Bayut", dubizzle: "Dubizzle" };
@@ -206,7 +206,10 @@
     el("map-note").innerHTML = points.length
       ? legend + "<br>" + points.length + " of " + visibleListings().length + " shown listings have map coordinates (not every source provides them)."
       : "None of the selected listings have map coordinates yet.";
-    setTimeout(() => map.invalidateSize(), 0);
+    // Leaflet needs its container's real size; when the map is first shown (its wrapper
+    // was display:none), recompute a few times so tiles lay out correctly instead of
+    // rendering grey/half-drawn.
+    [0, 150, 400].forEach(t => setTimeout(() => map && map.invalidateSize(), t));
   }
 
   function showMap() {

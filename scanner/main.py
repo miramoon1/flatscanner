@@ -45,7 +45,7 @@ def run(out_dir: Path, include_facebook: bool) -> list[dict]:
     # renders when opened directly as a file:// (where fetch() would be CORS-blocked).
     page = (PUBLIC_DIR / "index.html").read_text(encoding="utf-8")
     inject = "<script>window.__DATA__ = " + json.dumps(payload, ensure_ascii=False) + ";</script>\n"
-    leaflet_js = '<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>'
+    leaflet_js = '<script src="/vendor/leaflet/leaflet.js"></script>'
     page = page.replace(leaflet_js, inject + leaflet_js, 1).replace('href="/favicon.svg"', 'href="favicon.svg"')
     (out_dir / "index.html").write_text(page, encoding="utf-8")
     (out_dir / "favicon.svg").write_text((PUBLIC_DIR / "favicon.svg").read_text(encoding="utf-8"), encoding="utf-8")
