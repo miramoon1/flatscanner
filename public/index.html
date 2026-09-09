@@ -48,6 +48,12 @@
   #map { height: 70vh; min-height: 420px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }
   .map-note { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
   .leaflet-popup-content b { color: var(--accent); }
+  .status { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .chip { font-size: 0.8rem; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); line-height: 1.35; }
+  .chip.ok { background: var(--badge); color: var(--accent); border-color: var(--accent); }
+  .chip.warn { background: #fdf0e4; color: #9a5a2a; border-color: #e8b98f; }
+  @media (prefers-color-scheme: dark) { .chip.warn { background: #2c2114; color: #e6b58a; border-color: #6b4f2f; } }
+  .chip b { font-weight: 700; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -56,7 +62,7 @@
   <h1>Dubai Flat Scanner</h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
-  <div class="criteria" id="sources"></div>
+  <div class="status" id="status"></div>
   <div class="criteria">Each card shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out, in EUR (AED alongside) &mdash; ballpark figures from market research, not live data.</div>
 </header>
 <main>
@@ -158,11 +164,32 @@
   el("btn-list").addEventListener("click", showList);
   el("btn-map").addEventListener("click", showMap);
 
-  function sourcesText(sources) {
-    if (!sources) return "";
-    return "Sources: " + Object.entries(sources).map(([name, s]) =>
-      s.error ? `${name} ✗ (${s.error.slice(0, 80)})` : `${name} ${s.matched}`
-    ).join(" · ");
+  const NAMES = { propertyfinder: "Property Finder", facebook: "Facebook", bayut: "Bayut", dubizzle: "Dubizzle" };
+
+  // Turn a raw per-source error into plain-English guidance, so the page itself says
+  // exactly why a source isn't showing — no need to read logs or a terminal.
+  function friendlyError(name, s) {
+    const e = (s.error || "").toLowerCase();
+    if (e.includes("apify_api_token")) return `not running — the APIFY_API_TOKEN environment variable is missing in Vercel. Add it under Project → Settings → Environment Variables, then redeploy.`;
+    if (e.includes("timed out")) return `the Apify run was slower than the scan window and got cut off. Press “Scan now” again, or this needs async mode.`;
+    if (e.includes("401") || e.includes("403") || e.includes("token") || e.includes("unauthor")) return `Apify rejected the token (invalid, or out of monthly credit). Check it in Vercel.`;
+    if (e.includes("404")) return `the Apify actor id is wrong or not accessible on your account.`;
+    return s.error;
+  }
+
+  function renderStatus(sources) {
+    const box = document.getElementById("status");
+    if (!sources || !Object.keys(sources).length) { box.innerHTML = ""; return; }
+    box.innerHTML = Object.entries(sources).map(([name, s]) => {
+      const label = NAMES[name] || name;
+      if (s.error) {
+        return `<div class="chip warn"><b>${label}:</b> ${esc(friendlyError(name, s))}</div>`;
+      }
+      if ((s.fetched || 0) > 0 && (s.matched || 0) === 0) {
+        return `<div class="chip warn"><b>${label}:</b> found ${s.fetched}, but none matched your 2-bed / 2-bath ≤ 6,000 filter.</div>`;
+      }
+      return `<div class="chip ok"><b>${label}:</b> ${s.matched} matching</div>`;
+    }).join("");
   }
 
   function render(data) {
@@ -173,7 +200,7 @@
       const c = data.criteria;
       el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;
     }
-    el("sources").textContent = sourcesText(data.sources);
+    renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
 
     // Rebuild the map next time it's shown, with the new points.
