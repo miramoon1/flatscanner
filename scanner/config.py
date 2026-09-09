@@ -10,12 +10,25 @@ class Criteria:
     bedrooms: int = 2
     bathrooms: int = 2
 
-    # Listings in these areas are hard-excluded even if everything else matches.
+    # Listings in these areas are hard-excluded even if everything else matches — for
+    # every source, Facebook included. Two groups:
+    #   1. Dubai sub-areas you don't want (Marina, JLT).
+    #   2. Other emirates — Facebook's "Dubai property rentals" feed leaks in listings
+    #      from neighbouring emirates (Sharjah, Ajman, etc.); you only want Dubai, so
+    #      anything naming another emirate is dropped. (Substring match, lower-cased.)
+    #      "umm al quwain" won't clash with the preferred Dubai area "umm suqeim".
     excluded_areas: tuple[str, ...] = (
         "dubai marina",
         "marina",
         "jlt",
         "jumeirah lake towers",
+        "sharjah",
+        "ajman",
+        "umm al quwain",
+        "ras al khaimah",
+        "fujairah",
+        "abu dhabi",
+        "al ain",
     )
 
     # Listings in these areas are flagged "preferred" on the dashboard and sorted first.
