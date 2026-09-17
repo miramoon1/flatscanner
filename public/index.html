@@ -288,6 +288,31 @@
     if (!el("map-view").hidden) refreshMap();
   }
 
+  // Bayut & Dubizzle are scraped for free by GitHub Actions (real browser) and committed
+  // to /browser_sources.json. We fetch that static file and merge it into every view, so
+  // those two sources appear at no cost. Missing/empty file → just skipped.
+  function fetchBrowserSources() {
+    return fetch("/browser_sources.json", { cache: "no-store" })
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+
+  function mergeBrowserSources(data, bs) {
+    if (!bs || !Array.isArray(bs.listings) || !bs.listings.length) {
+      if (bs && bs.sources) data.sources = Object.assign({}, data.sources, bs.sources);
+      return data;
+    }
+    const seen = new Set((data.listings || []).map(l => l.id));
+    data.listings = (data.listings || []).concat(bs.listings.filter(l => !seen.has(l.id)));
+    data.listings.sort((a, b) =>
+      ((a.preferred ? 0 : 1) - (b.preferred ? 0 : 1)) ||
+      ((a.price_monthly_aed == null ? 1e9 : a.price_monthly_aed) - (b.price_monthly_aed == null ? 1e9 : b.price_monthly_aed))
+    );
+    data.count = data.listings.length;
+    data.sources = Object.assign({}, data.sources, bs.sources);
+    return data;
+  }
+
   // fresh: bypass the edge cache and run a live scan. apify: also run the PAID Apify
   // sources (Facebook). Normal loads/scans pass apify=false, so they never cost credit.
   function load(fresh, apify) {
@@ -313,6 +338,7 @@
           throw new Error("server returned HTTP " + status + ": " + text.slice(0, 200).trim());
         }
       })
+      .then(data => fetchBrowserSources().then(bs => mergeBrowserSources(data, bs)))
       .then(render)
       .catch(e => { el("meta").textContent = "Could not load listings — " + e.message; })
       .finally(() => { scanBtn.disabled = false; fbBtn.disabled = false; active.textContent = label; });

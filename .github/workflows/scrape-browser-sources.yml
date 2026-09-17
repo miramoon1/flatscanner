@@ -1,0 +1,46 @@
+name: Scrape Bayut & Dubizzle (free)
+
+# Runs the browser-based Bayut/Dubizzle scrapers on GitHub's free runners (a real
+# Chromium — which Vercel can't provide and Apify would charge for), and commits the
+# results to public/browser_sources.json. Vercel auto-redeploys on the push and the
+# dashboard merges that file in. Free on a PUBLIC repo; on a private repo GitHub bills
+# Actions minutes (and blocks runs without a spending limit), so keep the repo public
+# for this to run at no cost.
+on:
+  schedule:
+    - cron: "30 5 * * *" # once a day, 05:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape-browser-sources
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Install Chromium for Playwright
+        run: python -m playwright install --with-deps chromium
+
+      - name: Scrape Bayut & Dubizzle
+        run: python scripts/scrape_browser_sources.py
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/browser_sources.json
+          git diff --cached --quiet || git commit -m "Update Bayut/Dubizzle results [skip ci]"
+          git push
