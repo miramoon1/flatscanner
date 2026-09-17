@@ -38,12 +38,16 @@ def main() -> None:
         try:
             log.info("Scraping %s...", source.name)
             got = source.fetch(CRITERIA)
-            log.info("%s: %d listings", source.name, len(got))
+            diag = getattr(source, "diagnostic", None)
+            log.info("%s: %d listings | diagnostic=%s", source.name, len(got), diag)
             all_listings.extend(got)
-            stats[source.name] = {"fetched": len(got), "matched": 0, "error": None}
+            stats[source.name] = {"fetched": len(got), "matched": 0, "error": None, "diagnostic": diag}
         except Exception as e:  # noqa: BLE001 — recorded, never fatal
             log.exception("%s failed", source.name)
-            stats[source.name] = {"fetched": 0, "matched": 0, "error": f"{type(e).__name__}: {e}"}
+            stats[source.name] = {
+                "fetched": 0, "matched": 0, "error": f"{type(e).__name__}: {e}",
+                "diagnostic": getattr(source, "diagnostic", None),
+            }
 
     matches = filter_and_rank(all_listings, CRITERIA)
     for m in matches:

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from ..config import Criteria
 from ..models import Listing
-from . import Source
+from . import Source, page_diagnostic
 
 BASE_URL = "https://dubai.dubizzle.com/property-for-rent/residential/apartments/"
 USER_AGENT = (
@@ -27,9 +27,19 @@ USER_AGENT = (
 )
 MAX_PAGES = 10
 
+CHALLENGE_MARKERS = (
+    "captcha", "are you human", "incapsula", "request unsuccessful",
+    "access denied", "_incapsula_", "just a moment", "verifying you are human",
+    "attention required", "cf-browser-verification",
+)
+
 
 class DubizzleSource(Source):
     name = "dubizzle"
+
+    def __init__(self) -> None:
+        # See BayutSource: records why a run returned nothing (blocked vs. parsed wrong).
+        self.diagnostic: dict | None = None
 
     def fetch(self, criteria: Criteria) -> list[Listing]:
         from playwright.sync_api import sync_playwright
@@ -46,6 +56,10 @@ class DubizzleSource(Source):
                     page.wait_for_timeout(3000)
 
                     cards = page.query_selector_all('[data-aut-id="itemBox3"]')
+
+                    if page_num == 1:
+                        self.diagnostic = page_diagnostic(page, len(cards), CHALLENGE_MARKERS)
+
                     if not cards:
                         break
 

@@ -77,6 +77,7 @@
     <button id="btn-list" type="button" aria-pressed="true">List</button>
     <button id="btn-map" type="button" aria-pressed="false">Map</button>
     <button id="btn-scan" type="button" class="scan" hidden>↻ Scan now</button>
+    <button id="btn-browser" type="button" class="scan" hidden title="Runs the free Bayut &amp; Dubizzle browser scrape on GitHub (~2–3 min). No Apify, no cost.">↻ Refresh Bayut &amp; Dubizzle (free)</button>
     <button id="btn-fb" type="button" class="scan fb" hidden title="Runs the paid Apify scrapers (Facebook, plus Bayut/Dubizzle if you've enabled their actors) — uses Apify credit">＋ Include Facebook &amp; paid sources (Apify credit)</button>
   </div>
 
@@ -297,7 +298,12 @@
       .catch(() => null);
   }
 
+  // Remembers the timestamp of the browser_sources.json we last merged, so the refresh
+  // button can tell when GitHub has committed a *newer* one.
+  let lastBrowserGeneratedAt = null;
+
   function mergeBrowserSources(data, bs) {
+    if (bs && bs.generated_at) lastBrowserGeneratedAt = bs.generated_at;
     if (!bs || !Array.isArray(bs.listings) || !bs.listings.length) {
       if (bs && bs.sources) data.sources = Object.assign({}, data.sources, bs.sources);
       return data;
@@ -311,6 +317,73 @@
     data.count = data.listings.length;
     data.sources = Object.assign({}, data.sources, bs.sources);
     return data;
+  }
+
+  // The free-Bayut/Dubizzle button: ask the /api/rescan endpoint to start the GitHub
+  // Actions browser scrape, then poll browser_sources.json until a newer one is
+  // committed (GitHub run + Vercel redeploy), and re-merge. Costs nothing — it's the
+  // free browser runner, no Apify.
+  function refreshBrowserSources() {
+    const btn = el("btn-browser");
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Starting…";
+    el("meta").textContent = "Starting the free Bayut & Dubizzle scrape on GitHub…";
+    const baseline = lastBrowserGeneratedAt;
+    fetch("/api/rescan", { method: "POST" })
+      .then(r => r.json())
+      .then(res => {
+        if (!res || !res.ok) {
+          el("meta").textContent = "Couldn't start the scrape — " + ((res && res.message) || "unknown error") +
+            " You can also run it from the repo's Actions tab.";
+          btn.disabled = false; btn.textContent = label;
+          return;
+        }
+        el("meta").textContent = "Scraping Bayut & Dubizzle on GitHub… this takes ~2–3 min. " +
+          "You can keep browsing — results appear here automatically when it finishes.";
+        btn.textContent = "Scraping… (~2–3 min)";
+        pollForBrowserUpdate(baseline, Date.now(), btn, label);
+      })
+      .catch(e => {
+        el("meta").textContent = "Couldn't start the scrape — " + e.message +
+          " You can also run it from the repo's Actions tab.";
+        btn.disabled = false; btn.textContent = label;
+      });
+  }
+
+  function pollForBrowserUpdate(baseline, startedAt, btn, label) {
+    const MAX_MS = 6 * 60 * 1000;  // runner spin-up + scrape + commit + Vercel redeploy
+    const tick = () => {
+      if (Date.now() - startedAt > MAX_MS) {
+        el("meta").textContent = "The scrape is taking longer than expected — it may still finish. " +
+          "Try “Scan now” again shortly, or check the GitHub Actions tab.";
+        btn.disabled = false; btn.textContent = label;
+        return;
+      }
+      fetchBrowserSources().then(bs => {
+        const gen = bs && bs.generated_at;
+        if (gen && gen !== baseline) {
+          const n = (bs.listings || []).length;
+          const src = (bs.sources || {});
+          const diagBits = ["bayut", "dubizzle"].map(k => {
+            const d = src[k] && src[k].diagnostic;
+            if (!d) return null;
+            if (d.looks_blocked) return k + ": blocked by bot-protection";
+            if (d.cards_found === 0 && d.has_next_data) return k + ": page loaded but no matches";
+            return null;
+          }).filter(Boolean);
+          el("meta").textContent = n
+            ? ("Bayut & Dubizzle refreshed — " + n + " listing(s) added.")
+            : ("Bayut & Dubizzle finished but returned nothing" +
+               (diagBits.length ? " (" + diagBits.join("; ") + ")" : "") + ".");
+          btn.disabled = false; btn.textContent = label;
+          load(false, false);  // re-fetch, re-merge, re-render
+          return;
+        }
+        setTimeout(tick, 15000);
+      });
+    };
+    setTimeout(tick, 20000);  // first check after 20s — the runner needs time to even start
   }
 
   // fresh: bypass the edge cache and run a live scan. apify: also run the PAID Apify
@@ -345,6 +418,7 @@
   }
 
   el("btn-scan").addEventListener("click", () => load(true, false));
+  el("btn-browser").addEventListener("click", refreshBrowserSources);
   el("btn-fb").addEventListener("click", () => load(true, true));
 
   // Local `python -m scanner.main` preview injects window.__DATA__ (file:// can't
@@ -353,6 +427,7 @@
     render(window.__DATA__);
   } else {
     el("btn-scan").hidden = false;
+    el("btn-browser").hidden = false;
     el("btn-fb").hidden = false;
     load(false, false);   // show the last cached (Apify-free) scan on open — no credit used
   }

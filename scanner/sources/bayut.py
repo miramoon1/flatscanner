@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from ..config import Criteria
 from ..models import Listing
-from . import Source
+from . import Source, page_diagnostic
 
 BASE_URL = "https://www.bayut.com/to-rent/apartments/dubai/"
 USER_AGENT = (
@@ -28,8 +28,20 @@ USER_AGENT = (
 MAX_PAGES = 10
 
 
+CHALLENGE_MARKERS = (
+    "captcha", "are you human", "incapsula", "request unsuccessful",
+    "access denied", "humbucker", "just a moment", "verifying you are human",
+    "attention required", "cf-browser-verification",
+)
+
+
 class BayutSource(Source):
     name = "bayut"
+
+    def __init__(self) -> None:
+        # Filled in on the first page so the caller (and the committed browser_sources.json)
+        # can see WHY a run returned nothing: was the page blocked, or just parsed wrong?
+        self.diagnostic: dict | None = None
 
     def fetch(self, criteria: Criteria) -> list[Listing]:
         from playwright.sync_api import sync_playwright
@@ -46,6 +58,10 @@ class BayutSource(Source):
                     page.wait_for_timeout(3000)  # let the JS challenge + hydration settle
 
                     cards = page.query_selector_all('li[aria-label="Listing"]')
+
+                    if page_num == 1:
+                        self.diagnostic = page_diagnostic(page, len(cards), CHALLENGE_MARKERS)
+
                     if not cards:
                         break
 
