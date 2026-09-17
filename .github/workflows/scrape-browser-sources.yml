@@ -10,6 +10,13 @@ on:
   schedule:
     - cron: "30 5 * * *" # once a day, 05:30 UTC
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    # Runs when code lands on main so the feed is populated without a manual click.
+    # The auto-commit below uses "[skip ci]", so writing the results back never
+    # retriggers this workflow (no loop).
+    paths-ignore:
+      - "public/browser_sources.json"
 
 permissions:
   contents: write
