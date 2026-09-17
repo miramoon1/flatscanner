@@ -1,15 +1,29 @@
 {
-  "generated_at": "2026-09-17T12:01:35.135270+00:00",
+  "generated_at": "2026-09-17T12:10:10.439442+00:00",
   "sources": {
     "bayut": {
       "fetched": 0,
       "matched": 0,
-      "error": null
+      "error": null,
+      "diagnostic": {
+        "title": "Security check | Bayut",
+        "html_len": 644180,
+        "cards_found": 0,
+        "has_next_data": false,
+        "looks_blocked": true
+      }
     },
     "dubizzle": {
       "fetched": 0,
       "matched": 0,
-      "error": null
+      "error": null,
+      "diagnostic": {
+        "title": "",
+        "html_len": 996,
+        "cards_found": 0,
+        "has_next_data": false,
+        "looks_blocked": true
+      }
     }
   },
   "listings": []
