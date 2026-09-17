@@ -77,7 +77,7 @@
     <button id="btn-list" type="button" aria-pressed="true">List</button>
     <button id="btn-map" type="button" aria-pressed="false">Map</button>
     <button id="btn-scan" type="button" class="scan" hidden>↻ Scan now</button>
-    <button id="btn-fb" type="button" class="scan fb" hidden title="Runs the paid Facebook (Apify) scraper — uses Apify credit">＋ Include Facebook (uses Apify credit)</button>
+    <button id="btn-fb" type="button" class="scan fb" hidden title="Runs the paid Apify scrapers (Facebook, plus Bayut/Dubizzle if you've enabled their actors) — uses Apify credit">＋ Include Facebook &amp; paid sources (Apify credit)</button>
   </div>
 
   <div class="source-filter" id="source-filter"></div>
@@ -178,9 +178,27 @@
   function refreshMap() {
     if (!map) {
       map = L.map("map").setView(DUBAI_CENTER, 11);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors", maxZoom: 19,
-      }).addTo(map);
+
+      // Realistic satellite imagery with ENGLISH labels (Esri). Default OpenStreetMap
+      // tiles label everything in the local language (Arabic in Dubai) — Esri's
+      // reference layer is in English, so streets/areas read in English.
+      const esriAttr = "Tiles &copy; Esri";
+      const imagery = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { attribution: esriAttr, maxZoom: 19 });
+      const labels = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19 });
+      const roads = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19 });
+      const satellite = L.layerGroup([imagery, roads, labels]);  // realistic + English labels
+      const streets = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        { attribution: esriAttr, maxZoom: 19 });  // plain street map, also English
+
+      satellite.addTo(map);                       // default view: realistic satellite
+      L.control.layers({ "Satellite": satellite, "Street map": streets }, null, { collapsed: false }).addTo(map);
       markersLayer = L.layerGroup().addTo(map);
     }
     markersLayer.clearLayers();
