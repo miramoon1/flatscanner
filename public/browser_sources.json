@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-18T09:58:30.373745+00:00",
+  "generated_at": "2026-09-19T09:40:29.945674+00:00",
   "sources": {
     "bayut": {
       "fetched": 0,
@@ -19,7 +19,7 @@
       "error": null,
       "diagnostic": {
         "title": "",
-        "html_len": 1003,
+        "html_len": 1000,
         "cards_found": 0,
         "has_next_data": false,
         "looks_blocked": true
