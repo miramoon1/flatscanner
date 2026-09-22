@@ -27,10 +27,10 @@ CACHE_CONTROL = "public, s-maxage=604800"
 SCAN_DEADLINE_SECONDS = 55
 
 
-def _scan() -> dict:
+def _scan(include_apify: bool) -> dict:
     stats: dict = {}
     listings = scan_enriched(
-        allow_browser=False, include_apify=False, stats=stats,
+        allow_browser=False, include_apify=include_apify, stats=stats,
         deadline_seconds=SCAN_DEADLINE_SECONDS, criteria=JUMEIRAH_CRITERIA,
     )
     return {
@@ -43,17 +43,22 @@ def _scan() -> dict:
         "count": len(listings),
         "sources": stats,
         "listings": listings,
+        "included_apify": include_apify,
     }
 
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         from urllib.parse import parse_qs, urlparse
-        fresh = "fresh" in parse_qs(urlparse(self.path).query)
+        q = parse_qs(urlparse(self.path).query)
+        # ?apify=1 also pulls the paid sources (Facebook/Dubizzle) — where the ROOMS are,
+        # since Property Finder only lists whole units. Only when the button asks for it.
+        include_apify = q.get("apify", ["0"])[0] in ("1", "true", "yes")
+        fresh = "fresh" in q
         try:
-            payload = _scan()
+            payload = _scan(include_apify)
             self.send_response(200)
-            self.send_header("cache-control", "no-store" if fresh else CACHE_CONTROL)
+            self.send_header("cache-control", "no-store" if (fresh or include_apify) else CACHE_CONTROL)
         except Exception as e:
             import traceback
             payload = {

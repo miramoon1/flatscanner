@@ -223,17 +223,34 @@
     markersLayer.clearLayers();
 
     const points = visibleListings().filter(l => l.latitude != null && l.longitude != null);
-    const bounds = [];
+    // Many listings share an exact coordinate (same building, or a whole community pinned
+    // to one point), so their markers stack and look like one. Fan out any that collide by
+    // spreading them in a small ring so each is individually clickable.
+    const groups = {};
     points.forEach(p => {
-      const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
-      L.circleMarker([p.latitude, p.longitude], {
-        radius: 8, color: "#fff", weight: 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
-      }).addTo(markersLayer).bindPopup(
-        "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
-        '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) + "</span><br>" +
-        '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
-      );
-      bounds.push([p.latitude, p.longitude]);
+      const key = p.latitude.toFixed(4) + "," + p.longitude.toFixed(4);
+      (groups[key] = groups[key] || []).push(p);
+    });
+    const bounds = [];
+    Object.values(groups).forEach(group => {
+      group.forEach((p, i) => {
+        let lat = p.latitude, lon = p.longitude;
+        if (group.length > 1) {
+          const R = 0.0006 + 0.00025 * Math.floor(i / 8);   // ~65m ring, growing if crowded
+          const ang = 2 * Math.PI * (i % 8) / Math.min(group.length, 8);
+          lat += R * Math.cos(ang);
+          lon += R * Math.sin(ang) / Math.cos(p.latitude * Math.PI / 180);
+        }
+        const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
+        L.circleMarker([lat, lon], {
+          radius: 8, color: "#fff", weight: 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
+        }).addTo(markersLayer).bindPopup(
+          "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
+          '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) + "</span><br>" +
+          '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
+        );
+        bounds.push([lat, lon]);
+      });
     });
     if (bounds.length) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
 
@@ -319,14 +336,15 @@
   // sources (Facebook, Dubizzle) — main tab only. Normal loads/scans pass apify=false, so
   // they never cost credit. Always loads the CURRENT profile's endpoint.
   function load(fresh, apify) {
-    apify = apify && currentProfile === "main";  // Apify sources only exist on the main tab
     const scanBtn = el("btn-scan"), fbBtn = el("btn-fb");
     scanBtn.disabled = true; fbBtn.disabled = true;
     const active = apify ? fbBtn : scanBtn;
     const label = active.textContent;
     active.textContent = "Scanning…";
     el("meta").textContent = apify
-      ? "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)"
+      ? (currentProfile === "jumeirah"
+          ? "Looking for rooms in Jumeirah via Facebook… (this can take ~20s)"
+          : "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)")
       : (fresh ? "Scanning… (a few seconds)" : "Loading…");
     let url = PROFILES[currentProfile].url;
     if (fresh) url += "?fresh=" + Date.now();
@@ -348,9 +366,14 @@
       .finally(() => { scanBtn.disabled = false; fbBtn.disabled = false; active.textContent = label; });
   }
 
-  // The paid Facebook/Dubizzle button only applies to the main tab.
+  // The paid Apify button shows on both tabs. On the main tab it adds Facebook + Dubizzle
+  // flats; on the Jumeirah tab it looks for ROOMS (which Property Finder doesn't list).
   function syncButtons() {
-    el("btn-fb").hidden = (currentProfile !== "main");
+    const fb = el("btn-fb");
+    fb.hidden = false;
+    fb.textContent = currentProfile === "jumeirah"
+      ? "＋ Find rooms via Facebook (Apify credit)"
+      : "＋ Include Facebook & Dubizzle (Apify credit)";
   }
 
   function switchProfile(p) {

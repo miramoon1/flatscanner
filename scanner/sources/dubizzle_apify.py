@@ -48,6 +48,9 @@ class DubizzleApifySource(Source):
         # price filter at the monthly budget × 12. Cheap monthly-quoted listings are well
         # under this too, so none are lost; our own filter re-checks the true monthly price.
         yearly_cap = criteria.max_price_monthly_aed * 12
+        # Lowest bedroom count this profile accepts (0 for the studio/1-bed Jumeirah tab,
+        # 2 for the main flat search) — the actor filters beds>=this, we filter exact after.
+        beds_min = min(criteria.bedrooms_allowed) if criteria.bedrooms_allowed else criteria.bedrooms
         # A URL fallback for actors that take a search URL instead of structured filters.
         search_url = os.environ.get(
             "APIFY_DUBIZZLE_SEARCH_URL",
@@ -62,7 +65,7 @@ class DubizzleApifySource(Source):
                 "section": "property-for-rent",
                 "emirate": "dubai",
                 "propertyCategory": "residential",
-                "bedsMin": criteria.bedrooms,   # actor has no exact/max beds; we filter exact after
+                "bedsMin": beds_min,            # actor has no exact/max beds; we filter exact after
                 "priceMax": yearly_cap,
                 "sortBy": "newest",             # no posted-date field, so lean on newest-first
                 "maxResults": 200,

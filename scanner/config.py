@@ -116,6 +116,10 @@ JUMEIRAH_CRITERIA = Criteria(
     bedrooms_allowed=(0, 1),        # studio + 1-bed
     bathrooms=None,                 # don't require a bathroom count for a studio/1BR
     drop_room_shares=False,         # "a room" is explicitly wanted here
+    # A room / bed-space post has no bedroom count — keep it. Precision comes from the
+    # coastal-Jumeirah area allow-list + the price cap instead. (Property Finder always
+    # has a bed count, so this only matters for the paid Facebook/Dubizzle rooms.)
+    allow_unknown_bedrooms=True,
     # Cheapest-first only (a price-descending pass would just fetch listings above the cap)
     # and page fairly deep, since affordable coastal Jumeirah units are sparse.
     pf_orderings=("pa",),
