@@ -63,8 +63,14 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     if _area_matches_any(area_and_title, criteria.excluded_emirates):
         return False
 
-    # Room-share / partition / studio posts on freeform sources: not a 2-bed flat.
-    if lenient and _area_matches_any(area_and_title, NON_FLAT_TERMS):
+    # Positive area allow-list (e.g. the Jumeirah tab): when set, the listing must name one
+    # of the required areas (checked against area AND title).
+    if criteria.required_areas and not _area_matches_any(area_and_title, criteria.required_areas):
+        return False
+
+    # Room-share / partition / studio posts on freeform sources: not a whole flat — dropped
+    # unless the profile explicitly wants rooms/studios (drop_room_shares=False).
+    if lenient and criteria.drop_room_shares and _area_matches_any(area_and_title, NON_FLAT_TERMS):
         return False
 
     # Price: required and within budget for ALL sources (including lenient ones). An
@@ -72,16 +78,19 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     if listing.price_monthly_aed is None or listing.price_monthly_aed > criteria.max_price_monthly_aed:
         return False
 
-    # Bedrooms: required and matching for ALL sources. For Facebook this is the parsed
-    # title count — a post that doesn't clearly state the bedroom count is dropped.
-    if listing.bedrooms is None or not criteria.bedroom_ok(listing.bedrooms):
+    # Bedrooms: a known count must be allowed by the profile; an unknown count is dropped
+    # unless the profile keeps unknown-bedroom listings.
+    if listing.bedrooms is None:
+        if not criteria.allow_unknown_bedrooms:
+            return False
+    elif not criteria.bedroom_ok(listing.bedrooms):
         return False
 
     # Bathrooms + freshness: enforced only for the structured portal sources.
     if not lenient:
-        if listing.bathrooms != criteria.bathrooms:
+        if criteria.bathrooms is not None and listing.bathrooms != criteria.bathrooms:
             return False
-        if _is_too_old(listing):
+        if criteria.check_freshness and _is_too_old(listing):
             return False
 
     return True

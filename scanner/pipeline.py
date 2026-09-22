@@ -67,6 +67,7 @@ def collect(
     include_apify: bool = False,
     stats: dict | None = None,
     deadline_seconds: float | None = None,
+    criteria=CRITERIA,
 ) -> list[Listing]:
     """Return filtered + ranked Listings from every available source.
 
@@ -100,7 +101,7 @@ def collect(
 
     def _run(src):
         try:
-            results[src.name] = src.fetch(CRITERIA)
+            results[src.name] = src.fetch(criteria)
         except Exception as e:  # noqa: BLE001 — recorded per-source below
             results[src.name] = e
 
@@ -142,7 +143,7 @@ def collect(
         seen.add(key)
         deduped.append(l)
 
-    matches = filter_and_rank(deduped, CRITERIA)
+    matches = filter_and_rank(deduped, criteria)
     if stats is not None:
         for m in matches:
             if m.source in stats:
@@ -156,6 +157,11 @@ def scan_enriched(
     include_apify: bool = False,
     stats: dict | None = None,
     deadline_seconds: float | None = None,
+    criteria=CRITERIA,
 ) -> list[dict]:
     """collect() plus per-listing enrichment — the exact records the dashboard reads."""
-    return [enrich(l) for l in collect(allow_browser, include_apify, stats=stats, deadline_seconds=deadline_seconds)]
+    return [
+        enrich(l, criteria)
+        for l in collect(allow_browser, include_apify, stats=stats,
+                         deadline_seconds=deadline_seconds, criteria=criteria)
+    ]

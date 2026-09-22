@@ -62,6 +62,10 @@
   .src-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
   .src-btn .count { color: var(--muted); font-weight: 500; }
   [hidden] { display: none !important; }
+  .profile-tabs { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+  .ptab { font-size: 15px; font-weight: 600; padding: 9px 15px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; }
+  .ptab[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
 </style>
 </head>
 <body>
@@ -73,6 +77,11 @@
   <div class="criteria">Each card shows an estimated winter room-sublet rate for its area and what you'd net-pay after renting the second room out, in EUR (AED alongside) &mdash; ballpark figures from market research, not live data.</div>
 </header>
 <main>
+  <div class="profile-tabs" role="tablist">
+    <button id="tab-main" type="button" class="ptab" aria-pressed="true">🏠 Flatshare · 2 bed / 2 bath</button>
+    <button id="tab-jumeirah" type="button" class="ptab" aria-pressed="false">🌊 Jumeirah · studio / 1-bed</button>
+  </div>
+
   <div class="view-toggle" role="tablist">
     <button id="btn-list" type="button" aria-pressed="true">List</button>
     <button id="btn-map" type="button" aria-pressed="false">Map</button>
@@ -98,6 +107,16 @@
   // One colour per source — used for the map markers, the legend, and the card source dot.
   const SOURCE_COLORS = { propertyfinder: "#0f6f5c", facebook: "#1877f2", dubizzle: "#e4002b", bayut: "#16a34a" };
   const colorFor = (src) => SOURCE_COLORS[src] || "#888";
+  const JUMEIRAH_COLOR = "#e11d48";  // Jumeirah-tab markers are a distinct red
+  // A listing's map colour: red on the Jumeirah tab, otherwise its source colour.
+  const markerColor = (l) => (l.profile === "jumeirah" ? JUMEIRAH_COLOR : colorFor(l.source));
+
+  // Two search profiles, each backed by its own endpoint and cached after first load.
+  const PROFILES = {
+    main: { url: "/api/data", data: null },
+    jumeirah: { url: "/api/jumeirah", data: null },
+  };
+  let currentProfile = "main";
 
   let LISTINGS = [];
   let map = null, markersLayer = null;
@@ -208,7 +227,7 @@
     points.forEach(p => {
       const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
       L.circleMarker([p.latitude, p.longitude], {
-        radius: 8, color: "#fff", weight: 1.5, fillColor: colorFor(p.source), fillOpacity: 0.9,
+        radius: 8, color: "#fff", weight: 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
       }).addTo(markersLayer).bindPopup(
         "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
         '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) + "</span><br>" +
@@ -218,11 +237,16 @@
     });
     if (bounds.length) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
 
-    // Legend: which colour is which source (only those currently shown with points).
-    const shown = [...new Set(points.map(p => p.source))];
-    const legend = shown.map(s =>
-      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)}</span>`
-    ).join("");
+    // Legend: on the Jumeirah tab, one red entry; on the main tab, one per source shown.
+    let legend;
+    if (currentProfile === "jumeirah") {
+      legend = `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${JUMEIRAH_COLOR}"></span>Jumeirah (studio / 1-bed)</span>`;
+    } else {
+      const shown = [...new Set(points.map(p => p.source))];
+      legend = shown.map(s =>
+        `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)}</span>`
+      ).join("");
+    }
     el("map-note").innerHTML = points.length
       ? legend + "<br>" + points.length + " of " + visibleListings().length + " shown listings have map coordinates (not every source provides them)."
       : "None of the selected listings have map coordinates yet.";
@@ -264,7 +288,7 @@
         return `<div class="chip warn"><b>${label}:</b> ${esc(friendlyError(name, s))}</div>`;
       }
       if ((s.fetched || 0) > 0 && (s.matched || 0) === 0) {
-        return `<div class="chip warn"><b>${label}:</b> found ${s.fetched}, but none matched your 2-bed / 2-bath ≤ 6,000 filter.</div>`;
+        return `<div class="chip warn"><b>${label}:</b> found ${s.fetched}, but none matched this tab's filter.</div>`;
       }
       return `<div class="chip ok"><b>${label}:</b> ${s.matched} matching</div>`;
     }).join("");
@@ -272,9 +296,12 @@
 
   function render(data) {
     LISTINGS = data.listings || [];
+    PROFILES[currentProfile].data = data;  // cache for instant tab switches
     const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
     el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
-    if (data.criteria) {
+    if (currentProfile === "jumeirah") {
+      el("criteria").innerHTML = `Studio / 1-bed (or a room) &middot; coastal Jumeirah only &mdash; Jumeirah 1/2/3, Umm Suqeim, Al Sufouh, La Mer, Pearl Jumeirah, City Walk, Palm, Bluewaters &middot; <b>not</b> JBR / Marina / Jumeirah Village &middot; cheapest first`;
+    } else if (data.criteria) {
       const c = data.criteria;
       el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;
     }
@@ -289,17 +316,20 @@
   }
 
   // fresh: bypass the edge cache and run a live scan. apify: also run the PAID Apify
-  // sources (Facebook, Dubizzle). Normal loads/scans pass apify=false, so they never cost credit.
+  // sources (Facebook, Dubizzle) — main tab only. Normal loads/scans pass apify=false, so
+  // they never cost credit. Always loads the CURRENT profile's endpoint.
   function load(fresh, apify) {
+    apify = apify && currentProfile === "main";  // Apify sources only exist on the main tab
     const scanBtn = el("btn-scan"), fbBtn = el("btn-fb");
     scanBtn.disabled = true; fbBtn.disabled = true;
     const active = apify ? fbBtn : scanBtn;
     const label = active.textContent;
     active.textContent = "Scanning…";
     el("meta").textContent = apify
-      ? "Scanning incl. Facebook via Apify… (this can take ~20s)"
+      ? "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)"
       : (fresh ? "Scanning… (a few seconds)" : "Loading…");
-    let url = fresh ? "/api/data?fresh=" + Date.now() : "/api/data";
+    let url = PROFILES[currentProfile].url;
+    if (fresh) url += "?fresh=" + Date.now();
     if (apify) url += (url.includes("?") ? "&" : "?") + "apify=1";
     return fetch(url)
       .then(r => r.text().then(text => ({ status: r.status, text })))
@@ -318,17 +348,35 @@
       .finally(() => { scanBtn.disabled = false; fbBtn.disabled = false; active.textContent = label; });
   }
 
+  // The paid Facebook/Dubizzle button only applies to the main tab.
+  function syncButtons() {
+    el("btn-fb").hidden = (currentProfile !== "main");
+  }
+
+  function switchProfile(p) {
+    if (p === currentProfile) return;
+    currentProfile = p;
+    el("tab-main").setAttribute("aria-pressed", String(p === "main"));
+    el("tab-jumeirah").setAttribute("aria-pressed", String(p === "jumeirah"));
+    syncButtons();
+    const cached = PROFILES[p].data;
+    if (cached) { render(cached); }        // instant switch from cache
+    else { el("meta").textContent = "Loading…"; load(false, false); }
+  }
+
   el("btn-scan").addEventListener("click", () => load(true, false));
   el("btn-fb").addEventListener("click", () => load(true, true));
+  el("tab-main").addEventListener("click", () => switchProfile("main"));
+  el("tab-jumeirah").addEventListener("click", () => switchProfile("jumeirah"));
 
   // Local `python -m scanner.main` preview injects window.__DATA__ (file:// can't
-  // fetch). There the buttons can't hit /api/data, so leave them hidden.
+  // fetch). There the buttons can't hit the API, so leave them hidden.
   if (window.__DATA__) {
     render(window.__DATA__);
   } else {
     el("btn-scan").hidden = false;
-    el("btn-fb").hidden = false;
-    load(false, false);   // show the last cached (Apify-free) scan on open — no credit used
+    syncButtons();
+    load(false, false);   // show the last cached (Apify-free) main scan on open — no credit used
   }
 </script>
 </body>

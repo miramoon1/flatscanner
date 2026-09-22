@@ -4,6 +4,10 @@
     "api/data.py": {
       "maxDuration": 60,
       "includeFiles": "scanner/**"
+    },
+    "api/jumeirah.py": {
+      "maxDuration": 60,
+      "includeFiles": "scanner/**"
     }
   },
   "cleanUrls": true

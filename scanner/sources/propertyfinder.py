@@ -27,7 +27,12 @@ from ..config import Criteria
 from ..models import Listing
 from . import Source
 
-BASE_URL = "https://www.propertyfinder.ae/en/rent/dubai/{bedrooms}-bedroom-apartments-for-rent.html"
+BASE_URL = "https://www.propertyfinder.ae/en/rent/dubai/{slug}-apartments-for-rent.html"
+
+
+def _bedroom_slug(n: int) -> str:
+    # Property Finder's URL path slug: "studio" for 0 bedrooms, "N-bedroom" otherwise.
+    return "studio" if n == 0 else f"{n}-bedroom"
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/128.0 Safari/537.36"
@@ -50,18 +55,28 @@ class PropertyFinderSource(Source):
     def fetch(self, criteria: Criteria) -> list[Listing]:
         from concurrent.futures import ThreadPoolExecutor
 
-        url = BASE_URL.format(bedrooms=criteria.bedrooms)
+        # One or more bedroom searches depending on the profile: the main 2-bed scan is a
+        # single slug; the Jumeirah profile (bedrooms_allowed=(0,1)) fetches studio + 1-bed.
+        bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)
+        urls = [BASE_URL.format(slug=_bedroom_slug(n)) for n in bedroom_counts]
+        orderings = getattr(criteria, "pf_orderings", ("pa",))
+        max_pages = getattr(criteria, "pf_max_pages", MAX_PAGES)
         headers = {"User-Agent": USER_AGENT, "Accept-Language": "en"}
 
-        def fetch_page(page: int) -> list[dict]:
-            resp = requests.get(url, params={"ob": "pa", "page": page}, headers=headers, timeout=15)
+        # (url, ob, page) work items — every bedroom search × sort order × page, concurrent.
+        jobs = [(url, ob, page)
+                for url in urls for ob in orderings for page in range(1, max_pages + 1)]
+
+        def fetch_page(job: tuple[str, str, int]) -> list[dict]:
+            url, ob, page = job
+            resp = requests.get(url, params={"ob": ob, "page": page}, headers=headers, timeout=15)
             if resp.status_code != 200:
                 return []
             return _extract_properties(resp.text)
 
         listings: list[Listing] = []
         with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
-            for props in pool.map(fetch_page, range(1, MAX_PAGES + 1)):
+            for props in pool.map(fetch_page, jobs):
                 for prop in props:
                     listing = _to_listing(prop)
                     if listing is not None:

@@ -21,7 +21,7 @@ def _to_eur(aed: float | None) -> float | None:
     return aed * EUR_PER_AED if aed is not None else None
 
 
-def enrich(listing: Listing) -> dict:
+def enrich(listing: Listing, criteria=CRITERIA) -> dict:
     """Listing → dict with room-sublet estimate, net cost, and EUR conversions added."""
     room_typical, room_max = estimate_room_rent(listing.area)
 
@@ -32,7 +32,8 @@ def enrich(listing: Listing) -> dict:
         net_typical = net_best = None
 
     d = listing.to_dict()
-    d["preferred"] = is_preferred_area(listing, CRITERIA)
+    d["preferred"] = is_preferred_area(listing, criteria)
+    d["profile"] = criteria.profile
     d["est_room_rent_typical_aed"] = room_typical
     d["est_room_rent_max_aed"] = room_max
     d["net_cost_typical_aed"] = net_typical
