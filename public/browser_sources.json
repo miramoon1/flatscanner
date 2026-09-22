@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-21T10:58:08.395687+00:00",
+  "generated_at": "2026-09-22T10:07:41.343972+00:00",
   "sources": {
     "bayut": {
       "fetched": 0,
@@ -7,7 +7,7 @@
       "error": null,
       "diagnostic": {
         "title": "Security check | Bayut",
-        "html_len": 617038,
+        "html_len": 617042,
         "cards_found": 0,
         "has_next_data": false,
         "looks_blocked": true
@@ -19,7 +19,7 @@
       "error": null,
       "diagnostic": {
         "title": "",
-        "html_len": 995,
+        "html_len": 1000,
         "cards_found": 0,
         "has_next_data": false,
         "looks_blocked": true
