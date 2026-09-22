@@ -82,28 +82,18 @@ the dashboard:
 
 Optional env vars (Project → Settings → Environment Variables) to add more sources:
    - `APIFY_API_TOKEN` — turns on Facebook (via Apify). This is the one you already have.
-   - `APIFY_BAYUT_ACTOR` / `APIFY_DUBIZZLE_ACTOR` — set each to an Apify actor id
-     (e.g. `therealdude/bayut-uae-scraper`, `datafusion_x/dubizzle-property-scraper-uae`)
-     to turn those two on. Off by default — see "All four sources" below.
-   - `GH_DISPATCH_TOKEN` — wires up the dashboard's **"↻ Refresh Bayut & Dubizzle (free)"**
-     button. Without it the button just says "not connected yet"; with it, the button
-     starts the free GitHub Actions browser scrape (below) on demand. Create a GitHub
-     **fine-grained personal access token** scoped to this repo with **Actions: Read and
-     write**, and paste it here. No cost — it only starts a free GitHub job.
+   - `APIFY_DUBIZZLE_ACTOR` — set to `logiover/dubizzle-scraper` to turn on Dubizzle. It's
+     the cheapest verified actor ($1.50 / 1,000 results, structured Dubai/rent/beds
+     filters). Runs only on the dashboard's "Include Facebook & Dubizzle" button, so it
+     only costs when you click it. Off by default.
+   - `APIFY_BAYUT_ACTOR` — Bayut via Apify. **Not recommended:** the only working Bayut
+     actor is ~$349 / 1,000 results. Left off unless you set it.
 
-### Free Bayut & Dubizzle scrape (GitHub Actions)
-
-Vercel can't run a headless browser, and Bayut/Dubizzle need one (they block plain HTTP).
-So `.github/workflows/scrape-browser-sources.yml` runs a real Chromium on GitHub's **free**
-runners (public repo), scrapes both, and commits the results to `public/browser_sources.json`;
-the dashboard merges that file into every view. It runs daily (05:30 UTC), on any push to
-`main`, and on demand via the refresh button (or the Actions tab's "Run workflow").
-
-Heads-up: from a datacenter IP these two sites may serve a bot-challenge and return nothing.
-When that happens the committed file records why under each source's `diagnostic`
-(`looks_blocked` / `has_next_data` / `cards_found`), so a zero-result run is explainable
-rather than a mystery. If they stay blocked, the paid `APIFY_DUBIZZLE_ACTOR` path above is
-the reliable fallback for Dubizzle.
+> **Why not scrape Bayut/Dubizzle for free?** They sit behind bot-management (Bayut's JS
+> challenge, Dubizzle's Imperva Incapsula). A free cloud browser (e.g. GitHub Actions) is
+> served a challenge/empty page from the datacenter IP and gets zero listings — confirmed
+> live (Bayut returned a page titled "Security check", Dubizzle a 1 KB Incapsula stub). So
+> the only reliable non-local path for these two is Apify, above.
 
 > The daily cron (`0 6 * * *`) just keeps the edge cache warm; Vercel Hobby crons run
 > once a day, which matches the "checked daily" goal. Property Finder alone returns ~140

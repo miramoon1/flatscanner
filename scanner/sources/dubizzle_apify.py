@@ -1,10 +1,23 @@
 """Dubizzle via Apify — the Vercel-compatible way to scrape Dubizzle (no local browser).
 
-Same rationale and caveats as bayut_apify.py: Dubizzle sits behind Imperva Incapsula, so
-it needs a real browser, which Vercel can't run — Apify runs it remotely instead. OPT-IN:
-runs only when APIFY_DUBIZZLE_ACTOR names an actor (e.g. "datafusion_x/dubizzle-property-scraper-uae").
-Third-party/paid, output unverified here → defensive parsing, per-listing failures
-swallowed. Diff against a real Apify Console run if it comes back empty.
+Dubizzle sits behind Imperva Incapsula, so it needs a real browser, which Vercel can't
+run — and a free cloud browser (GitHub Actions) gets bot-blocked outright (confirmed: the
+runner is served an Incapsula challenge stub, zero listings). Apify runs it from
+infrastructure that gets through, for a small per-result fee.
+
+OPT-IN and paid: runs only when APIFY_DUBIZZLE_ACTOR names an actor, and only on the
+dashboard's explicit "paid sources" button. Recommended actor (cheapest verified,
+$1.50/1000 results, structured filters, Sept 2026):
+
+    APIFY_DUBIZZLE_ACTOR = logiover/dubizzle-scraper
+
+Its input is structured (section/emirate/bedsMin/priceMax/sortBy/maxResults) and its
+output has no bathrooms field, no posted date and no coordinates — hence Dubizzle is a
+"lenient" source in scanner/filters.py (matched on price + area + bedrooms). We send a
+superset of input keys so a differently-shaped actor still gets what it needs; unknown
+keys are ignored. Parsing is defensive (multiple candidate keys per field). If it comes
+back empty, run the actor once in the Apify Console and diff its output against
+`_to_listing`.
 """
 from __future__ import annotations
 
@@ -21,18 +34,21 @@ class DubizzleApifySource(Source):
     name = "dubizzle"
 
     def fetch(self, criteria: Criteria) -> list[Listing]:
-        token = os.environ.get("APIFY_API_TOKEN")
         actor = os.environ.get("APIFY_DUBIZZLE_ACTOR")
-        if not token or not actor:
-            return []
+        if not actor:
+            return []  # opt-in: not configured, stay silent
+        token = os.environ.get("APIFY_API_TOKEN")
+        if not token:
+            raise RuntimeError(
+                "APIFY_DUBIZZLE_ACTOR is set but APIFY_API_TOKEN is missing — add the "
+                "token in Vercel (Project → Settings → Environment Variables), then redeploy."
+            )
 
-        # The cheapest usable Dubizzle actor (easyapi/dubizzle-list-search-scraper,
-        # ~$2.99/1000) takes a Dubizzle *search URL*, not filter fields. Set
-        # APIFY_DUBIZZLE_SEARCH_URL to the exact filtered URL from your browser (filter
-        # dubizzle to 2-bed apartments for rent in Dubai, copy the address bar) for best
-        # results; otherwise it falls back to the general apartments-for-rent search and
-        # our own filters (price/beds/baths/area) narrow it down. Filter-style keys are
-        # sent too so filter-based actors also work — extra keys are ignored.
+        # Yearly cap: Dubizzle rents are usually quoted per year, so bound the actor-side
+        # price filter at the monthly budget × 12. Cheap monthly-quoted listings are well
+        # under this too, so none are lost; our own filter re-checks the true monthly price.
+        yearly_cap = criteria.max_price_monthly_aed * 12
+        # A URL fallback for actors that take a search URL instead of structured filters.
         search_url = os.environ.get(
             "APIFY_DUBIZZLE_SEARCH_URL",
             "https://dubai.dubizzle.com/property-for-rent/residential/apartments/",
@@ -42,16 +58,20 @@ class DubizzleApifySource(Source):
             api_url,
             params={"token": token},
             json={
-                "searchUrl": search_url,
+                # logiover/dubizzle-scraper (recommended) — structured Algolia filters:
+                "section": "property-for-rent",
+                "emirate": "dubai",
+                "propertyCategory": "residential",
+                "bedsMin": criteria.bedrooms,   # actor has no exact/max beds; we filter exact after
+                "priceMax": yearly_cap,
+                "sortBy": "newest",             # no posted-date field, so lean on newest-first
                 "maxResults": 200,
-                "city": "dubai",
-                "category": "property-for-rent",
-                "subCategory": "apartments",
-                "bedrooms": criteria.bedrooms,
-                "maxPrice": criteria.max_price_monthly_aed * 12,  # yearly quotes common
+                # Harmless extras so URL-based actors also work (unknown keys are ignored):
+                "url": search_url,
+                "max_result": 200,
                 "maxItems": 200,
             },
-            timeout=40,
+            timeout=50,
         )
         resp.raise_for_status()
         return [l for l in (_to_listing(i) for i in resp.json()) if l is not None]

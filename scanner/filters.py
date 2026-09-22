@@ -30,34 +30,51 @@ def _is_too_old(listing: Listing) -> bool:
     return datetime.now(timezone.utc) - listed > MAX_LISTING_AGE
 
 
-# Sources with messy, freeform listings (Facebook Marketplace) rarely state bathroom
-# count or a reliable date, and bedroom count is often only in the title. Applying the
-# strict portal rules to them drops nearly everything. These sources get lenient rules:
-# match on price + area + bedrooms, keep a listing when a field simply isn't stated
-# (flagged "not listed" on the card), and skip the exact-bathroom and freshness checks.
-LENIENT_SOURCES = {"facebook"}
+# Freeform sources (Facebook Marketplace, Dubizzle-via-Apify) don't reliably expose a
+# bathroom count or a posted date, so those two checks are skipped for them. But EVERY
+# other check still applies at full strength — crucially, price and bedrooms must be
+# KNOWN and must match. Keeping unknown-price / unknown-bedroom listings (an earlier,
+# over-lenient version did) is exactly what turned Facebook into a firehose of random
+# junk, so we don't: a post that doesn't clearly state a matching price and bedroom count
+# isn't a usable result and is dropped.
+#   - facebook: bed count is parsed from the freeform title; no title match → dropped.
+#   - dubizzle (via Apify): the cheap actor's output has no bathrooms field / posted date.
+LENIENT_SOURCES = {"facebook", "dubizzle"}
+
+# Lenient (freeform) sources are full of room-share posts that aren't whole 2-bed flats —
+# "partition", "bed space", studio, etc. These have no bedroom count to filter on, so drop
+# them by keyword. Only applied to lenient sources; portals never carry these.
+NON_FLAT_TERMS = ("partition", "bed space", "bedspace", "shared room", "sharing", "studio")
 
 
 def is_match(listing: Listing, criteria: Criteria) -> bool:
     lenient = listing.source in LENIENT_SOURCES
 
-    # Excluded area is a hard no for everyone.
-    if _area_matches_any(listing.area, criteria.excluded_areas):
+    area = listing.area or ""
+    title = listing.title or ""
+    area_and_title = f"{area} {title}"
+
+    # Dubai sub-areas (Marina/JLT): match the area field only — see config.excluded_areas.
+    if _area_matches_any(area, criteria.excluded_areas):
+        return False
+    # Other emirates (Ajman/Sharjah/…): match area AND title, because freeform sources
+    # (Facebook especially) put the emirate in the title with a blank area field. This is
+    # what let Ajman/Sharjah listings slip through before.
+    if _area_matches_any(area_and_title, criteria.excluded_emirates):
         return False
 
-    # Price: must be within budget when known. For lenient sources an unknown price is
-    # kept (shown as "?"); for portals an unknown price is dropped.
-    if listing.price_monthly_aed is not None:
-        if listing.price_monthly_aed > criteria.max_price_monthly_aed:
-            return False
-    elif not lenient:
+    # Room-share / partition / studio posts on freeform sources: not a 2-bed flat.
+    if lenient and _area_matches_any(area_and_title, NON_FLAT_TERMS):
         return False
 
-    # Bedrooms: exact match when known. Lenient sources keep unknown-bedroom listings.
-    if listing.bedrooms is not None:
-        if listing.bedrooms != criteria.bedrooms:
-            return False
-    elif not lenient:
+    # Price: required and within budget for ALL sources (including lenient ones). An
+    # unknown price means we can't tell if it fits the budget, so it's not a usable result.
+    if listing.price_monthly_aed is None or listing.price_monthly_aed > criteria.max_price_monthly_aed:
+        return False
+
+    # Bedrooms: required and matching for ALL sources. For Facebook this is the parsed
+    # title count — a post that doesn't clearly state the bedroom count is dropped.
+    if listing.bedrooms is None or not criteria.bedroom_ok(listing.bedrooms):
         return False
 
     # Bathrooms + freshness: enforced only for the structured portal sources.

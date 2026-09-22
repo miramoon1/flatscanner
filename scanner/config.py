@@ -10,18 +10,28 @@ class Criteria:
     bedrooms: int = 2
     bathrooms: int = 2
 
-    # Listings in these areas are hard-excluded even if everything else matches — for
-    # every source, Facebook included. Two groups:
-    #   1. Dubai sub-areas you don't want (Marina, JLT).
-    #   2. Other emirates — Facebook's "Dubai property rentals" feed leaks in listings
-    #      from neighbouring emirates (Sharjah, Ajman, etc.); you only want Dubai, so
-    #      anything naming another emirate is dropped. (Substring match, lower-cased.)
-    #      "umm al quwain" won't clash with the preferred Dubai area "umm suqeim".
+    # When set, a listing matches if its bedroom count is in this set (e.g. a studio/1-bed
+    # search uses (0, 1)). When None, the single `bedrooms` value above is required exactly.
+    # Lets a second search profile (Jumeirah studio/1BR) reuse the same filter code.
+    bedrooms_allowed: tuple[int, ...] | None = None
+
+    # Dubai sub-areas you don't want. Matched against the listing's AREA field only, not
+    # its title: a genuine JBR/Bluewaters listing often says "near Dubai Marina" in its
+    # freeform title, and matching that would wrongly drop it. (Substring, lower-cased.)
     excluded_areas: tuple[str, ...] = (
         "dubai marina",
         "marina",
         "jlt",
         "jumeirah lake towers",
+    )
+
+    # Other emirates — you only want Dubai. Facebook's "Dubai property rentals" feed (and
+    # any radius-based search) leaks in listings from neighbouring emirates, and the
+    # emirate is frequently stated ONLY in a freeform title ("2BHK for rent in Ajman"),
+    # with the structured area field left blank or mislabelled. So these are matched
+    # against the AREA field AND the TITLE, and anything naming another emirate is
+    # dropped. "umm al quwain" won't clash with the preferred Dubai area "umm suqeim".
+    excluded_emirates: tuple[str, ...] = (
         "sharjah",
         "ajman",
         "umm al quwain",
@@ -59,6 +69,12 @@ class Criteria:
         "port de la mer",
         "jumeirah golf estates",
     )
+
+    def bedroom_ok(self, n: int) -> bool:
+        """True if a listing's bedroom count satisfies this profile."""
+        if self.bedrooms_allowed is not None:
+            return n in self.bedrooms_allowed
+        return n == self.bedrooms
 
 
 CRITERIA = Criteria()
