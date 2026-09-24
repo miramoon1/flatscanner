@@ -130,7 +130,8 @@ class Criteria:
         return n == self.bedrooms
 
 
-CRITERIA = Criteria()
+# Main Flatshare tab: all-Dubai, cheapest-first, budget raised to 8k/month.
+CRITERIA = Criteria(max_price_monthly_aed=8000)
 
 
 # Second search profile: a studio / 1-bedroom (or a room) anywhere on the DUBAI coastal
