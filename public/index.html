@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r14 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r15 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -332,7 +332,7 @@
     const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
     el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
     if (currentProfile === "jumeirah") {
-      el("criteria").innerHTML = `<b>Everything</b> in the coastal strip (sea &rarr; Sheikh Zayed Rd) &mdash; Jumeirah, Umm Suqeim, Al Wasl, Al Sufouh, Al Barsha, Palm &middot; any price, all types (apartments, villas, townhouses, penthouses) &middot; <b>rooms + more via the "Show all Jumeirah from Facebook" button</b> &middot; <b>not</b> JBR / Marina / Downtown &middot; <span style="color:var(--muted)">Palm has the most rentals, so it dominates &mdash; that's real</span>`;
+      el("criteria").innerHTML = `Coastal strip (sea &rarr; Sheikh Zayed Rd) &mdash; Jumeirah, Umm Suqeim, Al Wasl, Al Sufouh, Al Barsha, Palm &middot; studios &amp; 1&ndash;3 bed flats, <b>cheapest first</b> &middot; <b>rooms + villas + more via the "Show all Jumeirah from Facebook" button</b> &middot; <b>not</b> JBR / Marina / Downtown`;
     } else if (data.criteria) {
       const c = data.criteria;
       el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;

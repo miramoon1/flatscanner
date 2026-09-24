@@ -140,19 +140,17 @@ JUMEIRAH_CRITERIA = Criteria(
     # Jumeirah strip". No price cap (huge sentinel), every apartment size (studio → 5-bed),
     # and rooms too (via the Facebook button). The only filter is the map box + the JBR /
     # Marina / look-alike exclusions.
-    max_price_monthly_aed=100_000_000,
-    any_bedrooms=True,              # every size — studio, apartments, villas, penthouses
-    allow_unknown_bedrooms=True,    # keep room/bed-space posts (no bedroom count)
+    max_price_monthly_aed=100_000_000,   # no cap; sorted cheapest-first so cheap shows first
+    bedrooms_allowed=(0, 1, 2, 3),  # studio, 1/2/3-bed flats — the affordable end
+    allow_unknown_bedrooms=True,    # keep studios (no bed count) + room posts
     bathrooms=None,                 # don't require a bathroom count
     drop_room_shares=False,         # rooms / studios are explicitly wanted here
-    # Fetch EVERY property type (apartments, villas, townhouses, penthouses), not just
-    # apartments — the actual Jumeirah 1/2/3 district is mostly villas, so apartments-only
-    # made the tab look Palm-heavy and "not all Jumeirah".
-    pf_property_paths=("properties-for-rent.html",),
-    # Both the pricey end (price-descending — most coastal stock is expensive Palm/Jumeirah)
-    # and the cheap end, so the whole strip is covered at every price.
-    pf_orderings=("pd", "pa"),
-    pf_max_pages=20,  # 1 path × 2 orders × 20 = 40 page requests, fast; soft budget backs it
+    # Per-bedroom APARTMENT slugs, cheapest-first, paged DEEP. This is the only way the
+    # affordable coastal flats (Al Barsha / Al Wasl, ~4–10k) actually surface — the generic
+    # "all types" slug buried them under 50k+ Palm villas. Villas + rooms come via the
+    # Facebook/Dubizzle button.
+    pf_orderings=("pa",),
+    pf_max_pages=25,   # 4 sizes × 25 pages = 100 requests; soft budget returns partial, never 0
     check_freshness=False,          # show everything currently available, not just <30 days
     # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
     # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
