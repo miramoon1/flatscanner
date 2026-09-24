@@ -38,14 +38,16 @@ def load_sources(allow_browser: bool, include_apify: bool):
 
     # Paid Apify sources — only when explicitly requested.
     if include_apify:
+        # Bayut stays OPT-IN behind its env var — the only working actor is very pricey.
         if os.environ.get("APIFY_BAYUT_ACTOR"):
             from .sources.bayut_apify import BayutApifySource
 
             sources.append(BayutApifySource())
-        if os.environ.get("APIFY_DUBIZZLE_ACTOR"):
-            from .sources.dubizzle_apify import DubizzleApifySource
+        # Dubizzle runs by default (cheap actor, ~$1.50/1000) — no extra env var needed,
+        # just the same APIFY_API_TOKEN that Facebook uses. Override actor via env if wanted.
+        from .sources.dubizzle_apify import DubizzleApifySource
 
-            sources.append(DubizzleApifySource())
+        sources.append(DubizzleApifySource())
 
         from pathlib import Path
 

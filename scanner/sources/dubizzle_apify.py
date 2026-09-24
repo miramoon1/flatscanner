@@ -30,18 +30,22 @@ from ..models import Listing
 from . import Source
 
 
+# Sensible cheap default so no extra env var is needed — the same Apify token that runs
+# Facebook runs Dubizzle too. Override APIFY_DUBIZZLE_ACTOR only to use a different actor.
+DEFAULT_DUBIZZLE_ACTOR = "logiover/dubizzle-scraper"
+
+
 class DubizzleApifySource(Source):
     name = "dubizzle"
 
     def fetch(self, criteria: Criteria) -> list[Listing]:
-        actor = os.environ.get("APIFY_DUBIZZLE_ACTOR")
-        if not actor:
-            return []  # opt-in: not configured, stay silent
+        actor = os.environ.get("APIFY_DUBIZZLE_ACTOR", DEFAULT_DUBIZZLE_ACTOR)
         token = os.environ.get("APIFY_API_TOKEN")
         if not token:
+            # No token → can't run any Apify source; surface it clearly (same as Facebook).
             raise RuntimeError(
-                "APIFY_DUBIZZLE_ACTOR is set but APIFY_API_TOKEN is missing — add the "
-                "token in Vercel (Project → Settings → Environment Variables), then redeploy."
+                "APIFY_API_TOKEN is not set in Vercel — add it under Project → Settings → "
+                "Environment Variables, then redeploy."
             )
 
         # Yearly cap: Dubizzle rents are usually quoted per year, so bound the actor-side

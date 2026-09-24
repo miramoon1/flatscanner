@@ -81,11 +81,11 @@ the dashboard:
    it's cached).
 
 Optional env vars (Project → Settings → Environment Variables) to add more sources:
-   - `APIFY_API_TOKEN` — turns on Facebook (via Apify). This is the one you already have.
-   - `APIFY_DUBIZZLE_ACTOR` — set to `logiover/dubizzle-scraper` to turn on Dubizzle. It's
-     the cheapest verified actor ($1.50 / 1,000 results, structured Dubai/rent/beds
-     filters). Runs only on the dashboard's "Include Facebook & Dubizzle" button, so it
-     only costs when you click it. Off by default.
+   - `APIFY_API_TOKEN` — the ONLY env var you need for the paid sources. It turns on both
+     Facebook AND Dubizzle (Dubizzle uses the cheap `logiover/dubizzle-scraper` actor,
+     ~$1.50 / 1,000, by default). Both run only on the dashboard's "Include Facebook &
+     Dubizzle" button, so they only cost when you click it.
+   - `APIFY_DUBIZZLE_ACTOR` — optional; only to override the default Dubizzle actor.
    - `APIFY_BAYUT_ACTOR` — Bayut via Apify. **Not recommended:** the only working Bayut
      actor is ~$349 / 1,000 results. Left off unless you set it.
 
