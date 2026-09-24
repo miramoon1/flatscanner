@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r12 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r13 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -122,7 +122,7 @@
   // Persist each tab's last results in the browser so switching tabs (or reloading) shows
   // the OLD results instantly and never triggers a scan. Only "Scan now"/the paid button
   // fetch fresh data. Wrapped in try/catch — private windows etc. may block storage.
-  function cacheKey(p) { return "flatscanner:v1:" + p; }
+  function cacheKey(p) { return "flatscanner:v2:" + p; }  // v2: discard any stale empty cache
   function saveCache(p, data) {
     try { localStorage.setItem(cacheKey(p), JSON.stringify(data)); } catch (_) {}
   }
