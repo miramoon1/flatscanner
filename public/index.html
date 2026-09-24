@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r15 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r16 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -360,7 +360,7 @@
     active.textContent = "Scanning…";
     el("meta").textContent = apify
       ? (profile === "jumeirah"
-          ? "Loading all Jumeirah listings from Facebook… (this can take ~20s)"
+          ? "Searching Facebook for rooms in Jumeirah… (this can take ~20s)"
           : "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)")
       : (fresh ? "Scanning… (a few seconds)" : "Loading…");
     let url = PROFILES[profile].url;
@@ -395,7 +395,7 @@
     const fb = el("btn-fb");
     fb.hidden = false;
     fb.textContent = currentProfile === "jumeirah"
-      ? "＋ Show all Jumeirah from Facebook (Apify credit)"
+      ? "＋ Find rooms in Jumeirah (Facebook · Apify credit)"
       : "＋ Include Facebook & Dubizzle (Apify credit)";
   }
 

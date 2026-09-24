@@ -151,6 +151,9 @@ JUMEIRAH_CRITERIA = Criteria(
     # Facebook/Dubizzle button.
     pf_orderings=("pa",),
     pf_max_pages=25,   # 4 sizes × 25 pages = 100 requests; soft budget returns partial, never 0
+    # The paid Facebook button on this tab searches Marketplace for ROOMS (Property Finder
+    # has no rooms). Was searching "apartment for rent" — that's why clicking it found none.
+    fb_query="room for rent",
     check_freshness=False,          # show everything currently available, not just <30 days
     # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
     # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
