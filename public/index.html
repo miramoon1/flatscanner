@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r10 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r11 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -108,6 +108,7 @@
   const SOURCE_COLORS = { propertyfinder: "#0f6f5c", facebook: "#1877f2", dubizzle: "#e4002b", bayut: "#16a34a" };
   const colorFor = (src) => SOURCE_COLORS[src] || "#888";
   const JUMEIRAH_COLOR = "#e11d48";  // Jumeirah-tab markers are a distinct red
+  const EUR_PER_AED = 1 / 4.2622;    // 1 EUR = 4.2622 AED (matches the server-side rate)
   // A listing's map colour: red on the Jumeirah tab, otherwise its source colour.
   const markerColor = (l) => (l.profile === "jumeirah" ? JUMEIRAH_COLOR : colorFor(l.source));
 
@@ -117,6 +118,18 @@
     jumeirah: { url: "/api/jumeirah", data: null },
   };
   let currentProfile = "main";
+
+  // Persist each tab's last results in the browser so switching tabs (or reloading) shows
+  // the OLD results instantly and never triggers a scan. Only "Scan now"/the paid button
+  // fetch fresh data. Wrapped in try/catch — private windows etc. may block storage.
+  function cacheKey(p) { return "flatscanner:v1:" + p; }
+  function saveCache(p, data) {
+    try { localStorage.setItem(cacheKey(p), JSON.stringify(data)); } catch (_) {}
+  }
+  function loadCache(p) {
+    try { const s = localStorage.getItem(cacheKey(p)); return s ? JSON.parse(s) : null; }
+    catch (_) { return null; }
+  }
 
   let LISTINGS = [];
   let map = null, markersLayer = null;
@@ -137,7 +150,8 @@
       <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener">
         ${l.image_url ? `<img src="${esc(l.image_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
         <div class="card-body">
-          <div class="price">${fmt(l.price_monthly_aed)} AED/mo</div>
+          <div class="price">${fmt(l.price_monthly_aed)} AED/mo${l.price_monthly_aed != null
+            ? ` <span style="color:#1a73e8">· €${fmt(l.price_monthly_aed * EUR_PER_AED)}/mo</span>` : ""}</div>
           <div class="title">${esc(l.title)}</div>
           <div class="area">${esc(l.area)}</div>
           <div class="area">${(l.bedrooms != null || l.bathrooms != null)
@@ -366,6 +380,7 @@
       })
       .then(data => {
         PROFILES[profile].data = data;          // always cache under the tab it was loaded for
+        saveCache(profile, data);               // persist so a later visit shows it without scanning
         if (profile === currentProfile) render(data);  // only repaint if that tab is still open
       })
       .catch(e => { if (profile === currentProfile) el("meta").textContent = "Could not load listings — " + e.message; })
@@ -388,8 +403,11 @@
     el("tab-main").setAttribute("aria-pressed", String(p === "main"));
     el("tab-jumeirah").setAttribute("aria-pressed", String(p === "jumeirah"));
     syncButtons();
-    const cached = PROFILES[p].data;
-    if (cached) { render(cached); }        // instant switch from cache
+    // Show the last results for this tab instantly — from this session, or from the browser
+    // cache of a previous visit. Only fall back to a fetch the very first time (no cache
+    // exists yet). Switching tabs never scans; use "Scan now" to refresh.
+    const cached = PROFILES[p].data || loadCache(p);
+    if (cached) { PROFILES[p].data = cached; render(cached); }
     else { el("meta").textContent = "Loading…"; load(false, false); }
   }
 
@@ -405,7 +423,11 @@
   } else {
     el("btn-scan").hidden = false;
     syncButtons();
-    load(false, false);   // show the last cached (Apify-free) main scan on open — no credit used
+    // On open, show the last saved results instantly if we have them (no scan). Only fetch
+    // the very first time ever, when there's nothing cached yet.
+    const cachedMain = loadCache("main");
+    if (cachedMain) { PROFILES.main.data = cachedMain; render(cachedMain); }
+    else load(false, false);
   }
 </script>
 </body>
