@@ -337,17 +337,19 @@
   // sources (Facebook, Dubizzle) — main tab only. Normal loads/scans pass apify=false, so
   // they never cost credit. Always loads the CURRENT profile's endpoint.
   function load(fresh, apify) {
+    const profile = currentProfile;  // capture: cache the result under THIS tab even if the
+                                     // user switches tabs mid-load (fixes results being lost)
     const scanBtn = el("btn-scan"), fbBtn = el("btn-fb");
     scanBtn.disabled = true; fbBtn.disabled = true;
     const active = apify ? fbBtn : scanBtn;
     const label = active.textContent;
     active.textContent = "Scanning…";
     el("meta").textContent = apify
-      ? (currentProfile === "jumeirah"
+      ? (profile === "jumeirah"
           ? "Loading all Jumeirah listings from Facebook… (this can take ~20s)"
           : "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)")
       : (fresh ? "Scanning… (a few seconds)" : "Loading…");
-    let url = PROFILES[currentProfile].url;
+    let url = PROFILES[profile].url;
     if (fresh) url += "?fresh=" + Date.now();
     if (apify) url += (url.includes("?") ? "&" : "?") + "apify=1";
     return fetch(url)
@@ -362,8 +364,11 @@
           throw new Error("server returned HTTP " + status + ": " + text.slice(0, 200).trim());
         }
       })
-      .then(render)
-      .catch(e => { el("meta").textContent = "Could not load listings — " + e.message; })
+      .then(data => {
+        PROFILES[profile].data = data;          // always cache under the tab it was loaded for
+        if (profile === currentProfile) render(data);  // only repaint if that tab is still open
+      })
+      .catch(e => { if (profile === currentProfile) el("meta").textContent = "Could not load listings — " + e.message; })
       .finally(() => { scanBtn.disabled = false; fbBtn.disabled = false; active.textContent = label; });
   }
 
