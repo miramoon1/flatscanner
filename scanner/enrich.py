@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from .config import CRITERIA
 from .filters import is_preferred_area
+from .geocode import approx_coords
 from .models import Listing
 from .room_rent import estimate_room_rent
 
@@ -34,6 +35,15 @@ def enrich(listing: Listing, criteria=CRITERIA) -> dict:
     d = listing.to_dict()
     d["preferred"] = is_preferred_area(listing, criteria)
     d["profile"] = criteria.profile
+
+    # Sources like Dubizzle/Facebook give an area name but no GPS. Place them on the map at
+    # the community's approximate centre so they still get a pin (flagged as approximate).
+    d["approx_location"] = False
+    if d.get("latitude") is None or d.get("longitude") is None:
+        lat, lon = approx_coords(listing.area)
+        if lat is not None:
+            d["latitude"], d["longitude"] = lat, lon
+            d["approx_location"] = True
     d["est_room_rent_typical_aed"] = room_typical
     d["est_room_rent_max_aed"] = room_max
     d["net_cost_typical_aed"] = net_typical

@@ -246,7 +246,8 @@
           radius: 8, color: "#fff", weight: 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
         }).addTo(markersLayer).bindPopup(
           "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
-          '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) + "</span><br>" +
+          '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) +
+          (p.approx_location ? " &middot; <i>approx. area</i>" : "") + "</span><br>" +
           '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
         );
         bounds.push([lat, lon]);
