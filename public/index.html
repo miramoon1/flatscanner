@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r11 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r12 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -305,7 +305,7 @@
   function friendlyError(name, s) {
     const e = (s.error || "").toLowerCase();
     if (e.includes("apify_api_token")) return `not running — the APIFY_API_TOKEN environment variable is missing in Vercel. Add it under Project → Settings → Environment Variables, then redeploy.`;
-    if (e.includes("timed out")) return `the Apify run was slower than the scan window and got cut off. Press “Scan now” again, or this needs async mode.`;
+    if (e.includes("timed out")) return `the scan ran longer than the time limit and was cut off — press “Scan now” to try again.`;
     if (e.includes("401") || e.includes("403") || e.includes("token") || e.includes("unauthor")) return `Apify rejected the token (invalid, or out of monthly credit). Check it in Vercel.`;
     if (e.includes("404")) return `the Apify actor id is wrong or not accessible on your account.`;
     return s.error;
@@ -380,7 +380,9 @@
       })
       .then(data => {
         PROFILES[profile].data = data;          // always cache under the tab it was loaded for
-        saveCache(profile, data);               // persist so a later visit shows it without scanning
+        // Persist ONLY a good, non-empty result so a timeout/zero run doesn't get stuck in
+        // the cache — a later visit will retry rather than show an empty tab forever.
+        if (data && !data.error && (data.listings || []).length) saveCache(profile, data);
         if (profile === currentProfile) render(data);  // only repaint if that tab is still open
       })
       .catch(e => { if (profile === currentProfile) el("meta").textContent = "Could not load listings — " + e.message; })

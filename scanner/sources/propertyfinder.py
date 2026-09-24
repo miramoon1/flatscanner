@@ -46,14 +46,20 @@ NEXT_DATA_RE = re.compile(
 # which matters on a serverless function with a hard time limit (the old sequential walk
 # contributed to Vercel 504 timeouts).
 MAX_PAGES = 16
-FETCH_WORKERS = 8
+FETCH_WORKERS = 10
+# Soft time budget for the whole PF fetch. If a large profile (the Jumeirah "everything"
+# scan does dozens of page requests) runs long — Vercel→PF is slower and rate-limited under
+# load — stop and return whatever came back instead of letting the outer deadline abandon
+# the source and yield ZERO. Kept under the function's ~55s scan window.
+FETCH_BUDGET_SECONDS = 40
 
 
 class PropertyFinderSource(Source):
     name = "propertyfinder"
 
     def fetch(self, criteria: Criteria) -> list[Listing]:
-        from concurrent.futures import ThreadPoolExecutor
+        import time
+        from concurrent.futures import ThreadPoolExecutor, as_completed
 
         # One or more bedroom searches depending on the profile: the main 2-bed scan is a
         # single slug; the Jumeirah profile (bedrooms_allowed=(0,1)) fetches studio + 1-bed.
@@ -69,18 +75,32 @@ class PropertyFinderSource(Source):
 
         def fetch_page(job: tuple[str, str, int]) -> list[dict]:
             url, ob, page = job
-            resp = requests.get(url, params={"ob": ob, "page": page}, headers=headers, timeout=15)
+            resp = requests.get(url, params={"ob": ob, "page": page}, headers=headers, timeout=12)
             if resp.status_code != 200:
                 return []
             return _extract_properties(resp.text)
 
         listings: list[Listing] = []
-        with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
-            for props in pool.map(fetch_page, jobs):
+        deadline = time.monotonic() + FETCH_BUDGET_SECONDS
+        # Don't use the pool as a context manager: its __exit__ joins ALL workers, which would
+        # block past our budget. Submit, collect as they finish until the budget, then abandon
+        # the rest (cancel_futures) and return the partial result — never zero on a slow run.
+        pool = ThreadPoolExecutor(max_workers=FETCH_WORKERS)
+        try:
+            futures = [pool.submit(fetch_page, job) for job in jobs]
+            for fut in as_completed(futures):
+                try:
+                    props = fut.result()
+                except Exception:  # noqa: BLE001 — one bad page shouldn't sink the scan
+                    props = []
                 for prop in props:
                     listing = _to_listing(prop)
                     if listing is not None:
                         listings.append(listing)
+                if time.monotonic() > deadline:
+                    break
+        finally:
+            pool.shutdown(wait=False, cancel_futures=True)
         return listings
 
 

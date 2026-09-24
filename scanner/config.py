@@ -144,7 +144,8 @@ JUMEIRAH_CRITERIA = Criteria(
     # Palm/Jumeirah) and the cheap end (price-ascending), across every bedroom slug, so the
     # whole strip is covered at every size and price.
     pf_orderings=("pd", "pa"),
-    pf_max_pages=8,
+    pf_max_pages=5,   # 6 sizes × 2 orders × 5 = 60 page requests — fits the scan window
+                      # (PF source also has a soft budget so it returns partial, never zero)
     check_freshness=False,          # show everything currently available, not just <30 days
     # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
     # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
