@@ -52,10 +52,13 @@ API_URL = f"https://api.apify.com/v2/acts/{ACTOR_ID.replace('/', '~')}/run-sync-
 
 def _search_url(criteria) -> str:
     from urllib.parse import quote_plus
+    # ALL of Dubai — the query targets the property TYPE only, never a location, so
+    # Facebook isn't narrowed to a neighbourhood. Any area narrowing happens in our own
+    # filter afterwards (scanner/filters.py), not in the Marketplace search itself.
     q = getattr(criteria, "fb_query", None)
     if not q:
-        # Default: target the bedroom count so the feed isn't random ("2 bedroom apartment").
-        q = f"{criteria.bedrooms} bedroom apartment"
+        # A studio/1-bed profile → broad "apartment for rent"; otherwise target the bed count.
+        q = "apartment for rent" if criteria.bedrooms_allowed else f"{criteria.bedrooms} bedroom apartment"
     return f"https://www.facebook.com/marketplace/{DUBAI_PLACE_ID}/search?query={quote_plus(q)}"
 
 BEDS_RE = re.compile(r"(\d+)\s*(?:bed|br|bhk)", re.I)

@@ -145,7 +145,6 @@ JUMEIRAH_CRITERIA = Criteria(
     pf_max_pages=45,                # page deep — coastal/Al Barsha units near 6k sit late in
                                     # the cheapest-first stream (PF runs dry past ~page 50)
     check_freshness=False,          # show everything currently available, not just <30 days
-    fb_query="jumeirah",            # search Marketplace for Jumeirah posts (incl. rooms)
     # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
     # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
     # Calibrated from real listing coordinates — this cleanly includes Jumeirah 1/2/3,
