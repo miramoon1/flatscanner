@@ -25,6 +25,13 @@ class Criteria:
     # directly, so results are exactly those areas at every price point. This is how the
     # Jumeirah tab gets accurate, complete coverage instead of guessing by name/box.
     pf_location_ids: tuple[int, ...] = ()
+    # Use Property Finder's MONTHLY price-range search route (/en/search?c=2&rp=m&pt=<max>&
+    # bdr[]=<n>) instead of the per-bedroom slug. The slug URL ignores price params and only
+    # sorts, so raising the budget did nothing — the cheapest 16 pages still topped out at
+    # ~6k. This route filters by monthly price server-side, so `max_price_monthly_aed` is a
+    # real ceiling and the whole 0→budget range is reachable (fetched from both ends via
+    # pa+pd so coverage is complete). This is how the main tab honours its budget.
+    pf_monthly_price_search: bool = False
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -130,8 +137,18 @@ class Criteria:
         return n == self.bedrooms
 
 
-# Main Flatshare tab: all-Dubai, cheapest-first, budget raised to 8k/month.
-CRITERIA = Criteria(max_price_monthly_aed=8000)
+# Main Flatshare tab: all-Dubai 2-bed, budget raised to 8k/month. Uses PF's monthly
+# price-range search so the 8k ceiling is real (the old slug route ignored price and
+# capped the fetch at ~6k). pa+pd, 32 pages each end → the full 3–8k range, ~64 requests.
+CRITERIA = Criteria(
+    max_price_monthly_aed=8000,
+    pf_monthly_price_search=True,
+    # Each price band is fetched from BOTH ends (pa cheapest + pd dearest) so the band's
+    # full width is covered despite PF's ~50-page cap. 5 bands (≤6k + 500/mo steps) × 2
+    # orderings × 10 pages ≈ 100 requests, ~14s on Vercel — full 4.3k→8k spread.
+    pf_orderings=("pa", "pd"),
+    pf_max_pages=10,
+)
 
 
 # Second search profile: a studio / 1-bedroom (or a room) anywhere on the DUBAI coastal

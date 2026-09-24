@@ -65,12 +65,44 @@ class PropertyFinderSource(Source):
         #  - pf_location_ids set → the /en/search?c=2&l=<id> route, one base URL per
         #    community. This is a REAL location filter, so we get exactly those areas at
         #    every price. (c=2 = rent.) Used by the Jumeirah tab.
+        #  - pf_monthly_price_search set → the Dubai-scoped /en/search price route, split
+        #    into contiguous PRICE BANDS so the whole budget range is covered (see below).
+        #    Used by the main tab.
         #  - pf_property_paths set → literal paths ("properties-for-rent.html" = all types).
         #  - otherwise → per-bedroom apartment URLs (the main 2-bed scan, etc.).
         loc_ids = getattr(criteria, "pf_location_ids", ()) or ()
         paths = getattr(criteria, "pf_property_paths", ()) or ()
         if loc_ids:
             urls = [f"https://www.propertyfinder.ae/en/search?c=2&l={lid}" for lid in loc_ids]
+        elif getattr(criteria, "pf_monthly_price_search", False):
+            # Dubai-scoped price search, split into contiguous price BANDS. Why bands:
+            #  - l=1 = Dubai (the /en/rent/dubai slug's own searchQuery uses l:"1"), so this
+            #    stays in Dubai instead of pulling Sharjah/Ajman like a bare c=2 search.
+            #  - pf/pt are YEARLY bounds (PF quotes most rents per year), so ×12; PF
+            #    normalises monthly-quoted listings into the same filter, and our own filter
+            #    re-checks the true monthly price ≤ budget.
+            #  - PF caps pagination at ~50 pages (~1250 results) per query, and Dubai has
+            #    thousands of 2-beds in the 6–8k band — so a single cheapest-first query
+            #    can't reach past ~6.7k. Splitting the range into ≤6k + 500/mo steps means
+            #    each band's cheapest-first pages land in that band, covering the whole
+            #    0→budget range instead of stalling at the cap. bdr[]=<n> filters bedrooms.
+            bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)
+            bdr = "".join(f"&bdr[]={n}" for n in bedroom_counts)
+            ceiling = int(criteria.max_price_monthly_aed)
+            edges = [0]
+            first = min(6000, ceiling)
+            if first > 0:
+                edges.append(first)
+            p = first
+            while p < ceiling:
+                p = min(p + 500, ceiling)
+                edges.append(p)
+            urls = []
+            for lo, hi in zip(edges[:-1], edges[1:]):
+                q = f"c=2&l=1&pt={hi * 12}"
+                if lo > 0:
+                    q += f"&pf={lo * 12}"
+                urls.append(f"https://www.propertyfinder.ae/en/search?{q}{bdr}")
         elif paths:
             urls = [f"https://www.propertyfinder.ae/en/rent/dubai/{p}" for p in paths]
         else:
