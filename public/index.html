@@ -343,7 +343,7 @@
     active.textContent = "Scanning…";
     el("meta").textContent = apify
       ? (currentProfile === "jumeirah"
-          ? "Looking for rooms in Jumeirah via Facebook… (this can take ~20s)"
+          ? "Loading all Jumeirah listings from Facebook… (this can take ~20s)"
           : "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)")
       : (fresh ? "Scanning… (a few seconds)" : "Loading…");
     let url = PROFILES[currentProfile].url;
@@ -372,7 +372,7 @@
     const fb = el("btn-fb");
     fb.hidden = false;
     fb.textContent = currentProfile === "jumeirah"
-      ? "＋ Find rooms via Facebook (Apify credit)"
+      ? "＋ Show all Jumeirah from Facebook (Apify credit)"
       : "＋ Include Facebook & Dubizzle (Apify credit)";
   }
 
