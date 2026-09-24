@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r9 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r10 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -79,7 +79,7 @@
 <main>
   <div class="profile-tabs" role="tablist">
     <button id="tab-main" type="button" class="ptab" aria-pressed="true">🏠 Flatshare · 2 bed / 2 bath</button>
-    <button id="tab-jumeirah" type="button" class="ptab" aria-pressed="false">🌊 Jumeirah · studio / 1-bed</button>
+    <button id="tab-jumeirah" type="button" class="ptab" aria-pressed="false">🌊 Jumeirah · everything</button>
   </div>
 
   <div class="view-toggle" role="tablist">
@@ -318,7 +318,7 @@
     const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
     el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
     if (currentProfile === "jumeirah") {
-      el("criteria").innerHTML = `Studio / 1-bed (or a room) &le; 6,000 AED/month &middot; the coastal strip between the sea and Sheikh Zayed Rd &mdash; Jumeirah, Umm Suqeim, Al Wasl, Al Sufouh, Al Barsha, Palm &middot; <b>not</b> JBR / Marina / Downtown &middot; everything currently listed, cheapest first`;
+      el("criteria").innerHTML = `<b>Everything</b> in the coastal strip between the sea and Sheikh Zayed Rd &mdash; Jumeirah, Umm Suqeim, Al Wasl, Al Sufouh, Al Barsha, Palm &middot; any price, any size (studio &rarr; 5-bed), rooms via the Facebook button &middot; <b>not</b> JBR / Marina / Downtown`;
     } else if (data.criteria) {
       const c = data.criteria;
       el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;

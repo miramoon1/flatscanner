@@ -128,22 +128,23 @@ CRITERIA = Criteria()
 # a positive allow-list: a listing must name one of these coastal areas to show here.
 JUMEIRAH_CRITERIA = Criteria(
     profile="jumeirah",
-    # Hard budget: same 6,000 AED/month ceiling as the main search. Coastal Jumeirah runs
-    # pricey, so studio/1-bed under this cap is genuinely scarce — the tab shows what
-    # actually exists in budget, cheapest first, rather than pretending there's more.
-    max_price_monthly_aed=6000,
-    bedrooms_allowed=(0, 1),        # studio + 1-bed
-    bathrooms=None,                 # don't require a bathroom count for a studio/1BR
-    drop_room_shares=False,         # "a room" is explicitly wanted here
+    # NO restrictions here beyond the location: this tab is "everything in the coastal
+    # Jumeirah strip". No price cap (huge sentinel), every apartment size (studio → 5-bed),
+    # and rooms too (via the Facebook button). The only filter is the map box + the JBR /
+    # Marina / look-alike exclusions.
+    max_price_monthly_aed=100_000_000,
+    bedrooms_allowed=(0, 1, 2, 3, 4, 5),   # studio through 5-bed — every size
+    bathrooms=None,                 # don't require a bathroom count
+    drop_room_shares=False,         # rooms / studios are explicitly wanted here
     # A room / bed-space post has no bedroom count — keep it. Precision comes from the
     # coastal-Jumeirah area allow-list + the price cap instead. (Property Finder always
     # has a bed count, so this only matters for the paid Facebook/Dubizzle rooms.)
     allow_unknown_bedrooms=True,
-    # Cheapest-first only (a price-descending pass would just fetch listings above the cap)
-    # and page fairly deep, since affordable coastal Jumeirah units are sparse.
-    pf_orderings=("pa",),
-    pf_max_pages=45,                # page deep — coastal/Al Barsha units near 6k sit late in
-                                    # the cheapest-first stream (PF runs dry past ~page 50)
+    # Pull both the pricey end (price-descending — most coastal inventory is expensive
+    # Palm/Jumeirah) and the cheap end (price-ascending), across every bedroom slug, so the
+    # whole strip is covered at every size and price.
+    pf_orderings=("pd", "pa"),
+    pf_max_pages=8,
     check_freshness=False,          # show everything currently available, not just <30 days
     # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
     # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
