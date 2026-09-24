@@ -61,13 +61,17 @@ class PropertyFinderSource(Source):
         import time
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        # Which PF listing pages to fetch:
-        #  - pf_property_paths set → literal paths (e.g. "properties-for-rent.html" = ALL
-        #    property types: apartments, villas, townhouses, penthouses). Used by the
-        #    Jumeirah "everything" tab.
+        # Which PF listing pages to fetch, in priority order:
+        #  - pf_location_ids set → the /en/search?c=2&l=<id> route, one base URL per
+        #    community. This is a REAL location filter, so we get exactly those areas at
+        #    every price. (c=2 = rent.) Used by the Jumeirah tab.
+        #  - pf_property_paths set → literal paths ("properties-for-rent.html" = all types).
         #  - otherwise → per-bedroom apartment URLs (the main 2-bed scan, etc.).
+        loc_ids = getattr(criteria, "pf_location_ids", ()) or ()
         paths = getattr(criteria, "pf_property_paths", ()) or ()
-        if paths:
+        if loc_ids:
+            urls = [f"https://www.propertyfinder.ae/en/search?c=2&l={lid}" for lid in loc_ids]
+        elif paths:
             urls = [f"https://www.propertyfinder.ae/en/rent/dubai/{p}" for p in paths]
         else:
             bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)

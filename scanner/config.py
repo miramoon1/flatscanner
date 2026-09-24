@@ -20,6 +20,11 @@ class Criteria:
     # property types — apartments, villas, townhouses, penthouses). When empty, the source
     # builds per-bedroom apartment URLs from the bedroom settings above instead.
     pf_property_paths: tuple[str, ...] = ()
+    # Property Finder LOCATION community ids to filter to (via its /en/search?c=2&l=<id>
+    # route — the real location filter). When set, the source queries each community
+    # directly, so results are exactly those areas at every price point. This is how the
+    # Jumeirah tab gets accurate, complete coverage instead of guessing by name/box.
+    pf_location_ids: tuple[int, ...] = ()
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -136,49 +141,53 @@ CRITERIA = Criteria()
 # a positive allow-list: a listing must name one of these coastal areas to show here.
 JUMEIRAH_CRITERIA = Criteria(
     profile="jumeirah",
-    # NO restrictions here beyond the location: this tab is "everything in the coastal
-    # Jumeirah strip". No price cap (huge sentinel), every apartment size (studio → 5-bed),
-    # and rooms too (via the Facebook button). The only filter is the map box + the JBR /
-    # Marina / look-alike exclusions.
+    # This tab is "everything in the real coastal Jumeirah strip". No price cap (huge
+    # sentinel), every apartment size (studio → 3-bed, plus unknown), and rooms too
+    # (via the Facebook button).
     max_price_monthly_aed=100_000_000,   # no cap; sorted cheapest-first so cheap shows first
     bedrooms_allowed=(0, 1, 2, 3),  # studio, 1/2/3-bed flats — the affordable end
     allow_unknown_bedrooms=True,    # keep studios (no bed count) + room posts
     bathrooms=None,                 # don't require a bathroom count
     drop_room_shares=False,         # rooms / studios are explicitly wanted here
-    # Per-bedroom APARTMENT slugs, cheapest-first, paged DEEP. This is the only way the
-    # affordable coastal flats (Al Barsha / Al Wasl, ~4–10k) actually surface — the generic
-    # "all types" slug buried them under 50k+ Palm villas. Villas + rooms come via the
-    # Facebook/Dubizzle button.
+    # THE fix for "things that are truly not Jumeirah" + "2bhk that don't show": Property
+    # Finder's REAL location filter — /en/search?c=2&l=<community_id>. The old bedroom-slug +
+    # map-box approach pulled all of Dubai and clipped by pin, which leaked Al Barsha/Al Quoz
+    # and dropped listings whose pin sat just off the box. This returns EXACTLY these
+    # communities server-side, at every price band, cheapest-first. Community ids are the
+    # path[1] of each listing's location path, coastal Jumeirah only:
+    #   66 = Jumeirah (1/2/3)   86 = Palm Jumeirah   98 = Umm Suqeim
+    #   30 = Al Sufouh          33 = Al Wasl         9529 = City Walk   9042 = Bluewaters
+    # Verified live: 1,750 real-Jumeirah rent listings across the full range, cheapest
+    # ~3,750/mo, no Al Barsha / Marina / JVC noise.
+    pf_location_ids=(66, 86, 98, 30, 33, 9529, 9042),
     pf_orderings=("pa",),
-    pf_max_pages=25,   # 4 sizes × 25 pages = 100 requests; soft budget returns partial, never 0
+    pf_max_pages=6,    # 7 communities × 6 pages ≈ 42 requests, cheapest-first; soft budget caps time
     # The paid Facebook button on this tab searches Marketplace for ROOMS (Property Finder
-    # has no rooms). Was searching "apartment for rent" — that's why clicking it found none.
+    # has no rooms). Facebook posts can't be location-filtered, so the area-name gate below
+    # (required_areas / excluded_terms) is what keeps them inside coastal Jumeirah.
     fb_query="room for rent",
     check_freshness=False,          # show everything currently available, not just <30 days
-    # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
-    # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
-    # Calibrated from real listing coordinates — this cleanly includes Jumeirah 1/2/3,
-    # Umm Suqeim, Al Wasl, City Walk, Al Sufouh, Al Barsha (coastal side) and Palm, while
-    # excluding Marina/JBR (south of 25.09) and Downtown/Business Bay/Al Satwa (inland,
-    # east of lon 55.255).
-    bbox=(25.09, 25.235, 55.10, 55.255),
-    # Name fallback for listings without coordinates (e.g. Facebook room posts):
+    # No coordinate box: the PF location filter is already precise, and the box was clipping
+    # good listings whose pin sat just outside it. Facebook/Dubizzle (no pin) fall back to
+    # this area-name allow-list, which mirrors the community ids above (no Al Barsha).
+    bbox=None,
     required_areas=(
         "jumeirah",
-        "umm suqeim", "al sufouh", "al barsha", "madinat jumeirah",
+        "umm suqeim", "al sufouh", "madinat jumeirah",
         "la mer", "port de la mer", "pearl jumeirah",
         "city walk", "al wasl", "dubai canal",
         "palm jumeirah", "bluewaters",
     ),
-    # Dropped even when they appear only in a freeform title: JBR (excluded per your ask),
-    # Marina, and the inland areas that merely share the "Jumeirah" name.
+    # Dropped even when they appear only in a freeform title (protects the Facebook path):
+    # JBR, Marina, the inland look-alikes that merely share the "Jumeirah" name, and the
+    # inland city-side areas that were leaking in before.
     excluded_terms=(
         "jbr", "jumeirah beach residence",
         "dubai marina", "marina", "jlt", "jumeirah lake towers",
         "jumeirah village", "jumeirah park", "jumeirah islands",
         "jumeirah golf", "jumeirah heights",
-        # Inland (city side of the coastal strip), so excluded per "along the coast":
         "al satwa", "jumeirah garden city",
+        "al barsha", "al quoz",
     ),
     excluded_areas=(),  # handled by excluded_terms (area + title) above
 )
