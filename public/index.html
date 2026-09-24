@@ -317,7 +317,7 @@
     const when = data.generated_at ? new Date(data.generated_at).toLocaleString() : "never";
     el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
     if (currentProfile === "jumeirah") {
-      el("criteria").innerHTML = `Studio / 1-bed (or a room) &middot; coastal Jumeirah only &mdash; Jumeirah 1/2/3, Umm Suqeim, Al Sufouh, La Mer, Pearl Jumeirah, City Walk, Palm, Bluewaters &middot; <b>not</b> JBR / Marina / Jumeirah Village &middot; cheapest first`;
+      el("criteria").innerHTML = `Studio / 1-bed (or a room) &le; 6,000 AED/month &middot; the coastal strip between the sea and Sheikh Zayed Rd &mdash; Jumeirah, Umm Suqeim, Al Wasl, Al Sufouh, Al Barsha, Palm &middot; <b>not</b> JBR / Marina / Downtown &middot; everything currently listed, cheapest first`;
     } else if (data.criteria) {
       const c = data.criteria;
       el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed / ${c.bathrooms} bath &middot; excluding Marina &amp; JLT &middot; Jumeirah &amp; water-adjacent areas preferred &middot; listed within the last 30 days`;

@@ -40,6 +40,12 @@ class Criteria:
     fb_query: str | None = None
     fb_results_limit: int = 100
 
+    # Optional geographic bounding box (lat_min, lat_max, lon_min, lon_max). When set, a
+    # listing WITH coordinates must fall inside it (listings without coordinates fall back
+    # to the required_areas name match). This is how the Jumeirah tab is defined — by the
+    # coastal strip on the map, not by area names — so look-alike names can't sneak in.
+    bbox: tuple[float, float, float, float] | None = None
+
     # A short human label + id for the search profile (used by the dashboard tabs / colors).
     profile: str = "main"
 
@@ -136,16 +142,21 @@ JUMEIRAH_CRITERIA = Criteria(
     # Cheapest-first only (a price-descending pass would just fetch listings above the cap)
     # and page fairly deep, since affordable coastal Jumeirah units are sparse.
     pf_orderings=("pa",),
-    pf_max_pages=25,
+    pf_max_pages=45,                # page deep — coastal/Al Barsha units near 6k sit late in
+                                    # the cheapest-first stream (PF runs dry past ~page 50)
     check_freshness=False,          # show everything currently available, not just <30 days
     fb_query="jumeirah",            # search Marketplace for Jumeirah posts (incl. rooms)
-    # "Anything in Jumeirah along the coast": a bare "jumeirah" match (covers Jumeirah
-    # 1/2/3, Madinat Jumeirah, Jumeirah Beach Road, …) plus the coastal areas that don't
-    # carry the Jumeirah name. The look-alikes and JBR are pulled back out by
-    # excluded_terms below.
+    # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
+    # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).
+    # Calibrated from real listing coordinates — this cleanly includes Jumeirah 1/2/3,
+    # Umm Suqeim, Al Wasl, City Walk, Al Sufouh, Al Barsha (coastal side) and Palm, while
+    # excluding Marina/JBR (south of 25.09) and Downtown/Business Bay/Al Satwa (inland,
+    # east of lon 55.255).
+    bbox=(25.09, 25.235, 55.10, 55.255),
+    # Name fallback for listings without coordinates (e.g. Facebook room posts):
     required_areas=(
         "jumeirah",
-        "umm suqeim", "al sufouh", "madinat jumeirah",
+        "umm suqeim", "al sufouh", "al barsha", "madinat jumeirah",
         "la mer", "port de la mer", "pearl jumeirah",
         "city walk", "al wasl", "dubai canal",
         "palm jumeirah", "bluewaters",

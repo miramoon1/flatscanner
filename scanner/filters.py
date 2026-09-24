@@ -67,9 +67,16 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     if _area_matches_any(area_and_title, criteria.excluded_terms):
         return False
 
-    # Positive area allow-list (e.g. the Jumeirah tab): when set, the listing must name one
-    # of the required areas (checked against area AND title).
-    if criteria.required_areas and not _area_matches_any(area_and_title, criteria.required_areas):
+    # Positive region gate (e.g. the Jumeirah tab).
+    if criteria.bbox is not None:
+        lat, lon = listing.latitude, listing.longitude
+        if lat is not None and lon is not None:
+            lat_min, lat_max, lon_min, lon_max = criteria.bbox
+            if not (lat_min <= lat <= lat_max and lon_min <= lon <= lon_max):
+                return False  # has a pin, but it's outside the drawn strip
+        elif criteria.required_areas and not _area_matches_any(area_and_title, criteria.required_areas):
+            return False      # no pin → fall back to the area-name allow-list
+    elif criteria.required_areas and not _area_matches_any(area_and_title, criteria.required_areas):
         return False
 
     # Room-share / partition / studio posts on freeform sources: not a whole flat — dropped
