@@ -14,6 +14,12 @@ class Criteria:
     # search uses (0, 1)). When None, the single `bedrooms` value above is required exactly.
     # Lets a second search profile (Jumeirah studio/1BR) reuse the same filter code.
     bedrooms_allowed: tuple[int, ...] | None = None
+    # Accept ANY bedroom count (studio, 1..N, villas) — no bedroom restriction at all.
+    any_bedrooms: bool = False
+    # Literal Property Finder URL paths to fetch (e.g. "properties-for-rent.html" for ALL
+    # property types — apartments, villas, townhouses, penthouses). When empty, the source
+    # builds per-bedroom apartment URLs from the bedroom settings above instead.
+    pf_property_paths: tuple[str, ...] = ()
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -112,6 +118,8 @@ class Criteria:
 
     def bedroom_ok(self, n: int) -> bool:
         """True if a listing's bedroom count satisfies this profile."""
+        if self.any_bedrooms:
+            return True
         if self.bedrooms_allowed is not None:
             return n in self.bedrooms_allowed
         return n == self.bedrooms
@@ -133,19 +141,18 @@ JUMEIRAH_CRITERIA = Criteria(
     # and rooms too (via the Facebook button). The only filter is the map box + the JBR /
     # Marina / look-alike exclusions.
     max_price_monthly_aed=100_000_000,
-    bedrooms_allowed=(0, 1, 2, 3, 4, 5),   # studio through 5-bed — every size
+    any_bedrooms=True,              # every size — studio, apartments, villas, penthouses
+    allow_unknown_bedrooms=True,    # keep room/bed-space posts (no bedroom count)
     bathrooms=None,                 # don't require a bathroom count
     drop_room_shares=False,         # rooms / studios are explicitly wanted here
-    # A room / bed-space post has no bedroom count — keep it. Precision comes from the
-    # coastal-Jumeirah area allow-list + the price cap instead. (Property Finder always
-    # has a bed count, so this only matters for the paid Facebook/Dubizzle rooms.)
-    allow_unknown_bedrooms=True,
-    # Pull both the pricey end (price-descending — most coastal inventory is expensive
-    # Palm/Jumeirah) and the cheap end (price-ascending), across every bedroom slug, so the
-    # whole strip is covered at every size and price.
+    # Fetch EVERY property type (apartments, villas, townhouses, penthouses), not just
+    # apartments — the actual Jumeirah 1/2/3 district is mostly villas, so apartments-only
+    # made the tab look Palm-heavy and "not all Jumeirah".
+    pf_property_paths=("properties-for-rent.html",),
+    # Both the pricey end (price-descending — most coastal stock is expensive Palm/Jumeirah)
+    # and the cheap end, so the whole strip is covered at every price.
     pf_orderings=("pd", "pa"),
-    pf_max_pages=5,   # 6 sizes × 2 orders × 5 = 60 page requests — fits the scan window
-                      # (PF source also has a soft budget so it returns partial, never zero)
+    pf_max_pages=20,  # 1 path × 2 orders × 20 = 40 page requests, fast; soft budget backs it
     check_freshness=False,          # show everything currently available, not just <30 days
     # The tab is defined by the MAP: the coastal strip from Jumeirah down past Al
     # Sufouh/Al Barsha to Palm, between the waterline and Sheikh Zayed Road (E11).

@@ -61,10 +61,17 @@ class PropertyFinderSource(Source):
         import time
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        # One or more bedroom searches depending on the profile: the main 2-bed scan is a
-        # single slug; the Jumeirah profile (bedrooms_allowed=(0,1)) fetches studio + 1-bed.
-        bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)
-        urls = [BASE_URL.format(slug=_bedroom_slug(n)) for n in bedroom_counts]
+        # Which PF listing pages to fetch:
+        #  - pf_property_paths set → literal paths (e.g. "properties-for-rent.html" = ALL
+        #    property types: apartments, villas, townhouses, penthouses). Used by the
+        #    Jumeirah "everything" tab.
+        #  - otherwise → per-bedroom apartment URLs (the main 2-bed scan, etc.).
+        paths = getattr(criteria, "pf_property_paths", ()) or ()
+        if paths:
+            urls = [f"https://www.propertyfinder.ae/en/rent/dubai/{p}" for p in paths]
+        else:
+            bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)
+            urls = [BASE_URL.format(slug=_bedroom_slug(n)) for n in bedroom_counts]
         orderings = getattr(criteria, "pf_orderings", ("pa",))
         max_pages = getattr(criteria, "pf_max_pages", MAX_PAGES)
         headers = {"User-Agent": USER_AGENT, "Accept-Language": "en"}

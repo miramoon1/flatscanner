@@ -54,7 +54,12 @@ class DubizzleApifySource(Source):
         yearly_cap = criteria.max_price_monthly_aed * 12
         # Lowest bedroom count this profile accepts (0 for the studio/1-bed Jumeirah tab,
         # 2 for the main flat search) — the actor filters beds>=this, we filter exact after.
-        beds_min = min(criteria.bedrooms_allowed) if criteria.bedrooms_allowed else criteria.bedrooms
+        if getattr(criteria, "any_bedrooms", False):
+            beds_min = 0
+        elif criteria.bedrooms_allowed:
+            beds_min = min(criteria.bedrooms_allowed)
+        else:
+            beds_min = criteria.bedrooms
         # A URL fallback for actors that take a search URL instead of structured filters.
         search_url = os.environ.get(
             "APIFY_DUBIZZLE_SEARCH_URL",

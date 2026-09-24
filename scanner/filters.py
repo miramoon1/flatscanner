@@ -92,7 +92,7 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     # Bedrooms: a known count must be allowed by the profile; an unknown count is dropped
     # unless the profile keeps unknown-bedroom listings.
     if listing.bedrooms is None:
-        if not criteria.allow_unknown_bedrooms:
+        if not (criteria.allow_unknown_bedrooms or criteria.any_bedrooms):
             return False
     elif not criteria.bedroom_ok(listing.bedrooms):
         return False
