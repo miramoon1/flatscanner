@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r16 · 2026-09-24</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r17 · 2026-09-24</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -405,12 +405,25 @@
     el("tab-main").setAttribute("aria-pressed", String(p === "main"));
     el("tab-jumeirah").setAttribute("aria-pressed", String(p === "jumeirah"));
     syncButtons();
-    // Show the last results for this tab instantly — from this session, or from the browser
-    // cache of a previous visit. Only fall back to a fetch the very first time (no cache
-    // exists yet). Switching tabs never scans; use "Scan now" to refresh.
+    // Switching tabs NEVER scans. Show the last results for this tab (from this session or
+    // the browser cache of a previous visit); if there are none yet, show a prompt to press
+    // Scan now. A scan happens ONLY when the user presses Scan now / the paid button.
     const cached = PROFILES[p].data || loadCache(p);
     if (cached) { PROFILES[p].data = cached; render(cached); }
-    else { el("meta").textContent = "Loading…"; load(false, false); }
+    else { showScanPrompt(p); }
+  }
+
+  function showScanPrompt(p) {
+    LISTINGS = [];
+    activeSources = new Set();
+    el("meta").textContent = (p === "jumeirah" ? "Jumeirah" : "Flatshare") + " — nothing loaded yet";
+    el("criteria").innerHTML = "";
+    el("status").innerHTML = "";
+    el("source-filter").innerHTML = "";
+    el("list-view").innerHTML = "";
+    el("empty").hidden = false;
+    el("empty").textContent = "Press “↻ Scan now” to load these listings — they’ll be saved, so switching back won’t scan again.";
+    if (!el("map-view").hidden) refreshMap();
   }
 
   el("btn-scan").addEventListener("click", () => load(true, false));
