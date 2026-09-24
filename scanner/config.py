@@ -33,6 +33,13 @@ class Criteria:
     pf_orderings: tuple[str, ...] = ("pa",)
     pf_max_pages: int = 16
 
+    # Facebook Marketplace (Apify) tuning. fb_query is the search text sent to Marketplace
+    # so it returns RELEVANT posts instead of the whole generic Dubai feed (which is why an
+    # earlier version found 40 and matched none). None → the source builds a default from
+    # the bedroom count. fb_results_limit caps how many cards it pulls per run.
+    fb_query: str | None = None
+    fb_results_limit: int = 100
+
     # A short human label + id for the search profile (used by the dashboard tabs / colors).
     profile: str = "main"
 
@@ -61,6 +68,12 @@ class Criteria:
         "abu dhabi",
         "al ain",
     )
+
+    # Extra hard-exclude terms matched against the AREA and the TITLE (like excluded_emirates
+    # but for area look-alikes). Used by the Jumeirah tab to drop JBR and the inland
+    # "Jumeirah Village/Park/Islands/…" areas even when they appear only in a freeform title.
+    # Empty for the main search.
+    excluded_terms: tuple[str, ...] = ()
 
     # Listings in these areas are flagged "preferred" on the dashboard and sorted first.
     # This is a *preference*, not a filter — matching listings outside this list still show up,
@@ -125,18 +138,27 @@ JUMEIRAH_CRITERIA = Criteria(
     pf_orderings=("pa",),
     pf_max_pages=25,
     check_freshness=False,          # show everything currently available, not just <30 days
+    fb_query="jumeirah",            # search Marketplace for Jumeirah posts (incl. rooms)
+    # "Anything in Jumeirah along the coast": a bare "jumeirah" match (covers Jumeirah
+    # 1/2/3, Madinat Jumeirah, Jumeirah Beach Road, …) plus the coastal areas that don't
+    # carry the Jumeirah name. The look-alikes and JBR are pulled back out by
+    # excluded_terms below.
     required_areas=(
-        "jumeirah 1", "jumeirah 2", "jumeirah 3", "jumeirah 4",
-        "umm suqeim", "al sufouh", "la mer", "port de la mer",
-        "pearl jumeirah", "jumeirah bay", "city walk", "al wasl",
+        "jumeirah",
+        "umm suqeim", "al sufouh", "madinat jumeirah",
+        "la mer", "port de la mer", "pearl jumeirah",
+        "city walk", "al wasl", "dubai canal",
         "palm jumeirah", "bluewaters",
     ),
-    # Exclude look-alikes that share the "Jumeirah" name but aren't the coastal strip,
-    # plus JBR/Marina. (excluded_emirates keeps its default — other emirates stay out.)
-    excluded_areas=(
+    # Dropped even when they appear only in a freeform title: JBR (excluded per your ask),
+    # Marina, and the inland areas that merely share the "Jumeirah" name.
+    excluded_terms=(
+        "jbr", "jumeirah beach residence",
         "dubai marina", "marina", "jlt", "jumeirah lake towers",
-        "jumeirah beach residence", "jbr",
         "jumeirah village", "jumeirah park", "jumeirah islands",
         "jumeirah golf", "jumeirah heights",
+        # Inland (city side of the coastal strip), so excluded per "along the coast":
+        "al satwa", "jumeirah garden city",
     ),
+    excluded_areas=(),  # handled by excluded_terms (area + title) above
 )

@@ -63,6 +63,10 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     if _area_matches_any(area_and_title, criteria.excluded_emirates):
         return False
 
+    # Extra area look-alike exclusions (JBR, inland "Jumeirah *" areas) — area AND title.
+    if _area_matches_any(area_and_title, criteria.excluded_terms):
+        return False
+
     # Positive area allow-list (e.g. the Jumeirah tab): when set, the listing must name one
     # of the required areas (checked against area AND title).
     if criteria.required_areas and not _area_matches_any(area_and_title, criteria.required_areas):

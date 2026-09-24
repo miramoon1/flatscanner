@@ -42,8 +42,21 @@ from ..models import Listing
 from . import Source
 
 ACTOR_ID = "apify/facebook-marketplace-scraper"
-DUBAI_PROPERTY_RENTALS_URL = "https://www.facebook.com/marketplace/111070818917271/propertyrentals/"
+# Dubai's Marketplace place id. The /search route scoped to it lets us pass a ?query= so
+# the actor returns RELEVANT posts (e.g. "jumeirah", "2 bedroom") instead of the whole
+# generic property-rentals feed — which is why an earlier query-less run matched nothing.
+DUBAI_PLACE_ID = "111070818917271"
+DUBAI_PROPERTY_RENTALS_URL = f"https://www.facebook.com/marketplace/{DUBAI_PLACE_ID}/propertyrentals/"
 API_URL = f"https://api.apify.com/v2/acts/{ACTOR_ID.replace('/', '~')}/run-sync-get-dataset-items"
+
+
+def _search_url(criteria) -> str:
+    from urllib.parse import quote_plus
+    q = getattr(criteria, "fb_query", None)
+    if not q:
+        # Default: target the bedroom count so the feed isn't random ("2 bedroom apartment").
+        q = f"{criteria.bedrooms} bedroom apartment"
+    return f"https://www.facebook.com/marketplace/{DUBAI_PLACE_ID}/search?query={quote_plus(q)}"
 
 BEDS_RE = re.compile(r"(\d+)\s*(?:bed|br|bhk)", re.I)
 BATHS_RE = re.compile(r"(\d+)\s*(?:bath|ba)\b", re.I)
@@ -66,13 +79,14 @@ class FacebookApifySource(Source):
             API_URL,
             params={"token": token},
             json={
-                "startUrls": [{"url": DUBAI_PROPERTY_RENTALS_URL}],
-                # Keep the run FAST enough to finish inside the request's time budget:
-                # a small result count and, crucially, includeListingDetails=False so the
-                # actor doesn't open a detail page per listing (that's what pushed the run
-                # past a minute and made Facebook time out every scan). Bed/bath are parsed
-                # from the listing card's title text, which the feed already includes.
-                "resultsLimit": 40,
+                # Search URL with a ?query= (e.g. "jumeirah" or "2 bedroom apartment") so the
+                # actor returns relevant posts, not the generic Dubai feed.
+                "startUrls": [{"url": _search_url(criteria)}],
+                # includeListingDetails=False keeps the run fast (no per-listing detail page,
+                # which is what used to push it past a minute). Bed/bath are parsed from the
+                # card title text. resultsLimit is higher now so there are enough candidates
+                # to actually clear the filter.
+                "resultsLimit": getattr(criteria, "fb_results_limit", 100),
                 "includeListingDetails": False,
             },
             timeout=55,
