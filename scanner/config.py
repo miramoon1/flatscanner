@@ -142,6 +142,11 @@ class Criteria:
 # capped the fetch at ~6k). pa+pd, 32 pages each end → the full 3–8k range, ~64 requests.
 CRITERIA = Criteria(
     max_price_monthly_aed=8000,
+    # Don't require an exact bathroom count. Most Dubai 2-beds are quoted with 3 bathrooms,
+    # so demanding exactly 2 dropped more than half of them (incl. real 2-beds in Jumeirah)
+    # — which then only showed on the Jumeirah tab. The flat count is what matters here, not
+    # the bathrooms, so accept any bathroom count.
+    bathrooms=None,
     pf_monthly_price_search=True,
     # Each price band is fetched from BOTH ends (pa cheapest + pd dearest) so the band's
     # full width is covered despite PF's ~50-page cap. 5 bands (≤6k + 500/mo steps) × 2
