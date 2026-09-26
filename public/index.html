@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r21 · 2026-09-26</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r22 · 2026-09-26</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -159,7 +159,7 @@
             : "beds/baths not listed"}</div>
           <div class="sublet">Sublet a room (winter): ${roomEur} <span class="fx">${roomAed}</span> &rarr; <b>you'd pay ${netEur}</b> <span class="fx">${netAed}</span></div>
           <div class="row">
-            <div class="badges">${l.preferred ? '<span class="badge">Preferred area</span>' : ""}</div>
+            <div class="badges">${l.jumeirah ? '<span class="badge" style="background:#e11d48;color:#fff">🌊 Jumeirah</span>' : (l.preferred ? '<span class="badge">Preferred area</span>' : "")}</div>
             <div class="source"><span class="src-dot" style="background:${colorFor(l.source)}"></span> ${esc(NAMES[l.source] || l.source)}</div>
           </div>
         </div>
@@ -336,7 +336,7 @@
     } else if (data.criteria) {
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
-      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; all Dubai (incl. Jumeirah), excluding Marina &amp; JLT &middot; listed within the last 30 days`;
+      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; all Dubai, excluding Marina &amp; JLT &middot; <b>coastal Jumeirah (🌊) shown first</b> &middot; listed within the last 30 days`;
     }
     renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;

@@ -7,7 +7,7 @@ scan (api/scan.py) always emit identical records.
 from __future__ import annotations
 
 from .config import CRITERIA
-from .filters import is_preferred_area
+from .filters import is_coastal_jumeirah, is_preferred_area
 from .geocode import approx_coords
 from .models import Listing
 from .room_rent import estimate_room_rent
@@ -34,6 +34,7 @@ def enrich(listing: Listing, criteria=CRITERIA) -> dict:
 
     d = listing.to_dict()
     d["preferred"] = is_preferred_area(listing, criteria)
+    d["jumeirah"] = is_coastal_jumeirah(listing)  # real coastal Jumeirah (user's definition)
     d["profile"] = criteria.profile
 
     # Sources like Dubizzle/Facebook give an area name but no GPS. Place them on the map at

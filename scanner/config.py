@@ -3,6 +3,28 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+# The REAL coastal Jumeirah, as Property Finder community ids (path[1] of a listing's
+# location path). This is the single source of truth for "Jumeirah" per the user's
+# definition — the coastal strip between the sea and Sheikh Zayed Road — and is used both
+# to drive the Jumeirah tab (pf_location_ids) and to float these listings to the top of
+# the main Flatshare tab. Ids: 66 Jumeirah 1/2/3, 86 Palm, 98 Umm Suqeim, 30 Al Sufouh,
+# 33 Al Wasl, 9529 City Walk, 9042 Bluewaters. Deliberately NOT Jumeirah Village/Park/
+# Islands/Golf/Heights, JBR, Marina, Al Barsha — those are inland or non-Jumeirah.
+COASTAL_JUMEIRAH_IDS = (66, 86, 98, 30, 33, 9529, 9042)
+# Name fallback for sources without a community id (Facebook/Dubizzle). Precise terms only
+# — no bare "jumeirah" (it matches Jumeirah Village etc.).
+COASTAL_JUMEIRAH_NAMES = (
+    "jumeirah 1", "jumeirah 2", "jumeirah 3",
+    "umm suqeim", "al sufouh", "al wasl", "madinat jumeirah",
+    "la mer", "port de la mer", "pearl jumeirah",
+    "city walk", "palm jumeirah", "bluewaters",
+)
+COASTAL_JUMEIRAH_LOOKALIKES = (
+    "jumeirah village", "jumeirah park", "jumeirah islands",
+    "jumeirah golf", "jumeirah heights", "jbr", "jumeirah beach residence",
+    "jlt", "jumeirah lake towers", "al barsha", "al quoz", "marina",
+)
+
 
 @dataclass
 class Criteria:
@@ -32,6 +54,10 @@ class Criteria:
     # real ceiling and the whole 0→budget range is reachable (fetched from both ends via
     # pa+pd so coverage is complete). This is how the main tab honours its budget.
     pf_monthly_price_search: bool = False
+    # Float real coastal-Jumeirah listings (COASTAL_JUMEIRAH_IDS) to the top of the ranked
+    # results, before everything else, still cheapest-first within each group. Used by the
+    # main Flatshare tab so the Jumeirah flats show first.
+    jumeirah_first: bool = False
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -148,6 +174,7 @@ CRITERIA = Criteria(
     # the bathrooms, so accept any bathroom count.
     bathrooms=None,
     pf_monthly_price_search=True,
+    jumeirah_first=True,   # coastal-Jumeirah flats sorted to the very top of the list
     # Each price band is fetched from BOTH ends (pa cheapest + pd dearest) so the band's
     # full width is covered despite PF's ~50-page cap. 5 bands (≤6k + 500/mo steps) × 2
     # orderings × 10 pages ≈ 100 requests, ~14s on Vercel — full 4.3k→8k spread.
@@ -182,7 +209,7 @@ JUMEIRAH_CRITERIA = Criteria(
     #   30 = Al Sufouh          33 = Al Wasl         9529 = City Walk   9042 = Bluewaters
     # Verified live: 1,750 real-Jumeirah rent listings across the full range, cheapest
     # ~3,750/mo, no Al Barsha / Marina / JVC noise.
-    pf_location_ids=(66, 86, 98, 30, 33, 9529, 9042),
+    pf_location_ids=COASTAL_JUMEIRAH_IDS,
     pf_orderings=("pa",),
     pf_max_pages=6,    # 7 communities × 6 pages ≈ 42 requests, cheapest-first; soft budget caps time
     # The paid Facebook button on this tab searches Marketplace for ROOMS (Property Finder

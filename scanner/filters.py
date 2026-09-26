@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from .config import Criteria
+from .config import (
+    COASTAL_JUMEIRAH_IDS,
+    COASTAL_JUMEIRAH_LOOKALIKES,
+    COASTAL_JUMEIRAH_NAMES,
+    Criteria,
+)
 from .models import Listing
 
 MAX_LISTING_AGE = timedelta(days=30)
@@ -111,12 +116,33 @@ def is_preferred_area(listing: Listing, criteria: Criteria) -> bool:
     return _area_matches_any(listing.area, criteria.preferred_areas)
 
 
+def is_coastal_jumeirah(listing: Listing) -> bool:
+    """True if a listing is in the REAL coastal Jumeirah (the user's definition).
+
+    Uses Property Finder's community id when present (exact — same communities as the
+    Jumeirah tab), and falls back to a precise area-name check for sources without one
+    (Facebook/Dubizzle), rejecting the "Jumeirah *" look-alikes (Village/Park/JLT/JBR…).
+    """
+    cid = getattr(listing, "community_id", None)
+    if cid is not None:
+        return cid in COASTAL_JUMEIRAH_IDS
+    hay = f"{listing.area or ''} {listing.title or ''}"
+    if _area_matches_any(hay, COASTAL_JUMEIRAH_LOOKALIKES):
+        return False
+    return _area_matches_any(hay, COASTAL_JUMEIRAH_NAMES)
+
+
 def filter_and_rank(listings: list[Listing], criteria: Criteria) -> list[Listing]:
     matches = [l for l in listings if is_match(l, criteria)]
-    matches.sort(
-        key=lambda l: (
-            not is_preferred_area(l, criteria),  # preferred areas first
-            l.price_monthly_aed if l.price_monthly_aed is not None else float("inf"),
-        )
-    )
+    jumeirah_first = getattr(criteria, "jumeirah_first", False)
+
+    def sort_key(l: Listing):
+        price = l.price_monthly_aed if l.price_monthly_aed is not None else float("inf")
+        if jumeirah_first:
+            # Coastal Jumeirah (user's definition) at the very top, each group cheapest-first.
+            return (not is_coastal_jumeirah(l), price)
+        # Default: preferred areas first, then cheapest-first.
+        return (not is_preferred_area(l, criteria), price)
+
+    matches.sort(key=sort_key)
     return matches

@@ -72,6 +72,7 @@ class PropertyFinderSource(Source):
         #  - otherwise → per-bedroom apartment URLs (the main 2-bed scan, etc.).
         loc_ids = getattr(criteria, "pf_location_ids", ()) or ()
         paths = getattr(criteria, "pf_property_paths", ()) or ()
+        jum_supplement_urls: list[str] = []
         if loc_ids:
             urls = [f"https://www.propertyfinder.ae/en/search?c=2&l={lid}" for lid in loc_ids]
         elif getattr(criteria, "pf_monthly_price_search", False):
@@ -103,6 +104,18 @@ class PropertyFinderSource(Source):
                 if lo > 0:
                     q += f"&pf={lo * 12}"
                 urls.append(f"https://www.propertyfinder.ae/en/search?{q}{bdr}")
+            # Coastal-Jumeirah supplement: the all-Dubai bands rarely capture the handful of
+            # real Jumeirah flats in-budget (they're expensive and buried under thousands of
+            # cheaper listings). When jumeirah_first is set, also query those communities
+            # directly so they all show and can be floated to the top. Small (a page or two
+            # each), fetched cheapest-first only.
+            if getattr(criteria, "jumeirah_first", False):
+                from ..config import COASTAL_JUMEIRAH_IDS
+                pt_year = ceiling * 12
+                jum_supplement_urls = [
+                    f"https://www.propertyfinder.ae/en/search?c=2&l={cid}&pt={pt_year}{bdr}"
+                    for cid in COASTAL_JUMEIRAH_IDS
+                ]
         elif paths:
             urls = [f"https://www.propertyfinder.ae/en/rent/dubai/{p}" for p in paths]
         else:
@@ -115,6 +128,10 @@ class PropertyFinderSource(Source):
         # (url, ob, page) work items — every bedroom search × sort order × page, concurrent.
         jobs = [(url, ob, page)
                 for url in urls for ob in orderings for page in range(1, max_pages + 1)]
+        # Jumeirah supplement: cheapest-first, just 2 pages each (these communities hold only
+        # a handful of in-budget flats), added on top of the main jobs.
+        jobs += [(url, "pa", page)
+                 for url in jum_supplement_urls for page in (1, 2)]
 
         def fetch_page(job: tuple[str, str, int]) -> list[dict]:
             url, ob, page = job
@@ -184,6 +201,17 @@ def _to_listing(prop: dict) -> Listing | None:
     images = prop.get("images") or []
     image_url = images[0].get("medium") if images else None
     coordinates = location.get("coordinates") or {}
+    # Community id = path[1] of the location path (e.g. "1.66.1187.4520" → 66 = Jumeirah).
+    # path[0] is the emirate (1 = Dubai). This pins the real community regardless of the
+    # (often bare "Jumeirah") name text.
+    community_id = None
+    path = location.get("path") or ""
+    parts = path.split(".")
+    if len(parts) >= 2:
+        try:
+            community_id = int(parts[1])
+        except (TypeError, ValueError):
+            community_id = None
 
     return Listing(
         source="propertyfinder",
@@ -198,6 +226,7 @@ def _to_listing(prop: dict) -> Listing | None:
         listed_at=prop.get("listed_date"),
         latitude=coordinates.get("lat"),
         longitude=coordinates.get("lon"),
+        community_id=community_id,
     )
 
 

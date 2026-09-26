@@ -20,6 +20,10 @@ class Listing:
     listed_at: Optional[str] = None  # ISO 8601 date the listing was posted, when the source exposes it
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    # Property Finder community id (path[1] of the location path, e.g. 66 = Jumeirah).
+    # Used to identify the real coastal-Jumeirah communities precisely, since the area
+    # NAME is often just "Jumeirah" and can't be told apart from Jumeirah Village etc.
+    community_id: Optional[int] = None
     scraped_at: str = ""
 
     def __post_init__(self) -> None:
