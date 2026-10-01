@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r22 · 2026-09-26</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r23 · 2026-10-01</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -108,9 +108,14 @@
   const SOURCE_COLORS = { propertyfinder: "#0f6f5c", facebook: "#1877f2", dubizzle: "#e4002b", bayut: "#16a34a" };
   const colorFor = (src) => SOURCE_COLORS[src] || "#888";
   const JUMEIRAH_COLOR = "#e11d48";  // Jumeirah-tab markers are a distinct red
+  const CHEAP_COLOR = "#22c55e";     // under-6k/mo flats stand out in bright green
+  const CHEAP_MAX = 6000;
   const EUR_PER_AED = 1 / 4.2622;    // 1 EUR = 4.2622 AED (matches the server-side rate)
-  // A listing's map colour: red on the Jumeirah tab, otherwise its source colour.
-  const markerColor = (l) => (l.profile === "jumeirah" ? JUMEIRAH_COLOR : colorFor(l.source));
+  const isCheap = (l) => l.price_monthly_aed != null && l.price_monthly_aed < CHEAP_MAX;
+  // A listing's map colour: green if under 6k/mo (the cheap flats), else red on the
+  // Jumeirah tab, else its source colour.
+  const markerColor = (l) =>
+    isCheap(l) ? CHEAP_COLOR : (l.profile === "jumeirah" ? JUMEIRAH_COLOR : colorFor(l.source));
 
   // Two search profiles, each backed by its own endpoint and cached after first load.
   const PROFILES = {
@@ -271,12 +276,15 @@
 
     // Legend: on the Jumeirah tab, one red entry; on the main tab, one per source shown.
     let legend;
+    const cheapLegend = points.some(isCheap)
+      ? `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${CHEAP_COLOR}"></span>under 6k/mo</span>`
+      : "";
     if (currentProfile === "jumeirah") {
-      legend = `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${JUMEIRAH_COLOR}"></span>Jumeirah (studio / 1-bed)</span>`;
+      legend = cheapLegend + `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${JUMEIRAH_COLOR}"></span>Jumeirah (6k+/mo)</span>`;
     } else {
       const shown = [...new Set(points.map(p => p.source))];
-      legend = shown.map(s =>
-        `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)}</span>`
+      legend = cheapLegend + shown.map(s =>
+        `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)} (6k+/mo)</span>`
       ).join("");
     }
     el("map-note").innerHTML = points.length
@@ -336,7 +344,7 @@
     } else if (data.criteria) {
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
-      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; all Dubai, excluding Marina &amp; JLT &middot; <b>coastal Jumeirah (🌊) shown first</b> &middot; listed within the last 30 days`;
+      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; all Dubai, excluding Marina &amp; JLT &middot; <b>cheapest first</b> (🟢 under 6k) &middot; coastal Jumeirah tagged 🌊 &middot; listed within the last 30 days`;
     }
     renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;

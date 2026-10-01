@@ -109,7 +109,7 @@ class PropertyFinderSource(Source):
             # cheaper listings). When jumeirah_first is set, also query those communities
             # directly so they all show and can be floated to the top. Small (a page or two
             # each), fetched cheapest-first only.
-            if getattr(criteria, "jumeirah_first", False):
+            if getattr(criteria, "pf_include_jumeirah", False):
                 from ..config import COASTAL_JUMEIRAH_IDS
                 pt_year = ceiling * 12
                 jum_supplement_urls = [

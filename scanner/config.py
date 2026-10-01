@@ -55,9 +55,12 @@ class Criteria:
     # pa+pd so coverage is complete). This is how the main tab honours its budget.
     pf_monthly_price_search: bool = False
     # Float real coastal-Jumeirah listings (COASTAL_JUMEIRAH_IDS) to the top of the ranked
-    # results, before everything else, still cheapest-first within each group. Used by the
-    # main Flatshare tab so the Jumeirah flats show first.
+    # results, before everything else, still cheapest-first within each group.
     jumeirah_first: bool = False
+    # Also query the coastal-Jumeirah communities directly and merge them in, so the handful
+    # of in-budget Jumeirah flats aren't missed by the all-Dubai price-band sampling. Kept
+    # separate from jumeirah_first so they can be included without being floated to the top.
+    pf_include_jumeirah: bool = False
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -174,7 +177,11 @@ CRITERIA = Criteria(
     # the bathrooms, so accept any bathroom count.
     bathrooms=None,
     pf_monthly_price_search=True,
-    jumeirah_first=True,   # coastal-Jumeirah flats sorted to the very top of the list
+    # Pure cheapest-first: all the sub-6k flats lead the list. (No preferred-area tier — an
+    # empty preferred_areas means the sort key is price alone.)
+    preferred_areas=(),
+    jumeirah_first=False,
+    pf_include_jumeirah=True,   # still pull the in-budget Jumeirah flats; they sort by price
     # Each price band is fetched from BOTH ends (pa cheapest + pd dearest) so the band's
     # full width is covered despite PF's ~50-page cap. 5 bands (≤6k + 500/mo steps) × 2
     # orderings × 10 pages ≈ 100 requests, ~14s on Vercel — full 4.3k→8k spread.
