@@ -3,6 +3,40 @@
 Scans Bayut, Dubizzle, Property Finder (and, best-effort, Facebook Marketplace) for Dubai
 rentals matching your criteria, and publishes a simple dashboard of everything it finds.
 
+## Clone this for yourself (your own copy, your own keys)
+
+Nothing secret lives in this repo — the only API key (Apify) is read from an environment
+variable, never committed. So making your own independent copy is quick:
+
+1. **Get the code into your own GitHub.** Either click the button below (it copies the
+   repo into your GitHub and deploys in one step), or on GitHub use **Use this template**
+   / **Fork** to get `you/flatscanner`.
+
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/miramoon1/flatscanner&env=APIFY_API_TOKEN&envDescription=Optional%20Apify%20token%20for%20Facebook/Dubizzle%20(leave%20blank%20to%20skip))
+
+2. **Deploy on your own Vercel account** (free Hobby tier at [vercel.com](https://vercel.com)).
+   The button does this; otherwise New Project → import your repo → Deploy. You get your
+   own URL (e.g. `your-name.vercel.app`), completely separate from anyone else's.
+
+3. **Add your own keys.** Property Finder needs none — the site works immediately. For the
+   paid Facebook/Dubizzle button, add your **own** `APIFY_API_TOKEN` (free tier at
+   [apify.com](https://apify.com) → Console → Settings → Integrations) under
+   Vercel → Project → Settings → Environment Variables, then redeploy. See `.env.example`.
+   Billing is per-account, so his Apify usage is on his token, not yours.
+
+4. **Change the requirements.** All the search rules live in **`scanner/config.py`**:
+   - `CRITERIA` — budget (`max_price_monthly_aed`), bedrooms, bathrooms, the price-band
+     search, the cheapest-first ordering, the Creek cutoff line, etc.
+   - `JUMEIRAH_CRITERIA` — the second "Jumeirah" tab.
+   - `CREEK_LINE`, `COASTAL_JUMEIRAH_IDS`, `AREA_TIERS` — the Dubai-specific geography and
+     the nice/run-down area ratings. (These are tuned for Dubai; a different city would
+     need its own areas and Property Finder community ids.)
+
+   Edit, `git push`, and Vercel auto-redeploys. Each copy is independent — his edits and
+   his keys never touch yours.
+
+---
+
 **Default criteria** (edit in `scanner/config.py`):
 - Budget: ≤ 6,000 AED/month
 - 2 bedrooms, 2 bathrooms
