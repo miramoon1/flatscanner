@@ -18,6 +18,19 @@ def _area_matches_any(area: str, needles: tuple[str, ...]) -> bool:
     return any(needle in area_lower for needle in needles)
 
 
+def _is_sw_of_line(lat: float, lon: float, line: tuple[float, float, float, float]) -> bool:
+    """True if (lat, lon) is on the SOUTHWEST (keep) side of the line A→B.
+
+    line = (a_lat, a_lon, b_lat, b_lon). The sign of the 2D cross product tells us which
+    side of the line the point is on; for the Creek line (A north, B south-east) the
+    coastal/central southwest side comes out negative = keep, the Sharjah/east side
+    positive = hide.
+    """
+    a_lat, a_lon, b_lat, b_lon = line
+    cross = (b_lon - a_lon) * (lat - a_lat) - (b_lat - a_lat) * (lon - a_lon)
+    return cross < 0
+
+
 def _is_too_old(listing: Listing) -> bool:
     """True only when the source told us a listed_at AND it's >30 days old.
     No listed_at (Bayut/Dubizzle don't reliably expose one from the search-results
@@ -71,6 +84,12 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     # Extra area look-alike exclusions (JBR, inland "Jumeirah *" areas) — area AND title.
     if _area_matches_any(area_and_title, criteria.excluded_terms):
         return False
+
+    # Geographic cutoff line (e.g. the Dubai Creek): drop anything on its NE/east side.
+    line = getattr(criteria, "keep_sw_of_line", None)
+    if line is not None and listing.latitude is not None and listing.longitude is not None:
+        if not _is_sw_of_line(listing.latitude, listing.longitude, line):
+            return False
 
     # Positive region gate (e.g. the Jumeirah tab).
     if criteria.bbox is not None:

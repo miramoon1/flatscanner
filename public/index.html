@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r23 · 2026-10-01</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r24 · 2026-10-05</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -344,7 +344,7 @@
     } else if (data.criteria) {
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
-      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; all Dubai, excluding Marina &amp; JLT &middot; <b>cheapest first</b> (🟢 under 6k) &middot; coastal Jumeirah tagged 🌊 &middot; listed within the last 30 days`;
+      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; west of the Dubai Creek only (nothing on the Deira / Sharjah side) &middot; <b>cheapest first</b> (🟢 under 6k) &middot; coastal Jumeirah tagged 🌊 &middot; listed within the last 30 days`;
     }
     renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;

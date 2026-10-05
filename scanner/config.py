@@ -25,6 +25,15 @@ COASTAL_JUMEIRAH_LOOKALIKES = (
     "jlt", "jumeirah lake towers", "al barsha", "al quoz", "marina",
 )
 
+# The "Dubai Creek" cutoff line, as two points (lat, lon)→(lat, lon). It follows the Creek
+# down from the Deira/Sharjah side to Ras Al Khor and on inland — the line where Dubai meets
+# Sharjah with the big waterway through the city. Listings on the NORTHEAST / EAST side of it
+# (Deira, Al Garhoud, Al Nahda, Al Qusais, Al Muhaisnah toward Sharjah, plus the far-east
+# inland: International City, Al Warqa'a, Al Warsan, Silicon Oasis, DLRC) are hidden; the
+# coastal/central southwest side (Jumeirah, Satwa, Bur Dubai, Business Bay, Al Jaddaf …) and
+# the western/southern areas are kept. See keep_sw_of_line in Criteria.
+CREEK_LINE = (25.28, 55.315, 25.00, 55.42)
+
 
 @dataclass
 class Criteria:
@@ -61,6 +70,10 @@ class Criteria:
     # of in-budget Jumeirah flats aren't missed by the all-Dubai price-band sampling. Kept
     # separate from jumeirah_first so they can be included without being floated to the top.
     pf_include_jumeirah: bool = False
+    # Geographic cutoff: (lat1, lon1, lat2, lon2). When set, a listing WITH coordinates is
+    # dropped if it falls on the northeast/east side of this line (see CREEK_LINE). Listings
+    # without coordinates are kept (can't place them).
+    keep_sw_of_line: tuple[float, float, float, float] | None = None
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -182,6 +195,8 @@ CRITERIA = Criteria(
     preferred_areas=(),
     jumeirah_first=False,
     pf_include_jumeirah=True,   # still pull the in-budget Jumeirah flats; they sort by price
+    # Hide everything on the Sharjah/Deira side of the Dubai Creek (see CREEK_LINE).
+    keep_sw_of_line=CREEK_LINE,
     # Each price band is fetched from BOTH ends (pa cheapest + pd dearest) so the band's
     # full width is covered despite PF's ~50-page cap. 5 bands (≤6k + 500/mo steps) × 2
     # orderings × 10 pages ≈ 100 requests, ~14s on Vercel — full 4.3k→8k spread.
