@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r25 · 2026-10-05</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r26 · 2026-10-05</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -114,9 +114,9 @@
   const isCheap = (l) => l.price_monthly_aed != null && l.price_monthly_aed < CHEAP_MAX;
   // Area livability tiers (researched from resident reviews — see scanner/config.py).
   const TIER = {
-    nice:    { ring: "#16a34a", bg: "#dcfce7", fg: "#166534", label: "Prime area" },
-    caution: { ring: "#d97706", bg: "#fef3c7", fg: "#92400e", label: "Outlying / mixed" },
-    mid:     { ring: "#9ca3af", bg: "", fg: "", label: "" },
+    nice:    { ring: "#16a34a", bg: "#dcfce7", fg: "#166534", label: "Nice area" },
+    caution: { ring: "#dc2626", bg: "#fee2e2", fg: "#991b1b", label: "Run-down / old" },
+    mid:     { ring: "", bg: "", fg: "", label: "" },
   };
   const tierOf = (l) => TIER[l.area_tier] || TIER.mid;
   // A listing's map colour: green if under 6k/mo (the cheap flats), else red on the
@@ -163,7 +163,7 @@
       ? `<span class="badge" title="${esc(l.area_tier_reason || '')}" style="background:${tier.bg};color:${tier.fg}">${tier.label}</span>`
       : "";
     return `
-      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener" style="border-left:4px solid ${tier.ring}">
+      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener"${tier.ring ? ` style="border-left:4px solid ${tier.ring}"` : ""}>
         ${l.image_url ? `<img src="${esc(l.image_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
         <div class="card-body">
           <div class="price">${fmt(l.price_monthly_aed)} AED/mo${l.price_monthly_aed != null
@@ -274,7 +274,7 @@
         const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
         const _tier = tierOf(p);
         L.circleMarker([lat, lon], {
-          radius: 8, color: _tier.ring, weight: (p.area_tier === "mid" ? 1.5 : 2.5), fillColor: markerColor(p), fillOpacity: 0.9,
+          radius: 8, color: _tier.ring || "#fff", weight: _tier.ring ? 2.5 : 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
         }).addTo(markersLayer).bindPopup(
           "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
           '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) +
@@ -293,8 +293,8 @@
       ? `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${CHEAP_COLOR}"></span>under 6k/mo</span>`
       : "";
     const tierLegend =
-      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.nice.ring}"></span>prime area</span>` +
-      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.caution.ring}"></span>outlying / mixed</span>`;
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.nice.ring}"></span>nice area</span>` +
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.caution.ring}"></span>run-down / old</span>`;
     if (currentProfile === "jumeirah") {
       legend = cheapLegend + `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${JUMEIRAH_COLOR}"></span>Jumeirah (6k+/mo)</span>`;
     } else {
