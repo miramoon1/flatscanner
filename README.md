@@ -24,16 +24,22 @@ variable, never committed. So making your own independent copy is quick:
    Vercel → Project → Settings → Environment Variables, then redeploy. See `.env.example`.
    Billing is per-account, so his Apify usage is on his token, not yours.
 
-4. **Change the requirements.** All the search rules live in **`scanner/config.py`**:
-   - `CRITERIA` — budget (`max_price_monthly_aed`), bedrooms, bathrooms, the price-band
-     search, the cheapest-first ordering, the Creek cutoff line, etc.
+4. **Set your preferences in the app — no code needed.** The first time the site opens it
+   shows a **⚙ Setup** screen (reachable any time from the ⚙ Setup button). Enter your
+   budget, bedrooms, bathrooms, the areas you like (green) and want to avoid (red), the
+   marker colours, and whether to hide the Deira/Sharjah side of the city. It's saved in
+   the browser and applied instantly — nothing to edit, nothing to redeploy.
+
+5. **Advanced (optional): deeper defaults in code.** If you want to change things the Setup
+   screen doesn't cover, the rules live in **`scanner/config.py`**:
+   - `CRITERIA` — the baseline budget/bedrooms/bathrooms and the price-band search.
    - `JUMEIRAH_CRITERIA` — the second "Jumeirah" tab.
    - `CREEK_LINE`, `COASTAL_JUMEIRAH_IDS`, `AREA_TIERS` — the Dubai-specific geography and
-     the nice/run-down area ratings. (These are tuned for Dubai; a different city would
-     need its own areas and Property Finder community ids.)
+     the default nice/run-down area ratings. (Tuned for Dubai; a different city would need
+     its own areas and Property Finder community ids.)
 
-   Edit, `git push`, and Vercel auto-redeploys. Each copy is independent — his edits and
-   his keys never touch yours.
+   Edit, `git push`, and Vercel auto-redeploys. Each copy is independent — their edits and
+   their keys never touch yours.
 
 ---
 

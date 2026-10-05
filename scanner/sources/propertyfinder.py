@@ -90,14 +90,21 @@ class PropertyFinderSource(Source):
             bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)
             bdr = "".join(f"&bdr[]={n}" for n in bedroom_counts)
             ceiling = int(criteria.max_price_monthly_aed)
+            # Contiguous price bands: one band up to 6k, then even steps to the ceiling. The
+            # step is adaptive so the band COUNT stays bounded (≤ ~6 above 6k) — a high budget
+            # like 15k would otherwise make dozens of 500-step bands and blow the time budget.
+            import math
             edges = [0]
             first = min(6000, ceiling)
             if first > 0:
                 edges.append(first)
-            p = first
-            while p < ceiling:
-                p = min(p + 500, ceiling)
-                edges.append(p)
+            upper = ceiling - first
+            if upper > 0:
+                step = max(500, int(math.ceil(upper / 6 / 500)) * 500)
+                p = first
+                while p < ceiling:
+                    p = min(p + step, ceiling)
+                    edges.append(p)
             urls = []
             for lo, hi in zip(edges[:-1], edges[1:]):
                 q = f"c=2&l=1&pt={hi * 12}"

@@ -66,11 +66,32 @@
   .ptab { font-size: 15px; font-weight: 600; padding: 9px 15px; border-radius: 999px;
     border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; }
   .ptab[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  /* Setup wizard */
+  #setup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex;
+    align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto; z-index: 1000; }
+  #setup-card { background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px; width: 100%; max-width: 460px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+  #setup-card h2 { margin: 0 0 4px; font-size: 1.25rem; }
+  .setup-intro { color: var(--muted); font-size: 0.85rem; margin: 0 0 16px; }
+  #setup-card label { display: block; font-weight: 600; font-size: 0.9rem; margin: 14px 0 0; }
+  #setup-card .hint { font-weight: 400; color: var(--muted); font-size: 0.78rem; }
+  #setup-card input[type=number], #setup-card select, #setup-card textarea {
+    width: 100%; box-sizing: border-box; margin-top: 6px; padding: 9px 11px; font: inherit;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text); }
+  #setup-card .row-check { display: flex; align-items: flex-start; gap: 9px; font-weight: 500; }
+  #setup-card .row-check input { margin-top: 2px; }
+  .setup-colors { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+  .setup-colors .col { display: flex; align-items: center; gap: 7px; font-size: 0.82rem; font-weight: 500; margin: 0; }
+  .setup-colors input[type=color] { width: 34px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: none; }
+  .setup-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+  .setup-actions button { padding: 9px 16px; border-radius: 9px; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
+  .setup-actions .ghost { background: var(--card); color: var(--text); }
+  .setup-actions .scan { background: var(--accent); color: var(--card); border-color: var(--accent); }
 </style>
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r27 · 2026-10-05</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r28 · 2026-10-05</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -87,6 +108,7 @@
     <button id="btn-map" type="button" aria-pressed="false">Map</button>
     <button id="btn-scan" type="button" class="scan" hidden>↻ Scan now</button>
     <button id="btn-fb" type="button" class="scan fb" hidden title="Also runs the paid Apify sources (Facebook, and Dubizzle if you've set APIFY_DUBIZZLE_ACTOR) — uses a small amount of Apify credit">＋ Include Facebook &amp; Dubizzle (Apify credit)</button>
+    <button id="btn-setup" type="button" class="scan" title="Change your budget, bedrooms and which areas are marked" style="margin-left:auto">⚙ Setup</button>
   </div>
 
   <div class="source-filter" id="source-filter"></div>
@@ -100,6 +122,57 @@
   </div>
 </main>
 
+<div id="setup-overlay" hidden>
+  <div id="setup-card" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+    <h2 id="setup-title">Set up your search</h2>
+    <p class="setup-intro">Tell the scanner what you're looking for. You can change this any time with the ⚙ Setup button — it's saved in this browser, nothing is shared.</p>
+
+    <label>Max budget (AED / month)
+      <input type="number" id="s-budget" min="1000" step="500" placeholder="8000">
+    </label>
+
+    <label>Bedrooms
+      <select id="s-beds">
+        <option value="0">Studio</option>
+        <option value="1">1 bedroom</option>
+        <option value="2">2 bedrooms</option>
+        <option value="3">3 bedrooms</option>
+        <option value="any">Any</option>
+      </select>
+    </label>
+
+    <label>Bathrooms
+      <select id="s-baths">
+        <option value="any">Any</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </label>
+
+    <label>Areas you like <span class="hint">(comma-separated — these show a green mark)</span>
+      <textarea id="s-liked" rows="2" placeholder="jumeirah, al wasl, business bay, downtown, dubai hills, palm, city walk, meydan, motor city"></textarea>
+    </label>
+
+    <label>Areas to avoid <span class="hint">(comma-separated — these show a red mark)</span>
+      <textarea id="s-avoid" rows="2" placeholder="bur dubai, al satwa, deira, international city, al quoz"></textarea>
+    </label>
+
+    <label class="row-check"><input type="checkbox" id="s-creek"> Hide the Deira / Sharjah side of the city (only show central &amp; coastal Dubai)</label>
+
+    <div class="setup-colors">
+      <label class="col">Liked colour <input type="color" id="s-color-nice" value="#16a34a"></label>
+      <label class="col">Avoid colour <input type="color" id="s-color-avoid" value="#dc2626"></label>
+      <label class="col">Cheap ring <input type="color" id="s-color-cheap" value="#f59e0b"></label>
+    </div>
+
+    <div class="setup-actions">
+      <button type="button" id="s-cancel" class="ghost">Cancel</button>
+      <button type="button" id="s-save" class="scan">Save &amp; scan</button>
+    </div>
+  </div>
+</div>
+
 <script src="/vendor/leaflet/leaflet.js"></script>
 <script>
   const DUBAI_CENTER = [25.2048, 55.2708];
@@ -112,20 +185,58 @@
   const CHEAP_MAX = 6000;
   const EUR_PER_AED = 1 / 4.2622;    // 1 EUR = 4.2622 AED (matches the server-side rate)
   const isCheap = (l) => l.price_monthly_aed != null && l.price_monthly_aed < CHEAP_MAX;
-  // Area quality tiers (researched from resident reviews — see scanner/config.py).
+
+  // ---- User preferences (the Setup wizard), saved per-browser in localStorage ----
+  const PREFS_KEY = "flatscanner:prefs:v1";
+  const DEFAULT_PREFS = {
+    budget: 8000, beds: "2", baths: "any",
+    liked: ["jumeirah", "al wasl", "umm suqeim", "al sufouh", "city walk", "palm",
+            "bluewaters", "business bay", "downtown dubai", "dubai hills", "meydan",
+            "mohammed bin rashid", "motor city"],
+    avoid: ["bur dubai", "al satwa", "deira", "international city", "al quoz",
+            "al nahda", "al qusais", "al muhaisnah", "al warqa"],
+    hideSharjah: true,
+    colors: { nice: "#16a34a", avoid: "#dc2626", cheap: "#f59e0b" },
+  };
+  function hasSetup() { try { return !!localStorage.getItem(PREFS_KEY); } catch (_) { return false; } }
+  function loadPrefs() {
+    try {
+      const s = localStorage.getItem(PREFS_KEY);
+      if (s) { const p = JSON.parse(s); p.colors = Object.assign({}, DEFAULT_PREFS.colors, p.colors || {}); return Object.assign({}, DEFAULT_PREFS, p); }
+    } catch (_) {}
+    return Object.assign({}, DEFAULT_PREFS);
+  }
+  let PREFS = loadPrefs();
+  function savePrefs(p) { PREFS = p; try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch (_) {} }
+
+  // Area quality tier. The user's own liked/avoid lists win; otherwise fall back to the
+  // researched server rating (area_tier). Colours come from the user's Setup choices.
   const TIER = {
-    nice:    { ring: "#16a34a", bg: "#dcfce7", fg: "#166534", label: "Nice area" },
-    caution: { ring: "#dc2626", bg: "#fee2e2", fg: "#991b1b", label: "Run-down / old" },
+    nice:    { get ring() { return PREFS.colors.nice; },  get bg() { return tint(PREFS.colors.nice); },  fg: "#166534", label: "Nice area" },
+    caution: { get ring() { return PREFS.colors.avoid; }, get bg() { return tint(PREFS.colors.avoid); }, fg: "#991b1b", label: "Avoid" },
     mid:     { ring: "", bg: "", fg: "", label: "" },
   };
-  const tierOf = (l) => TIER[l.area_tier] || TIER.mid;
+  function tint(hex) {  // light background wash of a colour for the card tint
+    const n = parseInt((hex || "").replace("#", ""), 16);
+    if (isNaN(n)) return "";
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return `rgba(${r},${g},${b},0.14)`;
+  }
+  function tierKey(l) {
+    const hay = ((l.area || "") + " " + (l.title || "")).toLowerCase();
+    if (PREFS.avoid.some(t => t && hay.includes(t))) return "caution";   // avoid wins
+    if (PREFS.liked.some(t => t && hay.includes(t))) return "nice";
+    return l.area_tier || "mid";                                          // else server rating
+  }
+  const tierOf = (l) => TIER[tierKey(l)] || TIER.mid;
   const NEUTRAL_FILL = "#9ca3af";
-  const CHEAP_RING = "#f59e0b";  // under-6k gets a gold ring highlight
+  const CHEAP_RING = "#f59e0b";  // under-6k gets a ring highlight (user-recolourable)
   // Map marker FILL = area quality so the map reads red/green at a glance; neutral = grey.
   // (The Jumeirah tab keeps its single red.)
   const markerColor = (l) => {
     if (l.profile === "jumeirah") return JUMEIRAH_COLOR;
-    if (l.area_tier === "nice" || l.area_tier === "caution") return tierOf(l).ring;
+    const k = tierKey(l);
+    if (k === "nice" || k === "caution") return TIER[k].ring;
     return NEUTRAL_FILL;
   };
 
@@ -282,7 +393,7 @@
         const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
         const _tier = tierOf(p);
         L.circleMarker([lat, lon], {
-          radius: 8, color: isCheap(p) ? CHEAP_RING : "#fff", weight: isCheap(p) ? 3 : 1.2, fillColor: markerColor(p), fillOpacity: 0.95,
+          radius: 8, color: isCheap(p) ? PREFS.colors.cheap : "#fff", weight: isCheap(p) ? 3 : 1.2, fillColor: markerColor(p), fillOpacity: 0.95,
         }).addTo(markersLayer).bindPopup(
           "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
           '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) +
@@ -300,11 +411,11 @@
     const dot = (bg, label, ring) =>
       `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${bg}${ring ? `;box-shadow:0 0 0 2px ${ring}` : ""}"></span>${label}</span>`;
     let legend;
-    const cheapLegend = points.some(isCheap) ? dot("#fff", "under 6k/mo (gold ring)", CHEAP_RING) : "";
+    const cheapLegend = points.some(isCheap) ? dot("#fff", "under 6k/mo (ring)", PREFS.colors.cheap) : "";
     if (currentProfile === "jumeirah") {
       legend = cheapLegend + dot(JUMEIRAH_COLOR, "Jumeirah");
     } else {
-      legend = dot(TIER.nice.ring, "nice area") + dot(TIER.caution.ring, "run-down / old") +
+      legend = dot(TIER.nice.ring, "nice area") + dot(TIER.caution.ring, "avoid") +
         dot(NEUTRAL_FILL, "other") + cheapLegend;
     }
     el("map-note").innerHTML = points.length
@@ -364,7 +475,8 @@
     } else if (data.criteria) {
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
-      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt} &middot; west of the Dubai Creek only (nothing on the Deira / Sharjah side) &middot; <b>cheapest first</b> (🟢 under 6k) &middot; coastal Jumeirah tagged 🌊 &middot; listed within the last 30 days`;
+      const creekTxt = PREFS.hideSharjah ? " &middot; central &amp; coastal only (Deira/Sharjah side hidden)" : "";
+      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt}${creekTxt} &middot; <b>cheapest first</b> &middot; your liked areas 🟢 / avoided areas 🔴 &middot; change with ⚙ Setup`;
     }
     renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
@@ -374,6 +486,50 @@
     renderSourceFilter();
     renderList();
     if (!el("map-view").hidden) refreshMap();
+  }
+
+  // The user's Setup choices, as query params for /api/data (main tab only).
+  function prefsQuery() {
+    return [
+      "max_price=" + encodeURIComponent(PREFS.budget || 8000),
+      "bedrooms=" + encodeURIComponent(PREFS.beds || "2"),
+      "bathrooms=" + encodeURIComponent(PREFS.baths || "any"),
+      "creek=" + (PREFS.hideSharjah ? 1 : 0),
+    ].join("&");
+  }
+
+  // ---- Setup wizard open / save / cancel ----
+  function openSetup() {
+    const p = PREFS;
+    el("s-budget").value = p.budget || "";
+    el("s-beds").value = p.beds || "2";
+    el("s-baths").value = p.baths || "any";
+    el("s-liked").value = (p.liked || []).join(", ");
+    el("s-avoid").value = (p.avoid || []).join(", ");
+    el("s-creek").checked = !!p.hideSharjah;
+    el("s-color-nice").value = p.colors.nice;
+    el("s-color-avoid").value = p.colors.avoid;
+    el("s-color-cheap").value = p.colors.cheap;
+    el("setup-overlay").hidden = false;
+  }
+  function closeSetup() { el("setup-overlay").hidden = true; }
+  function parseAreas(s) { return (s || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean); }
+  function saveSetup() {
+    savePrefs({
+      budget: parseInt(el("s-budget").value, 10) || 8000,
+      beds: el("s-beds").value,
+      baths: el("s-baths").value,
+      liked: parseAreas(el("s-liked").value),
+      avoid: parseAreas(el("s-avoid").value),
+      hideSharjah: el("s-creek").checked,
+      colors: { nice: el("s-color-nice").value, avoid: el("s-color-avoid").value, cheap: el("s-color-cheap").value },
+    });
+    closeSetup();
+    // Old cached results were for the previous settings — drop them and re-scan fresh.
+    try { localStorage.removeItem(cacheKey("main")); } catch (_) {}
+    PROFILES.main.data = null;
+    if (currentProfile === "main") load(true, false);
+    else if (PROFILES[currentProfile].data) render(PROFILES[currentProfile].data);
   }
 
   // fresh: bypass the edge cache and run a live scan. apify: also run the PAID Apify
@@ -393,8 +549,10 @@
           : "Scanning incl. Facebook & Dubizzle via Apify… (this can take ~20s)")
       : (fresh ? "Scanning… (a few seconds)" : "Loading…");
     let url = PROFILES[profile].url;
-    if (fresh) url += "?fresh=" + Date.now();
-    if (apify) url += (url.includes("?") ? "&" : "?") + "apify=1";
+    const add = (q) => { url += (url.includes("?") ? "&" : "?") + q; };
+    if (profile === "main") add(prefsQuery());   // the user's budget / beds / baths / cutoff
+    if (fresh) add("fresh=" + Date.now());
+    if (apify) add("apify=1");
     return fetch(url)
       .then(r => r.text().then(text => ({ status: r.status, text })))
       .then(({ status, text }) => {
@@ -459,6 +617,10 @@
   el("btn-fb").addEventListener("click", () => load(true, true));
   el("tab-main").addEventListener("click", () => switchProfile("main"));
   el("tab-jumeirah").addEventListener("click", () => switchProfile("jumeirah"));
+  el("btn-setup").addEventListener("click", openSetup);
+  el("s-cancel").addEventListener("click", closeSetup);
+  el("s-save").addEventListener("click", saveSetup);
+  el("setup-overlay").addEventListener("click", (e) => { if (e.target === el("setup-overlay")) closeSetup(); });
 
   // Local `python -m scanner.main` preview injects window.__DATA__ (file:// can't
   // fetch). There the buttons can't hit the API, so leave them hidden.
@@ -467,6 +629,9 @@
   } else {
     el("btn-scan").hidden = false;
     syncButtons();
+    // First visit ever (no saved setup) → open the Setup wizard so a new user tells the
+    // scanner what they want before the first scan.
+    if (!hasSetup()) openSetup();
     // On open, show the last saved results instantly if we have them (no scan). Only fetch
     // the very first time ever, when there's nothing cached yet.
     const cachedMain = loadCache("main");

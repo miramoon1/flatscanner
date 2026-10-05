@@ -32,7 +32,6 @@ for _root in (
 
 from scanner.config import CRITERIA  # noqa: E402
 from scanner.pipeline import scan_enriched  # noqa: E402
-
 # Scans are button-triggered (the dashboard's "Scan now" calls /api/data?fresh=<ts>,
 # a unique URL that bypasses this cache). A plain page-load GET is served from the last
 # scan's cached copy for a long window, so simply opening the site never kicks off a
@@ -48,18 +47,61 @@ CACHE_CONTROL = "public, s-maxage=604800"
 SCAN_DEADLINE_SECONDS = 55
 
 
-def _scan(include_apify: bool) -> dict:
+def _criteria_from_params(params: dict) -> "object":
+    """Build a Criteria from the setup-wizard query params, falling back to CRITERIA.
+
+    Lets each user tune budget / bedrooms / bathrooms / the Creek cutoff from the in-app
+    Setup screen without editing code or redeploying. params is parse_qs output (lists).
+    """
+    from dataclasses import replace
+
+    def _one(key):
+        v = params.get(key, [None])[0]
+        return v.strip() if isinstance(v, str) else v
+
+    overrides: dict = {}
+
+    mp = _one("max_price")
+    if mp and mp.isdigit():
+        overrides["max_price_monthly_aed"] = int(mp)
+
+    beds = _one("bedrooms")  # "any" | "0" (studio) | "2" | "0,1,2"
+    if beds:
+        if beds == "any":
+            overrides.update(any_bedrooms=True, allow_unknown_bedrooms=True,
+                             bedrooms_allowed=(0, 1, 2, 3, 4))
+        elif "," in beds:
+            nums = tuple(int(x) for x in beds.split(",") if x.strip().isdigit())
+            if nums:
+                overrides["bedrooms_allowed"] = nums
+        elif beds.isdigit():
+            overrides.update(bedrooms=int(beds), bedrooms_allowed=None)
+
+    baths = _one("bathrooms")  # "any" | "1" | "2" | "3"
+    if baths == "any":
+        overrides["bathrooms"] = None
+    elif baths and baths.isdigit():
+        overrides["bathrooms"] = int(baths)
+
+    if _one("creek") in ("0", "false", "no", "off"):
+        overrides["keep_sw_of_line"] = None  # show all Dubai, don't hide the Deira/Sharjah side
+
+    return replace(CRITERIA, **overrides) if overrides else CRITERIA
+
+
+def _scan(include_apify: bool, criteria=None) -> dict:
+    criteria = criteria or CRITERIA
     stats: dict = {}
     listings = scan_enriched(
         allow_browser=False, include_apify=include_apify, stats=stats,
-        deadline_seconds=SCAN_DEADLINE_SECONDS,
+        deadline_seconds=SCAN_DEADLINE_SECONDS, criteria=criteria,
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "criteria": {
-            "max_price_monthly_aed": CRITERIA.max_price_monthly_aed,
-            "bedrooms": CRITERIA.bedrooms,
-            "bathrooms": CRITERIA.bathrooms,
+            "max_price_monthly_aed": criteria.max_price_monthly_aed,
+            "bedrooms": criteria.bedrooms,
+            "bathrooms": criteria.bathrooms,
         },
         "count": len(listings),
         "sources": stats,
@@ -74,9 +116,10 @@ class handler(BaseHTTPRequestHandler):
         # dedicated "Include Facebook" button. Plain loads and normal "Scan now" never
         # touch Apify, so casual use costs nothing.
         from urllib.parse import parse_qs, urlparse
-        include_apify = parse_qs(urlparse(self.path).query).get("apify", ["0"])[0] in ("1", "true", "yes")
+        params = parse_qs(urlparse(self.path).query)
+        include_apify = params.get("apify", ["0"])[0] in ("1", "true", "yes")
         try:
-            payload = _scan(include_apify)
+            payload = _scan(include_apify, criteria=_criteria_from_params(params))
             self.send_response(200)
             # An Apify scan is a live paid run — never let a CDN serve it to others.
             self.send_header("cache-control", "no-store" if include_apify else CACHE_CONTROL)
