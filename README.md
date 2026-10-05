@@ -5,8 +5,17 @@ rentals matching your criteria, and publishes a simple dashboard of everything i
 
 ## Clone this for yourself (your own copy, your own keys)
 
-Nothing secret lives in this repo — the only API key (Apify) is read from an environment
-variable, never committed. So making your own independent copy is quick:
+**Easiest: let Claude do it for you.** Open Claude Code (claude.ai/code) and paste:
+
+> Set up my own copy of this flat-scanner for me. Clone
+> `https://github.com/miramoon1/flatscanner`, read `SETUP_WITH_CLAUDE.md`, and follow it —
+> ask me what I'm looking for, personalise it, and deploy it to my own Vercel with my own keys.
+
+Claude will interview you (budget, areas, colours…), personalise the config, deploy it, and
+hand you a working link. The playbook it follows is `SETUP_WITH_CLAUDE.md`.
+
+**Or do it by hand** — nothing secret lives in this repo (the only API key, Apify, is read
+from an environment variable, never committed), so a manual copy is quick too:
 
 1. **Get the code into your own GitHub.** Either click the button below (it copies the
    repo into your GitHub and deploys in one step), or on GitHub use **Use this template**
