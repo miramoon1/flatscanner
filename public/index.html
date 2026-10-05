@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r26 · 2026-10-05</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r27 · 2026-10-05</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -112,17 +112,22 @@
   const CHEAP_MAX = 6000;
   const EUR_PER_AED = 1 / 4.2622;    // 1 EUR = 4.2622 AED (matches the server-side rate)
   const isCheap = (l) => l.price_monthly_aed != null && l.price_monthly_aed < CHEAP_MAX;
-  // Area livability tiers (researched from resident reviews — see scanner/config.py).
+  // Area quality tiers (researched from resident reviews — see scanner/config.py).
   const TIER = {
     nice:    { ring: "#16a34a", bg: "#dcfce7", fg: "#166534", label: "Nice area" },
     caution: { ring: "#dc2626", bg: "#fee2e2", fg: "#991b1b", label: "Run-down / old" },
     mid:     { ring: "", bg: "", fg: "", label: "" },
   };
   const tierOf = (l) => TIER[l.area_tier] || TIER.mid;
-  // A listing's map colour: green if under 6k/mo (the cheap flats), else red on the
-  // Jumeirah tab, else its source colour.
-  const markerColor = (l) =>
-    isCheap(l) ? CHEAP_COLOR : (l.profile === "jumeirah" ? JUMEIRAH_COLOR : colorFor(l.source));
+  const NEUTRAL_FILL = "#9ca3af";
+  const CHEAP_RING = "#f59e0b";  // under-6k gets a gold ring highlight
+  // Map marker FILL = area quality so the map reads red/green at a glance; neutral = grey.
+  // (The Jumeirah tab keeps its single red.)
+  const markerColor = (l) => {
+    if (l.profile === "jumeirah") return JUMEIRAH_COLOR;
+    if (l.area_tier === "nice" || l.area_tier === "caution") return tierOf(l).ring;
+    return NEUTRAL_FILL;
+  };
 
   // Two search profiles, each backed by its own endpoint and cached after first load.
   const PROFILES = {
@@ -134,7 +139,7 @@
   // Persist each tab's last results in the browser so switching tabs (or reloading) shows
   // the OLD results instantly and never triggers a scan. Only "Scan now"/the paid button
   // fetch fresh data. Wrapped in try/catch — private windows etc. may block storage.
-  function cacheKey(p) { return "flatscanner:v2:" + p; }  // v2: discard any stale empty cache
+  function cacheKey(p) { return "flatscanner:v3:" + p; }  // v3: discard caches lacking area tiers
   function saveCache(p, data) {
     try { localStorage.setItem(cacheKey(p), JSON.stringify(data)); } catch (_) {}
   }
@@ -162,8 +167,11 @@
     const tierChip = tier.label
       ? `<span class="badge" title="${esc(l.area_tier_reason || '')}" style="background:${tier.bg};color:${tier.fg}">${tier.label}</span>`
       : "";
+    const cardStyle = tier.ring
+      ? ` style="border-left:6px solid ${tier.ring};background:${tier.bg}"`
+      : "";
     return `
-      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener"${tier.ring ? ` style="border-left:4px solid ${tier.ring}"` : ""}>
+      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener"${cardStyle}>
         ${l.image_url ? `<img src="${esc(l.image_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
         <div class="card-body">
           <div class="price">${fmt(l.price_monthly_aed)} AED/mo${l.price_monthly_aed != null
@@ -274,7 +282,7 @@
         const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
         const _tier = tierOf(p);
         L.circleMarker([lat, lon], {
-          radius: 8, color: _tier.ring || "#fff", weight: _tier.ring ? 2.5 : 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
+          radius: 8, color: isCheap(p) ? CHEAP_RING : "#fff", weight: isCheap(p) ? 3 : 1.2, fillColor: markerColor(p), fillOpacity: 0.95,
         }).addTo(markersLayer).bindPopup(
           "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
           '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) +
@@ -287,21 +295,17 @@
     });
     if (bounds.length) map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
 
-    // Legend: on the Jumeirah tab, one red entry; on the main tab, one per source shown.
+    // Legend: fill = area quality (green nice / red run-down / grey neutral); a gold ring
+    // marks flats under 6k/mo.
+    const dot = (bg, label, ring) =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${bg}${ring ? `;box-shadow:0 0 0 2px ${ring}` : ""}"></span>${label}</span>`;
     let legend;
-    const cheapLegend = points.some(isCheap)
-      ? `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${CHEAP_COLOR}"></span>under 6k/mo</span>`
-      : "";
-    const tierLegend =
-      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.nice.ring}"></span>nice area</span>` +
-      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.caution.ring}"></span>run-down / old</span>`;
+    const cheapLegend = points.some(isCheap) ? dot("#fff", "under 6k/mo (gold ring)", CHEAP_RING) : "";
     if (currentProfile === "jumeirah") {
-      legend = cheapLegend + `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${JUMEIRAH_COLOR}"></span>Jumeirah (6k+/mo)</span>`;
+      legend = cheapLegend + dot(JUMEIRAH_COLOR, "Jumeirah");
     } else {
-      const shown = [...new Set(points.map(p => p.source))];
-      legend = cheapLegend + tierLegend + shown.map(s =>
-        `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)} (6k+/mo)</span>`
-      ).join("");
+      legend = dot(TIER.nice.ring, "nice area") + dot(TIER.caution.ring, "run-down / old") +
+        dot(NEUTRAL_FILL, "other") + cheapLegend;
     }
     el("map-note").innerHTML = points.length
       ? legend + "<br>" + points.length + " of " + visibleListings().length + " shown listings have map coordinates (not every source provides them)."
