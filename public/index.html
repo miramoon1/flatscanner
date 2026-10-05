@@ -70,7 +70,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r24 · 2026-10-05</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r25 · 2026-10-05</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -112,6 +112,13 @@
   const CHEAP_MAX = 6000;
   const EUR_PER_AED = 1 / 4.2622;    // 1 EUR = 4.2622 AED (matches the server-side rate)
   const isCheap = (l) => l.price_monthly_aed != null && l.price_monthly_aed < CHEAP_MAX;
+  // Area livability tiers (researched from resident reviews — see scanner/config.py).
+  const TIER = {
+    nice:    { ring: "#16a34a", bg: "#dcfce7", fg: "#166534", label: "Prime area" },
+    caution: { ring: "#d97706", bg: "#fef3c7", fg: "#92400e", label: "Outlying / mixed" },
+    mid:     { ring: "#9ca3af", bg: "", fg: "", label: "" },
+  };
+  const tierOf = (l) => TIER[l.area_tier] || TIER.mid;
   // A listing's map colour: green if under 6k/mo (the cheap flats), else red on the
   // Jumeirah tab, else its source colour.
   const markerColor = (l) =>
@@ -151,8 +158,12 @@
     const roomAed = `(AED ${fmt(l.est_room_rent_typical_aed)}&ndash;${fmt(l.est_room_rent_max_aed)})`;
     const netEur = `~&euro;${fmt(l.net_cost_best_case_eur)}&ndash;${fmt(l.net_cost_typical_eur)}/mo net`;
     const netAed = `(AED ${fmt(l.net_cost_best_case_aed)}&ndash;${fmt(l.net_cost_typical_aed)})`;
+    const tier = tierOf(l);
+    const tierChip = tier.label
+      ? `<span class="badge" title="${esc(l.area_tier_reason || '')}" style="background:${tier.bg};color:${tier.fg}">${tier.label}</span>`
+      : "";
     return `
-      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener">
+      <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener" style="border-left:4px solid ${tier.ring}">
         ${l.image_url ? `<img src="${esc(l.image_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
         <div class="card-body">
           <div class="price">${fmt(l.price_monthly_aed)} AED/mo${l.price_monthly_aed != null
@@ -164,7 +175,7 @@
             : "beds/baths not listed"}</div>
           <div class="sublet">Sublet a room (winter): ${roomEur} <span class="fx">${roomAed}</span> &rarr; <b>you'd pay ${netEur}</b> <span class="fx">${netAed}</span></div>
           <div class="row">
-            <div class="badges">${l.jumeirah ? '<span class="badge" style="background:#e11d48;color:#fff">🌊 Jumeirah</span>' : (l.preferred ? '<span class="badge">Preferred area</span>' : "")}</div>
+            <div class="badges">${l.jumeirah ? '<span class="badge" style="background:#e11d48;color:#fff">🌊 Jumeirah</span>' : ""}${tierChip}</div>
             <div class="source"><span class="src-dot" style="background:${colorFor(l.source)}"></span> ${esc(NAMES[l.source] || l.source)}</div>
           </div>
         </div>
@@ -261,12 +272,14 @@
           lon += R * Math.sin(ang) / Math.cos(p.latitude * Math.PI / 180);
         }
         const priceText = p.price_monthly_aed != null ? Math.round(p.price_monthly_aed).toLocaleString() + " AED/mo" : "Price N/A";
+        const _tier = tierOf(p);
         L.circleMarker([lat, lon], {
-          radius: 8, color: "#fff", weight: 1.5, fillColor: markerColor(p), fillOpacity: 0.9,
+          radius: 8, color: _tier.ring, weight: (p.area_tier === "mid" ? 1.5 : 2.5), fillColor: markerColor(p), fillOpacity: 0.9,
         }).addTo(markersLayer).bindPopup(
           "<b>" + priceText + "</b><br>" + esc(p.title) + "<br>" +
           '<span style="color:#6b6b6b">' + esc(p.area) + " &middot; " + esc(NAMES[p.source] || p.source) +
           (p.approx_location ? " &middot; <i>approx. area</i>" : "") + "</span><br>" +
+          (p.area_tier_reason ? '<span style="color:' + _tier.ring + '">■</span> ' + esc(p.area_tier_reason) + "<br>" : "") +
           '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
         );
         bounds.push([lat, lon]);
@@ -279,11 +292,14 @@
     const cheapLegend = points.some(isCheap)
       ? `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${CHEAP_COLOR}"></span>under 6k/mo</span>`
       : "";
+    const tierLegend =
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.nice.ring}"></span>prime area</span>` +
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:11px;height:11px;border-radius:50%;background:transparent;border:2.5px solid ${TIER.caution.ring}"></span>outlying / mixed</span>`;
     if (currentProfile === "jumeirah") {
       legend = cheapLegend + `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${JUMEIRAH_COLOR}"></span>Jumeirah (6k+/mo)</span>`;
     } else {
       const shown = [...new Set(points.map(p => p.source))];
-      legend = cheapLegend + shown.map(s =>
+      legend = cheapLegend + tierLegend + shown.map(s =>
         `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span class="src-dot" style="background:${colorFor(s)}"></span>${esc(NAMES[s] || s)} (6k+/mo)</span>`
       ).join("");
     }

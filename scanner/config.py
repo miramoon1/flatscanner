@@ -35,6 +35,89 @@ COASTAL_JUMEIRAH_LOOKALIKES = (
 CREEK_LINE = (25.28, 55.315, 25.00, 55.42)
 
 
+# Area livability tiers, researched from resident surveys and community reviews (Oct 2025):
+# the Khaleej Times "best/worst locations" resident survey (1,400+ residents) plus Bayut /
+# Property Finder / useHolo community pros-and-cons guides. Rated on LIVABILITY ONLY — how
+# residents rate the area, how established vs. under-construction it is, amenities, noise,
+# commute/remoteness, green space and safety. NOT on who lives there.
+#   "nice"    — prime / highly-rated / established / upscale / coastal.
+#   "mid"     — decent, popular, affordable; the normal residential middle.
+#   "caution" — far-out or still-under-construction (Dubailand belt), industrial-adjacent,
+#               or specifically rated poorly by residents (noise/density/transport).
+# Matched as a substring against the listing's area string, MOST SPECIFIC FIRST (so
+# "jumeirah village" wins over "jumeirah"). (substr, tier, one-line reason).
+AREA_TIERS = (
+    # These sit inside the "Jumeirah" address sector or share a substring, so they MUST be
+    # listed before the bare "jumeirah"/"downtown" entries (first match wins).
+    ("jumeirah village triangle", "mid", "Affordable, family-friendly; car-dependent, some construction"),
+    ("jumeirah village circle", "mid", "Affordable & popular with families; metro-less, rush-hour bottlenecks & construction"),
+    ("jumeirah garden city", "caution", "Satwa-side redevelopment — dense, central but busy"),
+    ("al satwa", "caution", "Central & cheap but loud, dense and busy (resident-flagged)"),
+    ("al badaa", "mid", "Central older residential by Satwa/Jumeirah"),
+    ("downtown jebel ali", "caution", "Far south, industrial-adjacent (not Downtown Dubai)"),
+    # Prime / coastal / upscale.
+    ("palm jumeirah", "nice", "Prime beachfront community"),
+    ("umm suqeim", "nice", "Established coastal Jumeirah, beaches & villas"),
+    ("madinat jumeirah", "nice", "Prime coastal resort district"),
+    ("al sufouh", "nice", "Coastal, between Jumeirah and the Marina"),
+    ("al wasl", "nice", "Central coastal strip by the canal, well-regarded"),
+    ("city walk", "nice", "Upscale walkable central district"),
+    ("bluewaters", "nice", "Premium waterfront island"),
+    ("jumeirah", "nice", "Coastal Jumeirah — top-rated by residents"),
+    ("dubai hills", "nice", "Green, safe, upscale family community (high cost)"),
+    ("mohammed bin rashid", "nice", "Upscale master-planned district (MBR City)"),
+    ("district one", "nice", "Upscale MBR City lagoon community"),
+    ("meydan", "nice", "Upscale, newer, near Downtown"),
+    ("downtown dubai", "nice", "Prime central district — top infrastructure"),
+    ("business bay", "nice", "Central, well-rated, walkable business/residential hub"),
+    ("motor city", "nice", "Voted #1 by residents — layout, parking, safety"),
+    ("the greens", "nice", "Resident favourite — safe, green, walkable"),
+    ("the views", "nice", "Established, green, well-rated"),
+    ("emirates living", "nice", "Established villa community, top child-friendly rating"),
+    # Decent middle.
+    ("al barsha", "mid", "Established, well-serviced, central-ish"),
+    ("barsha heights", "mid", "Central apartments near the Marina (older towers)"),
+    ("tecom", "mid", "Central apartments near the Marina (older towers)"),
+    ("dubai sports city", "mid", "Affordable, sports amenities; fewer daily conveniences"),
+    ("sports city", "mid", "Affordable, sports amenities; fewer daily conveniences"),
+    ("arjan", "mid", "Affordable, more space for the money; still growing"),
+    ("al furjan", "mid", "Affordable, metro nearby; active construction & dust"),
+    ("al jaddaf", "mid", "Central & emerging, by the creek near Downtown"),
+    ("dubai science park", "mid", "Mid-range residential, reasonable access"),
+    ("town square", "mid", "Family-friendly value; a bit far out"),
+    ("wasl gate", "mid", "Newer, near metro and Ibn Battuta"),
+    ("the gardens", "mid", "Established low-rise, near Ibn Battuta metro"),
+    ("discovery gardens", "mid", "Affordable, green, metro nearby — decent resident ratings"),
+    ("dubai studio city", "mid", "Quiet, affordable; remote, fewer amenities"),
+    ("production city", "mid", "Affordable; industrial-adjacent (IMPZ)"),
+    ("impz", "mid", "Affordable; industrial-adjacent (IMPZ)"),
+    ("majan", "mid", "Affordable Dubailand edge; still developing"),
+    ("bur dubai", "mid", "Central, historic, very affordable; old & dense"),
+    # Far-out / under-construction / industrial / resident-flagged.
+    ("dubai land residence", "caution", "Dubailand belt — far out, still under construction"),
+    ("dubailand", "caution", "Far out, much still under construction (resident-flagged)"),
+    ("liwan", "caution", "Dubailand belt — remote, limited amenities"),
+    ("city of arabia", "caution", "Dubailand belt — remote, still developing"),
+    ("remraam", "caution", "Remote, limited public transport"),
+    ("rukan", "caution", "Remote Dubailand community"),
+    ("damac hills 2", "caution", "Far from the city; maintenance complaints, limited transport"),
+    ("dubai south", "caution", "Very far (near Expo/airport) — long commute to the city"),
+    ("dubai world central", "caution", "Very far (near Expo/airport) — long commute to the city"),
+    ("jebel ali", "caution", "Far south, industrial-adjacent"),
+    ("dubai investment park", "caution", "Industrial-adjacent, remote"),
+    ("dubai waterfront", "caution", "Largely undeveloped, remote"),
+)
+
+
+def area_tier(area: str) -> tuple[str, str]:
+    """Return (tier, reason) for an area string. Defaults to a neutral 'mid' when unknown."""
+    a = (area or "").lower()
+    for substr, tier, reason in AREA_TIERS:
+        if substr in a:
+            return tier, reason
+    return "mid", ""
+
+
 @dataclass
 class Criteria:
     max_price_monthly_aed: int = 6000
