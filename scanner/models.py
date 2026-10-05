@@ -24,6 +24,9 @@ class Listing:
     # Used to identify the real coastal-Jumeirah communities precisely, since the area
     # NAME is often just "Jumeirah" and can't be told apart from Jumeirah Village etc.
     community_id: Optional[int] = None
+    # Property Finder emirate id (path[0]): 1 = Dubai, 4 = Sharjah, 5 = Ajman. Lets the
+    # Dubai-only Creek cutoff skip listings in other emirates.
+    emirate_id: Optional[int] = None
     scraped_at: str = ""
 
     def __post_init__(self) -> None:

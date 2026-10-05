@@ -73,6 +73,7 @@ class PropertyFinderSource(Source):
         loc_ids = getattr(criteria, "pf_location_ids", ()) or ()
         paths = getattr(criteria, "pf_property_paths", ()) or ()
         jum_supplement_urls: list[str] = []
+        n_emirates = 1
         if loc_ids:
             urls = [f"https://www.propertyfinder.ae/en/search?c=2&l={lid}" for lid in loc_ids]
         elif getattr(criteria, "pf_monthly_price_search", False):
@@ -90,6 +91,11 @@ class PropertyFinderSource(Source):
             bedroom_counts = criteria.bedrooms_allowed or (criteria.bedrooms,)
             bdr = "".join(f"&bdr[]={n}" for n in bedroom_counts)
             ceiling = int(criteria.max_price_monthly_aed)
+            # Which emirates to search (default Dubai). Each has its own PF location id.
+            from ..config import EMIRATE_IDS
+            emirate_ids = [EMIRATE_IDS[e] for e in (getattr(criteria, "emirates", ("dubai",)) or ("dubai",))
+                           if e in EMIRATE_IDS] or [EMIRATE_IDS["dubai"]]
+            n_emirates = len(emirate_ids)
             # Contiguous price bands: one band up to 6k, then even steps to the ceiling. The
             # step is adaptive so the band COUNT stays bounded (≤ ~6 above 6k) — a high budget
             # like 15k would otherwise make dozens of 500-step bands and blow the time budget.
@@ -107,16 +113,15 @@ class PropertyFinderSource(Source):
                     edges.append(p)
             urls = []
             for lo, hi in zip(edges[:-1], edges[1:]):
-                q = f"c=2&l=1&pt={hi * 12}"
-                if lo > 0:
-                    q += f"&pf={lo * 12}"
-                urls.append(f"https://www.propertyfinder.ae/en/search?{q}{bdr}")
+                price_q = f"pt={hi * 12}" + (f"&pf={lo * 12}" if lo > 0 else "")
+                for lid in emirate_ids:
+                    urls.append(f"https://www.propertyfinder.ae/en/search?c=2&l={lid}&{price_q}{bdr}")
             # Coastal-Jumeirah supplement: the all-Dubai bands rarely capture the handful of
             # real Jumeirah flats in-budget (they're expensive and buried under thousands of
             # cheaper listings). When jumeirah_first is set, also query those communities
             # directly so they all show and can be floated to the top. Small (a page or two
             # each), fetched cheapest-first only.
-            if getattr(criteria, "pf_include_jumeirah", False):
+            if getattr(criteria, "pf_include_jumeirah", False) and EMIRATE_IDS["dubai"] in emirate_ids:
                 from ..config import COASTAL_JUMEIRAH_IDS
                 pt_year = ceiling * 12
                 jum_supplement_urls = [
@@ -130,6 +135,11 @@ class PropertyFinderSource(Source):
             urls = [BASE_URL.format(slug=_bedroom_slug(n)) for n in bedroom_counts]
         orderings = getattr(criteria, "pf_orderings", ("pa",))
         max_pages = getattr(criteria, "pf_max_pages", MAX_PAGES)
+        # Searching several emirates multiplies the request count (bands × emirates × orders
+        # × pages), so shrink the per-query page depth to keep the whole fetch inside the
+        # time budget. Each emirate still gets its cheapest pages across every price band.
+        if n_emirates > 1:
+            max_pages = max(3, max_pages // n_emirates)
         headers = {"User-Agent": USER_AGENT, "Accept-Language": "en"}
 
         # (url, ob, page) work items — every bedroom search × sort order × page, concurrent.
@@ -209,11 +219,15 @@ def _to_listing(prop: dict) -> Listing | None:
     image_url = images[0].get("medium") if images else None
     coordinates = location.get("coordinates") or {}
     # Community id = path[1] of the location path (e.g. "1.66.1187.4520" → 66 = Jumeirah).
-    # path[0] is the emirate (1 = Dubai). This pins the real community regardless of the
-    # (often bare "Jumeirah") name text.
+    # path[0] is the emirate (1 = Dubai, 4 = Sharjah, 5 = Ajman). community_id pins the real
+    # community regardless of the (often bare "Jumeirah") name text; emirate_id lets the
+    # Dubai-only Creek cutoff skip Sharjah/Ajman listings.
     community_id = None
+    emirate_id = None
     path = location.get("path") or ""
     parts = path.split(".")
+    if len(parts) >= 1 and parts[0].isdigit():
+        emirate_id = int(parts[0])
     if len(parts) >= 2:
         try:
             community_id = int(parts[1])
@@ -234,6 +248,7 @@ def _to_listing(prop: dict) -> Listing | None:
         latitude=coordinates.get("lat"),
         longitude=coordinates.get("lon"),
         community_id=community_id,
+        emirate_id=emirate_id,
     )
 
 

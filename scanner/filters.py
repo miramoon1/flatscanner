@@ -77,17 +77,23 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
         return False
     # Other emirates (Ajman/Sharjah/…): match area AND title, because freeform sources
     # (Facebook especially) put the emirate in the title with a blank area field. This is
-    # what let Ajman/Sharjah listings slip through before.
-    if _area_matches_any(area_and_title, criteria.excluded_emirates):
+    # what let Ajman/Sharjah listings slip through before. BUT skip any emirate the search
+    # is deliberately covering (criteria.emirates), so enabling Sharjah/Ajman keeps them.
+    chosen = set(getattr(criteria, "emirates", ("dubai",)) or ("dubai",))
+    exclude_emirates = tuple(e for e in criteria.excluded_emirates if e not in chosen)
+    if _area_matches_any(area_and_title, exclude_emirates):
         return False
 
     # Extra area look-alike exclusions (JBR, inland "Jumeirah *" areas) — area AND title.
     if _area_matches_any(area_and_title, criteria.excluded_terms):
         return False
 
-    # Geographic cutoff line (e.g. the Dubai Creek): drop anything on its NE/east side.
+    # Geographic cutoff line (the Dubai Creek): drop anything on its NE/east side. Only
+    # applies to DUBAI listings (emirate_id 1) — it must not touch Sharjah/Ajman, which sit
+    # northeast of Dubai and would all be wrongly cut.
     line = getattr(criteria, "keep_sw_of_line", None)
-    if line is not None and listing.latitude is not None and listing.longitude is not None:
+    if (line is not None and getattr(listing, "emirate_id", None) in (None, 1)
+            and listing.latitude is not None and listing.longitude is not None):
         if not _is_sw_of_line(listing.latitude, listing.longitude, line):
             return False
 

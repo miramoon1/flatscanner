@@ -34,6 +34,10 @@ COASTAL_JUMEIRAH_LOOKALIKES = (
 # the western/southern areas are kept. See keep_sw_of_line in Criteria.
 CREEK_LINE = (25.28, 55.315, 25.00, 55.42)
 
+# Property Finder location ids per emirate (the `l=` search param; also path[0] of a
+# listing's location path). Verified live Oct 2025. Lets the scan cover more than Dubai.
+EMIRATE_IDS = {"dubai": 1, "sharjah": 4, "ajman": 5}
+
 
 # Area quality tiers. The point is NOT how far out an area is (a newer far community like
 # JVC, Sports City, Town Square or Dubai South is perfectly fine) — it's how the place
@@ -196,6 +200,11 @@ class Criteria:
         "abu dhabi",
         "al ain",
     )
+
+    # Which emirates to actually search, by name (keys of EMIRATE_IDS: dubai/sharjah/ajman).
+    # The price-band search queries each one's Property Finder location, and any emirate
+    # listed here is NOT dropped by excluded_emirates above. Default: Dubai only.
+    emirates: tuple[str, ...] = ("dubai",)
 
     # Extra hard-exclude terms matched against the AREA and the TITLE (like excluded_emirates
     # but for area look-alikes). Used by the Jumeirah tab to drop JBR and the inland

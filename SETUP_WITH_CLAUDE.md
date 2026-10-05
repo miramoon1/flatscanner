@@ -14,23 +14,26 @@ Nothing secret is in the repo.
 
 ## Step 1 — interview the user (ask, don't assume)
 Ask these one or two at a time, in plain language, and wait for answers:
-1. **Budget** — max rent per month, in AED.
-2. **Bedrooms** — studio / 1 / 2 / 3 / any.
-3. **Bathrooms** — any, or a specific number.
-4. **Areas they like** — neighbourhoods to highlight green.
-5. **Areas to avoid** — neighbourhoods to flag red.
-6. **Hide the Deira / Sharjah side of the city?** (keeps results to central & coastal Dubai) — yes/no.
-7. **Marker colours** — only if they care; otherwise keep the defaults (green / red / gold).
+1. **Emirates** — Dubai, Sharjah, and/or Ajman (any combination; the app supports all three).
+2. **Budget** — max rent per month, in AED.
+3. **Bedrooms** — studio / 1 / 2 / 3 / any.
+4. **Bathrooms** — any, or a specific number.
+5. **Areas they like** — neighbourhoods to highlight green.
+6. **Areas to avoid** — neighbourhoods to flag red.
+7. **Within Dubai, hide the old Deira/Creek (Sharjah-facing) side?** (only affects Dubai) — yes/no.
+8. **Marker colours** — only if they care; otherwise keep the defaults (green / red / gold).
 
 Keep area preferences about the *place* — budget, how new/well-kept it is, amenities,
 commute, how central it is. Do **not** rate areas by the ethnicity or nationality of who
 lives there, and don't let the config encode that; steer the user to describe the areas
 themselves. If they're unsure, the repo's researched defaults are a fine starting point.
 
-> This app is tuned for **Dubai** (the area list and the map geography in
-> `COASTAL_JUMEIRAH_IDS` / `CREEK_LINE` / `AREA_TIERS`). If the user wants a **different
-> city**, tell them that's a bigger job — the Property Finder community IDs and map lines
-> have to be redone for that city — and offer to tackle it separately.
+> This app covers **Dubai, Sharjah and Ajman** out of the box (Property Finder location
+> ids 1 / 4 / 5 — see `EMIRATE_IDS` in `config.py`). The user picks any mix of these in the
+> ⚙ Setup screen or via `CRITERIA.emirates`. The nice/avoid area ratings (`AREA_TIERS`) and
+> the Creek map line are Dubai-specific; Sharjah/Ajman areas simply show neutral until the
+> user marks their own liked/avoided areas. A **city outside the UAE** would be a bigger
+> job (new location ids and map lines) — offer to tackle that separately.
 
 ## Step 2 — personalise `scanner/config.py`
 Bake their answers in as the defaults so the site is right on first open (the ⚙ Setup

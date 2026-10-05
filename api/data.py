@@ -86,6 +86,13 @@ def _criteria_from_params(params: dict) -> "object":
     if _one("creek") in ("0", "false", "no", "off"):
         overrides["keep_sw_of_line"] = None  # show all Dubai, don't hide the Deira/Sharjah side
 
+    em = _one("emirates")  # e.g. "dubai,sharjah,ajman"
+    if em:
+        from scanner.config import EMIRATE_IDS
+        chosen = tuple(e for e in (x.strip().lower() for x in em.split(",")) if e in EMIRATE_IDS)
+        if chosen:
+            overrides["emirates"] = chosen
+
     return replace(CRITERIA, **overrides) if overrides else CRITERIA
 
 

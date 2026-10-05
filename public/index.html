@@ -82,6 +82,8 @@
   #setup-card .row-check input { margin-top: 2px; }
   .setup-colors { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
   .setup-colors .col { display: flex; align-items: center; gap: 7px; font-size: 0.82rem; font-weight: 500; margin: 0; }
+  .setup-emirates { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; font-weight: 500; }
+  .setup-emirates .row-check { margin: 0; }
   .setup-colors input[type=color] { width: 34px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: none; }
   .setup-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
   .setup-actions button { padding: 9px 16px; border-radius: 9px; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
@@ -91,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r28 · 2026-10-05</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r29 · 2026-10-05</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -150,6 +152,14 @@
       </select>
     </label>
 
+    <label>Emirates to search
+      <span class="setup-emirates">
+        <label class="row-check"><input type="checkbox" id="s-em-dubai" value="dubai"> Dubai</label>
+        <label class="row-check"><input type="checkbox" id="s-em-sharjah" value="sharjah"> Sharjah</label>
+        <label class="row-check"><input type="checkbox" id="s-em-ajman" value="ajman"> Ajman</label>
+      </span>
+    </label>
+
     <label>Areas you like <span class="hint">(comma-separated — these show a green mark)</span>
       <textarea id="s-liked" rows="2" placeholder="jumeirah, al wasl, business bay, downtown, dubai hills, palm, city walk, meydan, motor city"></textarea>
     </label>
@@ -158,7 +168,7 @@
       <textarea id="s-avoid" rows="2" placeholder="bur dubai, al satwa, deira, international city, al quoz"></textarea>
     </label>
 
-    <label class="row-check"><input type="checkbox" id="s-creek"> Hide the Deira / Sharjah side of the city (only show central &amp; coastal Dubai)</label>
+    <label class="row-check"><input type="checkbox" id="s-creek"> Within Dubai, hide the old Deira / Creek (Sharjah-facing) side — only central &amp; coastal Dubai</label>
 
     <div class="setup-colors">
       <label class="col">Liked colour <input type="color" id="s-color-nice" value="#16a34a"></label>
@@ -190,6 +200,7 @@
   const PREFS_KEY = "flatscanner:prefs:v1";
   const DEFAULT_PREFS = {
     budget: 8000, beds: "2", baths: "any",
+    emirates: ["dubai"],
     liked: ["jumeirah", "al wasl", "umm suqeim", "al sufouh", "city walk", "palm",
             "bluewaters", "business bay", "downtown dubai", "dubai hills", "meydan",
             "mohammed bin rashid", "motor city"],
@@ -490,11 +501,13 @@
 
   // The user's Setup choices, as query params for /api/data (main tab only).
   function prefsQuery() {
+    const ems = (PREFS.emirates && PREFS.emirates.length) ? PREFS.emirates : ["dubai"];
     return [
       "max_price=" + encodeURIComponent(PREFS.budget || 8000),
       "bedrooms=" + encodeURIComponent(PREFS.beds || "2"),
       "bathrooms=" + encodeURIComponent(PREFS.baths || "any"),
       "creek=" + (PREFS.hideSharjah ? 1 : 0),
+      "emirates=" + encodeURIComponent(ems.join(",")),
     ].join("&");
   }
 
@@ -504,6 +517,10 @@
     el("s-budget").value = p.budget || "";
     el("s-beds").value = p.beds || "2";
     el("s-baths").value = p.baths || "any";
+    const ems = p.emirates || ["dubai"];
+    el("s-em-dubai").checked = ems.includes("dubai");
+    el("s-em-sharjah").checked = ems.includes("sharjah");
+    el("s-em-ajman").checked = ems.includes("ajman");
     el("s-liked").value = (p.liked || []).join(", ");
     el("s-avoid").value = (p.avoid || []).join(", ");
     el("s-creek").checked = !!p.hideSharjah;
@@ -515,10 +532,12 @@
   function closeSetup() { el("setup-overlay").hidden = true; }
   function parseAreas(s) { return (s || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean); }
   function saveSetup() {
+    const ems = ["dubai", "sharjah", "ajman"].filter(e => el("s-em-" + e).checked);
     savePrefs({
       budget: parseInt(el("s-budget").value, 10) || 8000,
       beds: el("s-beds").value,
       baths: el("s-baths").value,
+      emirates: ems.length ? ems : ["dubai"],
       liked: parseAreas(el("s-liked").value),
       avoid: parseAreas(el("s-avoid").value),
       hideSharjah: el("s-creek").checked,

@@ -34,8 +34,9 @@ hand over the URL). Rules that matter:
   have. For any step only a human can do (creating an account, clicking "Authorize",
   approving a permission, pasting a key into Vercel), give **exact, click-by-click
   instructions** — name the button and page — and wait for them to confirm before moving on.
-- **Interview them first** (budget, bedrooms, bathrooms, areas they like → green, areas to
-  avoid → red, colours, and whether to hide the Deira/Sharjah side). Ask a couple at a time.
+- **Interview them first** (which emirates — Dubai / Sharjah / Ajman, budget, bedrooms,
+  bathrooms, areas they like → green, areas to avoid → red, colours, and whether to hide
+  the old Deira/Creek side of Dubai). Ask a couple at a time.
 - Keep area preferences about the **place** — budget, how new/well-kept it is, amenities,
   how central it is, commute — **not** the ethnicity or nationality of residents, and don't
   let the config encode that.
@@ -45,8 +46,9 @@ hand over the URL). Rules that matter:
   live from the in-app **⚙ Setup** screen afterwards.
 - Each copy is independent: their GitHub, their Vercel, their **own** `APIFY_API_TOKEN`
   (never reuse anyone else's). Nothing secret is in this repo.
-- This app is tuned for **Dubai**. If they want a **different city**, tell them that's a
-  bigger job (the area list and map lines in `config.py` must be redone) and offer to do it.
+- This app covers **Dubai, Sharjah and Ajman** (picked in ⚙ Setup or `CRITERIA.emirates`).
+  A city **outside the UAE** is a bigger job (new Property Finder location ids and map
+  lines) — flag it and offer to do it, rather than getting it subtly wrong.
 
 End by giving them their live URL and pointing out the **⚙ Setup**, **↻ Scan now**, and
 Facebook buttons. Confirm the site loads before you call it done.
