@@ -7,6 +7,7 @@ from .config import (
     COASTAL_JUMEIRAH_IDS,
     COASTAL_JUMEIRAH_LOOKALIKES,
     COASTAL_JUMEIRAH_NAMES,
+    KEY_PERKS,
     Criteria,
 )
 from .models import Listing
@@ -119,6 +120,12 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
         if not _point_in_poly(listing.latitude, listing.longitude, CENTRAL_DUBAI):
             return False
 
+    # "Good deals" tab: must have at least one value-perk (chiller-free / gas-free / maid's
+    # room / study).
+    if getattr(criteria, "require_perks", False):
+        if not any(p in KEY_PERKS for p in (getattr(listing, "perks", ()) or ())):
+            return False
+
     # Positive region gate (e.g. the Jumeirah tab).
     if criteria.bbox is not None:
         lat, lon = listing.latitude, listing.longitude
@@ -182,9 +189,16 @@ def is_coastal_jumeirah(listing: Listing) -> bool:
 def filter_and_rank(listings: list[Listing], criteria: Criteria) -> list[Listing]:
     matches = [l for l in listings if is_match(l, criteria)]
     jumeirah_first = getattr(criteria, "jumeirah_first", False)
+    rank_by_perks = getattr(criteria, "rank_by_perks", False)
+
+    def perk_count(l: Listing) -> int:
+        return sum(1 for p in (getattr(l, "perks", ()) or ()) if p in KEY_PERKS)
 
     def sort_key(l: Listing):
         price = l.price_monthly_aed if l.price_monthly_aed is not None else float("inf")
+        if rank_by_perks:
+            # Good-deals tab: most value-perks first, then cheapest.
+            return (-perk_count(l), price)
         if jumeirah_first:
             # Coastal Jumeirah (user's definition) at the very top, each group cheapest-first.
             return (not is_coastal_jumeirah(l), price)

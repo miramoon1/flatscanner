@@ -27,6 +27,9 @@ class Listing:
     # Property Finder emirate id (path[0]): 1 = Dubai, 4 = Sharjah, 5 = Ajman. Lets the
     # Dubai-only Creek cutoff skip listings in other emirates.
     emirate_id: Optional[int] = None
+    # Desirable value-perks detected from the listing (chiller_free, gas_free, maid_room,
+    # furnished, great_value, price_drop, upgraded). Drives the "Good deals" tab + badges.
+    perks: tuple = ()
     scraped_at: str = ""
 
     def __post_init__(self) -> None:

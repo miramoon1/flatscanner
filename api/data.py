@@ -99,6 +99,10 @@ def _criteria_from_params(params: dict) -> "object":
         if chosen:
             overrides["emirates"] = chosen
 
+    if _one("perks") in ("1", "true", "yes", "on"):   # the "Good deals" tab
+        overrides["require_perks"] = True
+        overrides["rank_by_perks"] = True
+
     return replace(CRITERIA, **overrides) if overrides else CRITERIA
 
 

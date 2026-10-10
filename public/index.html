@@ -93,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r32 · 2026-10-10</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r33 · 2026-10-10</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -103,6 +103,7 @@
   <div class="profile-tabs" role="tablist">
     <button id="tab-main" type="button" class="ptab" aria-pressed="true">🏠 Flatshare · 2 bed</button>
     <button id="tab-jumeirah" type="button" class="ptab" aria-pressed="false">🌊 Jumeirah · everything</button>
+    <button id="tab-deals" type="button" class="ptab" aria-pressed="false">💎 Good deals</button>
   </div>
 
   <div class="view-toggle" role="tablist">
@@ -243,6 +244,13 @@
     return l.area_tier || "mid";                                          // else server rating
   }
   const tierOf = (l) => TIER[tierKey(l)] || TIER.mid;
+  // Value-perk badges (from the listing). chiller/gas/maid/study are the ones that make a
+  // "good deal"; the rest are nice-to-haves shown alongside.
+  const PERK_LABELS = {
+    chiller_free: "❄️ Chiller-free", gas_free: "🔥 Gas-free", maid_room: "🧹 Maid's room",
+    study_room: "📚 Study", furnished: "🛋️ Furnished", great_value: "💰 Great value",
+    price_drop: "📉 Price drop", upgraded: "✨ Upgraded",
+  };
   const NEUTRAL_FILL = "#9ca3af";
   const CHEAP_RING = "#f59e0b";  // under-6k gets a ring highlight (user-recolourable)
   // Map marker FILL = area quality so the map reads red/green at a glance; neutral = grey.
@@ -258,6 +266,7 @@
   const PROFILES = {
     main: { url: "/api/data", data: null },
     jumeirah: { url: "/api/jumeirah", data: null },
+    deals: { url: "/api/data", data: null },
   };
   let currentProfile = "main";
 
@@ -295,6 +304,8 @@
     const cardStyle = tier.ring
       ? ` style="border-left:6px solid ${tier.ring};background:${tier.bg}"`
       : "";
+    const perkBadges = (l.perks || []).map(p =>
+      `<span class="badge" style="background:#eef2ff;color:#3730a3">${PERK_LABELS[p] || p}</span>`).join("");
     return `
       <a class="card" href="${esc(l.url)}" target="_blank" rel="noopener"${cardStyle}>
         ${l.image_url ? `<img src="${esc(l.image_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
@@ -306,6 +317,7 @@
           <div class="area">${(l.bedrooms != null || l.bathrooms != null)
             ? `${l.bedrooms != null ? l.bedrooms + " bed" : "? bed"} · ${l.bathrooms != null ? l.bathrooms + " bath" : "? bath"}`
             : "beds/baths not listed"}</div>
+          ${perkBadges ? `<div class="badges" style="margin-top:6px">${perkBadges}</div>` : ""}
           <div class="sublet">Sublet a room (winter): ${roomEur} <span class="fx">${roomAed}</span> &rarr; <b>you'd pay ${netEur}</b> <span class="fx">${netAed}</span></div>
           <div class="row">
             <div class="badges">${l.jumeirah ? '<span class="badge" style="background:#e11d48;color:#fff">🌊 Jumeirah</span>' : ""}${tierChip}</div>
@@ -488,6 +500,9 @@
     el("meta").textContent = `Last updated ${when} · ${LISTINGS.length} matching listings`;
     if (currentProfile === "jumeirah") {
       el("criteria").innerHTML = `Coastal Jumeirah communities &mdash; Jumeirah 1/2/3, Umm Suqeim, Al Wasl, Al Sufouh, City Walk, Palm, Bluewaters &middot; every price, <b>cheapest first</b> &middot; studios &amp; 1&ndash;3 bed flats &middot; <b>rooms via the "Find rooms in Jumeirah" button</b> &middot; <b>not</b> Al Barsha / JBR / Marina / JVC / Downtown`;
+    } else if (currentProfile === "deals" && data.criteria) {
+      const c = data.criteria;
+      el("criteria").innerHTML = `<b>Only flats with real perks</b> &mdash; ❄️ chiller-free, 🔥 gas-free, 🧹 maid's room or 📚 study &middot; best-equipped first &middot; any size &middot; &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; same areas as your Flatshare tab &middot; change with ⚙ Setup`;
     } else if (data.criteria) {
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
@@ -506,16 +521,19 @@
   }
 
   // The user's Setup choices, as query params for /api/data (main tab only).
-  function prefsQuery() {
+  function prefsQuery(over) {
+    over = over || {};
     const ems = (PREFS.emirates && PREFS.emirates.length) ? PREFS.emirates : ["dubai"];
-    return [
-      "max_price=" + encodeURIComponent(PREFS.budget || 8000),
-      "bedrooms=" + encodeURIComponent(PREFS.beds || "2"),
+    const parts = [
+      "max_price=" + encodeURIComponent(over.budget || PREFS.budget || 8000),
+      "bedrooms=" + encodeURIComponent(over.beds || PREFS.beds || "2"),
       "bathrooms=" + encodeURIComponent(PREFS.baths || "any"),
       "creek=" + (PREFS.hideSharjah ? 1 : 0),
       "farout=" + (PREFS.hideFarOut ? 1 : 0),
       "emirates=" + encodeURIComponent(ems.join(",")),
-    ].join("&");
+    ];
+    if (over.perks) parts.push("perks=1");
+    return parts.join("&");
   }
 
   // ---- Setup wizard open / save / cancel ----
@@ -579,6 +597,7 @@
     let url = PROFILES[profile].url;
     const add = (q) => { url += (url.includes("?") ? "&" : "?") + q; };
     if (profile === "main") add(prefsQuery());   // the user's budget / beds / baths / cutoff
+    else if (profile === "deals") add(prefsQuery({ beds: "any", perks: true }));  // any size, perk-filtered
     if (fresh) add("fresh=" + Date.now());
     if (apify) add("apify=1");
     return fetch(url)
@@ -608,7 +627,7 @@
   // flats; on the Jumeirah tab it looks for ROOMS (which Property Finder doesn't list).
   function syncButtons() {
     const fb = el("btn-fb");
-    fb.hidden = false;
+    fb.hidden = currentProfile === "deals";   // deals is Property-Finder-only (perks come from PF)
     fb.textContent = currentProfile === "jumeirah"
       ? "＋ Find rooms in Jumeirah (Facebook · Apify credit)"
       : "＋ Include Facebook & Dubizzle (Apify credit)";
@@ -619,6 +638,7 @@
     currentProfile = p;
     el("tab-main").setAttribute("aria-pressed", String(p === "main"));
     el("tab-jumeirah").setAttribute("aria-pressed", String(p === "jumeirah"));
+    el("tab-deals").setAttribute("aria-pressed", String(p === "deals"));
     syncButtons();
     // Switching tabs NEVER scans. Show the last results for this tab (from this session or
     // the browser cache of a previous visit); if there are none yet, show a prompt to press
@@ -631,7 +651,7 @@
   function showScanPrompt(p) {
     LISTINGS = [];
     activeSources = new Set();
-    el("meta").textContent = (p === "jumeirah" ? "Jumeirah" : "Flatshare") + " — nothing loaded yet";
+    el("meta").textContent = (p === "jumeirah" ? "Jumeirah" : p === "deals" ? "Good deals" : "Flatshare") + " — nothing loaded yet";
     el("criteria").innerHTML = "";
     el("status").innerHTML = "";
     el("source-filter").innerHTML = "";
@@ -645,6 +665,7 @@
   el("btn-fb").addEventListener("click", () => load(true, true));
   el("tab-main").addEventListener("click", () => switchProfile("main"));
   el("tab-jumeirah").addEventListener("click", () => switchProfile("jumeirah"));
+  el("tab-deals").addEventListener("click", () => switchProfile("deals"));
   el("btn-setup").addEventListener("click", openSetup);
   el("s-cancel").addEventListener("click", closeSetup);
   el("s-save").addEventListener("click", saveSetup);

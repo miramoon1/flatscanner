@@ -38,6 +38,11 @@ CREEK_LINE = (25.28, 55.315, 25.00, 55.42)
 # listing's location path). Verified live Oct 2025. Lets the scan cover more than Dubai.
 EMIRATE_IDS = {"dubai": 1, "sharjah": 4, "ajman": 5}
 
+# The value-perks that qualify a flat for the "Good deals" tab — the money-savers / nice
+# extras the user cares about. (Other detected perks like furnished / upgraded / price_drop
+# are shown as badges but don't, on their own, make it a "deal".)
+KEY_PERKS = ("chiller_free", "gas_free", "maid_room", "study_room")
+
 # "Central Dubai" polygon (lat, lon vertices). When drop_far_out is on, Dubai listings
 # OUTSIDE this shape are dropped — the far-out areas: the Dubailand belt (DLRC, Liwan,
 # Majan, City of Arabia, Town Square, Rukan, Damac Hills, Villanova), the far-east inland
@@ -158,6 +163,10 @@ class Criteria:
     # Drop Dubai listings that fall outside the CENTRAL_DUBAI polygon (far-out areas:
     # Dubailand, far-east inland, far-south, and the far-west toward Palm Jebel Ali).
     drop_far_out: bool = False
+    # "Good deals" tab: keep only listings with a KEY_PERK (chiller-free / gas-free / maid's
+    # room / study), and rank the best-equipped first.
+    require_perks: bool = False
+    rank_by_perks: bool = False
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —

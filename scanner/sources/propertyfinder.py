@@ -234,6 +234,8 @@ def _to_listing(prop: dict) -> Listing | None:
         except (TypeError, ValueError):
             community_id = None
 
+    perks = _detect_perks(prop)
+
     return Listing(
         source="propertyfinder",
         source_id=str(prop.get("id")),
@@ -249,7 +251,36 @@ def _to_listing(prop: dict) -> Listing | None:
         longitude=coordinates.get("lon"),
         community_id=community_id,
         emirate_id=emirate_id,
+        perks=perks,
     )
+
+
+def _detect_perks(prop: dict) -> tuple:
+    """Value-perks from a PF listing: the money-savers & nice extras shown on the Good deals
+    tab. Read from the title + description + amenity_names, plus PF's own flags."""
+    text = " ".join([
+        prop.get("title") or "",
+        prop.get("description") or "",
+        " ".join(prop.get("amenity_names") or []),
+    ]).lower()
+    perks = []
+    if re.search(r"chiller\s*free|free\s*chiller|chiller\s*(is\s*)?(free|included|not)|no\s*chiller|free\s*cooling|free\s*ac", text):
+        perks.append("chiller_free")
+    if re.search(r"gas\s*free|free\s*gas|gas\s*included|no\s*gas", text):
+        perks.append("gas_free")
+    if re.search(r"maid'?s?\s*room|maid\s*room|\bmaids?\b", text):
+        perks.append("maid_room")
+    if "study" in text:
+        perks.append("study_room")
+    if (prop.get("furnished") or "").upper() == "YES":
+        perks.append("furnished")
+    if prop.get("is_great_value"):
+        perks.append("great_value")
+    if prop.get("is_price_drop"):
+        perks.append("price_drop")
+    if prop.get("is_upgraded"):
+        perks.append("upgraded")
+    return tuple(perks)
 
 
 def _to_int(value) -> int | None:
