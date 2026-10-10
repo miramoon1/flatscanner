@@ -86,6 +86,12 @@ def _criteria_from_params(params: dict) -> "object":
     if _one("creek") in ("0", "false", "no", "off"):
         overrides["keep_sw_of_line"] = None  # show all Dubai, don't hide the Deira/Sharjah side
 
+    farout = _one("farout")  # "1" = drop far-out Dubai areas, "0" = keep them
+    if farout in ("1", "true", "yes", "on"):
+        overrides["drop_far_out"] = True
+    elif farout in ("0", "false", "no", "off"):
+        overrides["drop_far_out"] = False
+
     em = _one("emirates")  # e.g. "dubai,sharjah,ajman"
     if em:
         from scanner.config import EMIRATE_IDS

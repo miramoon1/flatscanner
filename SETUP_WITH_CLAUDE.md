@@ -21,7 +21,8 @@ Ask these one or two at a time, in plain language, and wait for answers:
 5. **Areas they like** — neighbourhoods to highlight green.
 6. **Areas to avoid** — neighbourhoods to flag red.
 7. **Within Dubai, hide the old Deira/Creek (Sharjah-facing) side?** (only affects Dubai) — yes/no.
-8. **Marker colours** — only if they care; otherwise keep the defaults (green / red / gold).
+8. **Hide far-out Dubai areas?** (Dubailand & far suburbs, and the far-west toward Palm Jebel Ali — keeps JVC and inward) — yes/no.
+9. **Marker colours** — only if they care; otherwise keep the defaults (green / red / gold).
 
 Keep area preferences about the *place* — budget, how new/well-kept it is, amenities,
 commute, how central it is. Do **not** rate areas by the ethnicity or nationality of who

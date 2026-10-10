@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from .config import (
+    CENTRAL_DUBAI,
     COASTAL_JUMEIRAH_IDS,
     COASTAL_JUMEIRAH_LOOKALIKES,
     COASTAL_JUMEIRAH_NAMES,
@@ -29,6 +30,20 @@ def _is_sw_of_line(lat: float, lon: float, line: tuple[float, float, float, floa
     a_lat, a_lon, b_lat, b_lon = line
     cross = (b_lon - a_lon) * (lat - a_lat) - (b_lat - a_lat) * (lon - a_lon)
     return cross < 0
+
+
+def _point_in_poly(lat: float, lon: float, poly: tuple) -> bool:
+    """Ray-casting point-in-polygon. poly is a sequence of (lat, lon) vertices."""
+    n = len(poly)
+    inside = False
+    j = n - 1
+    for i in range(n):
+        yi, xi = poly[i]
+        yj, xj = poly[j]
+        if ((yi > lat) != (yj > lat)) and (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi):
+            inside = not inside
+        j = i
+    return inside
 
 
 def _is_too_old(listing: Listing) -> bool:
@@ -95,6 +110,13 @@ def is_match(listing: Listing, criteria: Criteria) -> bool:
     if (line is not None and getattr(listing, "emirate_id", None) in (None, 1)
             and listing.latitude is not None and listing.longitude is not None):
         if not _is_sw_of_line(listing.latitude, listing.longitude, line):
+            return False
+
+    # Far-out drop (Dubai only): anything outside the central-Dubai polygon — the Dubailand
+    # belt, far-east inland, far-south, and the far-west strip toward Palm Jebel Ali.
+    if (getattr(criteria, "drop_far_out", False) and getattr(listing, "emirate_id", None) in (None, 1)
+            and listing.latitude is not None and listing.longitude is not None):
+        if not _point_in_poly(listing.latitude, listing.longitude, CENTRAL_DUBAI):
             return False
 
     # Positive region gate (e.g. the Jumeirah tab).

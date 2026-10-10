@@ -93,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r29 · 2026-10-05</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r30 · 2026-10-10</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -170,6 +170,8 @@
 
     <label class="row-check"><input type="checkbox" id="s-creek"> Within Dubai, hide the old Deira / Creek (Sharjah-facing) side — only central &amp; coastal Dubai</label>
 
+    <label class="row-check"><input type="checkbox" id="s-farout"> Hide far-out Dubai areas — Dubailand &amp; far suburbs, and the far-west toward Palm Jebel Ali (keeps JVC &amp; inward)</label>
+
     <div class="setup-colors">
       <label class="col">Liked colour <input type="color" id="s-color-nice" value="#16a34a"></label>
       <label class="col">Avoid colour <input type="color" id="s-color-avoid" value="#dc2626"></label>
@@ -197,9 +199,9 @@
   const isCheap = (l) => l.price_monthly_aed != null && l.price_monthly_aed < CHEAP_MAX;
 
   // ---- User preferences (the Setup wizard), saved per-browser in localStorage ----
-  const PREFS_KEY = "flatscanner:prefs:v1";
+  const PREFS_KEY = "flatscanner:prefs:v2";
   const DEFAULT_PREFS = {
-    budget: 8000, beds: "2", baths: "any",
+    budget: 6500, beds: "2", baths: "any",
     emirates: ["dubai"],
     liked: ["jumeirah", "al wasl", "umm suqeim", "al sufouh", "city walk", "palm",
             "bluewaters", "business bay", "downtown dubai", "dubai hills", "meydan",
@@ -207,6 +209,7 @@
     avoid: ["bur dubai", "al satwa", "deira", "international city", "al quoz",
             "al nahda", "al qusais", "al muhaisnah", "al warqa"],
     hideSharjah: true,
+    hideFarOut: true,
     colors: { nice: "#16a34a", avoid: "#dc2626", cheap: "#f59e0b" },
   };
   function hasSetup() { try { return !!localStorage.getItem(PREFS_KEY); } catch (_) { return false; } }
@@ -487,7 +490,8 @@
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
       const creekTxt = PREFS.hideSharjah ? " &middot; central &amp; coastal only (Deira/Sharjah side hidden)" : "";
-      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt}${creekTxt} &middot; <b>cheapest first</b> &middot; your liked areas 🟢 / avoided areas 🔴 &middot; change with ⚙ Setup`;
+      const farTxt = PREFS.hideFarOut ? " &middot; far-out areas hidden (Dubailand / far suburbs)" : "";
+      el("criteria").innerHTML = `Budget &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; ${c.bedrooms} bed${bathTxt}${creekTxt}${farTxt} &middot; <b>cheapest first</b> &middot; your liked areas 🟢 / avoided areas 🔴 &middot; change with ⚙ Setup`;
     }
     renderStatus(data.sources);
     if (data.error) el("meta").textContent += ` · (data error: ${data.error})`;
@@ -507,6 +511,7 @@
       "bedrooms=" + encodeURIComponent(PREFS.beds || "2"),
       "bathrooms=" + encodeURIComponent(PREFS.baths || "any"),
       "creek=" + (PREFS.hideSharjah ? 1 : 0),
+      "farout=" + (PREFS.hideFarOut ? 1 : 0),
       "emirates=" + encodeURIComponent(ems.join(",")),
     ].join("&");
   }
@@ -524,6 +529,7 @@
     el("s-liked").value = (p.liked || []).join(", ");
     el("s-avoid").value = (p.avoid || []).join(", ");
     el("s-creek").checked = !!p.hideSharjah;
+    el("s-farout").checked = !!p.hideFarOut;
     el("s-color-nice").value = p.colors.nice;
     el("s-color-avoid").value = p.colors.avoid;
     el("s-color-cheap").value = p.colors.cheap;
@@ -541,6 +547,7 @@
       liked: parseAreas(el("s-liked").value),
       avoid: parseAreas(el("s-avoid").value),
       hideSharjah: el("s-creek").checked,
+      hideFarOut: el("s-farout").checked,
       colors: { nice: el("s-color-nice").value, avoid: el("s-color-avoid").value, cheap: el("s-color-cheap").value },
     });
     closeSetup();

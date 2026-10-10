@@ -38,6 +38,21 @@ CREEK_LINE = (25.28, 55.315, 25.00, 55.42)
 # listing's location path). Verified live Oct 2025. Lets the scan cover more than Dubai.
 EMIRATE_IDS = {"dubai": 1, "sharjah": 4, "ajman": 5}
 
+# "Central Dubai" polygon (lat, lon vertices). When drop_far_out is on, Dubai listings
+# OUTSIDE this shape are dropped — the far-out areas: the Dubailand belt (DLRC, Liwan,
+# Majan, City of Arabia, Town Square, Rukan, Damac Hills, Villanova), the far-east inland
+# (Silicon Oasis, International City, Al Warqa, Nadd Al Hammar), the far-south (Dubai South,
+# Expo) and the far-west strip toward Palm Jebel Ali (Al Furjan, Discovery Gardens, The
+# Gardens, Wasl Gate, Jebel Ali). It keeps the coast, the central city, and the whole JVC
+# cluster (JVC/JVT, Sports City, Arjan, Motor City, Studio City, Production City). Only
+# applies to Dubai listings (emirate_id 1). Calibrated from real listing coordinates.
+CENTRAL_DUBAI = (
+    (25.30, 55.255), (25.30, 55.385), (25.20, 55.385), (25.16, 55.315), (25.095, 55.295),
+    (25.055, 55.265), (25.02, 55.232), (25.00, 55.205), (25.02, 55.183), (25.05, 55.168),
+    (25.075, 55.150), (25.065, 55.125), (25.10, 55.120), (25.16, 55.185), (25.21, 55.235),
+    (25.27, 55.260),
+)
+
 
 # Area quality tiers. The point is NOT how far out an area is (a newer far community like
 # JVC, Sports City, Town Square or Dubai South is perfectly fine) — it's how the place
@@ -140,6 +155,9 @@ class Criteria:
     # dropped if it falls on the northeast/east side of this line (see CREEK_LINE). Listings
     # without coordinates are kept (can't place them).
     keep_sw_of_line: tuple[float, float, float, float] | None = None
+    # Drop Dubai listings that fall outside the CENTRAL_DUBAI polygon (far-out areas:
+    # Dubailand, far-east inland, far-south, and the far-west toward Palm Jebel Ali).
+    drop_far_out: bool = False
     # Keep a listing whose bedroom count couldn't be determined (some freeform posts).
     allow_unknown_bedrooms: bool = False
     # Positive area allow-list (matched against area AND title). Empty = no restriction —
@@ -250,11 +268,11 @@ class Criteria:
         return n == self.bedrooms
 
 
-# Main Flatshare tab: all-Dubai 2-bed, budget raised to 8k/month. Uses PF's monthly
-# price-range search so the 8k ceiling is real (the old slug route ignored price and
-# capped the fetch at ~6k). pa+pd, 32 pages each end → the full 3–8k range, ~64 requests.
+# Main Flatshare tab: Dubai 2-bed, cheapest-first. Budget capped at 6.5k and far-out areas
+# (Dubailand / far suburbs / Palm-Jebel-Ali side) dropped — see CENTRAL_DUBAI. These are
+# also exposed in the ⚙ Setup wizard so each user can change them without code.
 CRITERIA = Criteria(
-    max_price_monthly_aed=8000,
+    max_price_monthly_aed=6500,
     # Don't require an exact bathroom count. Most Dubai 2-beds are quoted with 3 bathrooms,
     # so demanding exactly 2 dropped more than half of them (incl. real 2-beds in Jumeirah)
     # — which then only showed on the Jumeirah tab. The flat count is what matters here, not
@@ -266,6 +284,7 @@ CRITERIA = Criteria(
     preferred_areas=(),
     jumeirah_first=False,
     pf_include_jumeirah=True,   # still pull the in-budget Jumeirah flats; they sort by price
+    drop_far_out=True,          # drop Dubailand / far suburbs / Palm-Jebel-Ali side
     # Hide everything on the Sharjah/Deira side of the Dubai Creek (see CREEK_LINE).
     keep_sw_of_line=CREEK_LINE,
     # Each price band is fetched from BOTH ends (pa cheapest + pd dearest) so the band's
