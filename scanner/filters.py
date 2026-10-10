@@ -8,6 +8,7 @@ from .config import (
     COASTAL_JUMEIRAH_LOOKALIKES,
     COASTAL_JUMEIRAH_NAMES,
     KEY_PERKS,
+    PERK_WEIGHTS,
     Criteria,
 )
 from .models import Listing
@@ -194,13 +195,17 @@ def filter_and_rank(listings: list[Listing], criteria: Criteria) -> list[Listing
     def perk_count(l: Listing) -> int:
         return sum(1 for p in (getattr(l, "perks", ()) or ()) if p in KEY_PERKS)
 
+    def perk_score(l: Listing) -> int:
+        # Weighted: chiller-free & gas-free count most (bill savers), then maid's room, study.
+        return sum(PERK_WEIGHTS.get(p, 0) for p in (getattr(l, "perks", ()) or ()))
+
     def sort_key(l: Listing):
         price = l.price_monthly_aed if l.price_monthly_aed is not None else float("inf")
         if rank_by_perks:
-            # Good-deals tab "best deal" order: flats at 6k or less first, then the most
-            # value-perks (chiller + gas-free + maid's room …), then cheapest. So a loaded,
-            # cheap flat (e.g. chiller+gas+maid, ≤6k) sits right at the top.
-            return (price > 6000, -perk_count(l), price)
+            # Good-deals tab "best deal" order: highest perk VALUE first — chiller-free and
+            # gas-free weigh most (real bill savings), then a separate maid's room, then a
+            # study — and cheapest within the same value. So chiller+gas (+maid), ≤6k, tops it.
+            return (-perk_score(l), price)
         if jumeirah_first:
             # Coastal Jumeirah (user's definition) at the very top, each group cheapest-first.
             return (not is_coastal_jumeirah(l), price)

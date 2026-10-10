@@ -42,6 +42,9 @@ EMIRATE_IDS = {"dubai": 1, "sharjah": 4, "ajman": 5}
 # extras the user cares about. (Other detected perks like furnished / upgraded / price_drop
 # are shown as badges but don't, on their own, make it a "deal".)
 KEY_PERKS = ("chiller_free", "gas_free", "maid_room", "study_room")
+# How much each perk counts toward the "best deal" ranking. Chiller-free and gas-free save
+# real money on bills, so they weigh most; a separate maid's room next; a study least.
+PERK_WEIGHTS = {"chiller_free": 4, "gas_free": 4, "maid_room": 2, "study_room": 1}
 
 # "Central Dubai" polygon (lat, lon vertices). When drop_far_out is on, Dubai listings
 # OUTSIDE this shape are dropped — the far-out areas: the Dubailand belt (DLRC, Liwan,

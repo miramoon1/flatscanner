@@ -268,9 +268,13 @@ def _detect_perks(prop: dict) -> tuple:
         perks.append("chiller_free")
     if re.search(r"gas\s*free|free\s*gas|gas\s*included|no\s*gas", text):
         perks.append("gas_free")
-    if re.search(r"maid'?s?\s*room|maid\s*room|\bmaids?\b", text):
+    # A genuine SEPARATE maid's room (an extra room on top of the bedrooms) — written as
+    # "maid room" / "maid's room" / "+ maid". Deliberately NOT a bare "maid", which also
+    # matches "Maid Service" (a cleaning service, not a room).
+    if re.search(r"maid'?s?\s*(room|bedroom|en-?suite)|\+\s*maids?\b|\bmaids?\s*room", text):
         perks.append("maid_room")
-    if "study" in text:
+    # A separate study/office room (not the bare word "study").
+    if re.search(r"study\s*room|\+\s*study\b|\bstudy\s*&|&\s*study\b|with\s*study", text):
         perks.append("study_room")
     if (prop.get("furnished") or "").upper() == "YES":
         perks.append("furnished")
