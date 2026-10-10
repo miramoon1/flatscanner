@@ -197,8 +197,10 @@ def filter_and_rank(listings: list[Listing], criteria: Criteria) -> list[Listing
     def sort_key(l: Listing):
         price = l.price_monthly_aed if l.price_monthly_aed is not None else float("inf")
         if rank_by_perks:
-            # Good-deals tab: most value-perks first, then cheapest.
-            return (-perk_count(l), price)
+            # Good-deals tab "best deal" order: flats at 6k or less first, then the most
+            # value-perks (chiller + gas-free + maid's room …), then cheapest. So a loaded,
+            # cheap flat (e.g. chiller+gas+maid, ≤6k) sits right at the top.
+            return (price > 6000, -perk_count(l), price)
         if jumeirah_first:
             # Coastal Jumeirah (user's definition) at the very top, each group cheapest-first.
             return (not is_coastal_jumeirah(l), price)

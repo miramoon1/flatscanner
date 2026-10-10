@@ -93,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r34 · 2026-10-10</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r35 · 2026-10-10</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -502,7 +502,7 @@
       el("criteria").innerHTML = `Coastal Jumeirah communities &mdash; Jumeirah 1/2/3, Umm Suqeim, Al Wasl, Al Sufouh, City Walk, Palm, Bluewaters &middot; every price, <b>cheapest first</b> &middot; studios &amp; 1&ndash;3 bed flats &middot; <b>rooms via the "Find rooms in Jumeirah" button</b> &middot; <b>not</b> Al Barsha / JBR / Marina / JVC / Downtown`;
     } else if (currentProfile === "deals" && data.criteria) {
       const c = data.criteria;
-      el("criteria").innerHTML = `<b>Only flats with real perks</b> &mdash; ❄️ chiller-free, 🔥 gas-free, 🧹 maid's room or 📚 study &middot; best-equipped first &middot; 2+ bedrooms &middot; &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; same areas as your Flatshare tab &middot; change with ⚙ Setup`;
+      el("criteria").innerHTML = `<b>Only flats with real perks</b> &mdash; ❄️ chiller-free, 🔥 gas-free, 🧹 maid's room or 📚 study &middot; <b>best deals first</b> (≤6k &amp; most perks on top) &middot; 2+ bedrooms &middot; &le; ${c.max_price_monthly_aed.toLocaleString()} AED/month &middot; same areas as your Flatshare tab &middot; change with ⚙ Setup`;
     } else if (data.criteria) {
       const c = data.criteria;
       const bathTxt = c.bathrooms != null ? ` / ${c.bathrooms} bath` : " · any baths";
