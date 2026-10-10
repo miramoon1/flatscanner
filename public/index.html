@@ -93,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r31 · 2026-10-10</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r32 · 2026-10-10</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -361,15 +361,12 @@
     if (!map) {
       map = L.map("map").setView(DUBAI_CENTER, 11);
 
-      // Default basemap: CARTO "Voyager" raster tiles — light, fast, English labels, and
-      // very reliable (the Esri satellite tiles were heavy and sometimes failed to load,
-      // leaving the map grey). Satellite is still available in the layer switcher.
-      const carto = L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-        { subdomains: "abcd", maxZoom: 20, attribution: "&copy; OpenStreetMap, &copy; CARTO" });
+      // Default basemap: OpenStreetMap standard tiles — genuinely free, no API key, and
+      // reliable (CARTO's tiles now require a key, Esri satellite is heavy and sometimes
+      // fails — both left the map blank). Satellite is still in the layer switcher.
       const osm = L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        { maxZoom: 19, attribution: "&copy; OpenStreetMap" });
+        { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" });
       const esriAttr = "Tiles &copy; Esri";
       const imagery = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -382,9 +379,9 @@
         { maxZoom: 19 });
       const satellite = L.layerGroup([imagery, roads, labels]);  // realistic + English labels
 
-      carto.addTo(map);  // default: reliable street map
+      osm.addTo(map);  // default: reliable free street map
       L.control.layers(
-        { "Map": carto, "Street (OSM)": osm, "Satellite": satellite },
+        { "Map": osm, "Satellite": satellite },
         null, { collapsed: false }).addTo(map);
       markersLayer = L.layerGroup().addTo(map);
     }
