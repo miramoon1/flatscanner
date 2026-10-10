@@ -93,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r30 · 2026-10-10</span></h1>
+  <h1>Dubai Flat Scanner <span style="font-size:12px;font-weight:400;color:var(--muted);vertical-align:middle">build r31 · 2026-10-10</span></h1>
   <div class="meta" id="meta">Loading…</div>
   <div class="criteria" id="criteria"></div>
   <div class="status" id="status"></div>
@@ -361,26 +361,31 @@
     if (!map) {
       map = L.map("map").setView(DUBAI_CENTER, 11);
 
-      // Realistic satellite imagery with ENGLISH labels (Esri). Default OpenStreetMap
-      // tiles label everything in the local language (Arabic in Dubai) — Esri's
-      // reference layer is in English, so streets/areas read in English.
+      // Default basemap: CARTO "Voyager" raster tiles — light, fast, English labels, and
+      // very reliable (the Esri satellite tiles were heavy and sometimes failed to load,
+      // leaving the map grey). Satellite is still available in the layer switcher.
+      const carto = L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        { subdomains: "abcd", maxZoom: 20, attribution: "&copy; OpenStreetMap, &copy; CARTO" });
+      const osm = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        { maxZoom: 19, attribution: "&copy; OpenStreetMap" });
       const esriAttr = "Tiles &copy; Esri";
       const imagery = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         { attribution: esriAttr, maxZoom: 19 });
-      const labels = L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-        { maxZoom: 19 });
       const roads = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
         { maxZoom: 19 });
+      const labels = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19 });
       const satellite = L.layerGroup([imagery, roads, labels]);  // realistic + English labels
-      const streets = L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-        { attribution: esriAttr, maxZoom: 19 });  // plain street map, also English
 
-      satellite.addTo(map);                       // default view: realistic satellite
-      L.control.layers({ "Satellite": satellite, "Street map": streets }, null, { collapsed: false }).addTo(map);
+      carto.addTo(map);  // default: reliable street map
+      L.control.layers(
+        { "Map": carto, "Street (OSM)": osm, "Satellite": satellite },
+        null, { collapsed: false }).addTo(map);
       markersLayer = L.layerGroup().addTo(map);
     }
     markersLayer.clearLayers();
